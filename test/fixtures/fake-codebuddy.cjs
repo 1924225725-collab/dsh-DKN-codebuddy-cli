@@ -34,9 +34,13 @@ if (process.argv.includes('--version')) {
     record({ args: process.argv.slice(2), input })
     const envelope = JSON.parse(input.slice(input.indexOf('{"protocol"')))
     const toolCalls = input.includes('tool-round') && envelope.tools.length && !envelope.messages.some((message) => message.role === 'tool') ? [{ name: envelope.tools[0].name, arguments: { target: 'sandbox.txt' } }] : []
+    let response = JSON.stringify({ text: toolCalls.length ? '' : 'fixture response', toolCalls })
+    if (input.includes('response-case:fenced-tool')) response = `\`\`\`json\n${JSON.stringify({ toolCalls: [{ name: envelope.tools[0].name, arguments: JSON.stringify({ target: 'sandbox.txt' }) }] })}\n\`\`\``
+    if (input.includes('response-case:truncated')) response = '{"text":"PRIVATE_FAILED_REPLY'
+    if (input.includes('response-case:wrong-shape')) response = JSON.stringify({ text: { PRIVATE_FAILED_REPLY: true }, toolCalls: [] })
     console.log(JSON.stringify([
       { type: 'system', subtype: 'init' },
-      { type: 'result', subtype: 'success', result: JSON.stringify({ text: toolCalls.length ? '' : 'fixture response', toolCalls }), usage: { input_tokens: 11, output_tokens: 7, cache_read_input_tokens: 3, cache_creation_input_tokens: 4 } }
+      { type: 'result', subtype: 'success', result: response, usage: { input_tokens: 11, output_tokens: 7, cache_read_input_tokens: 3, cache_creation_input_tokens: 4 } }
     ]))
   })
 } else {

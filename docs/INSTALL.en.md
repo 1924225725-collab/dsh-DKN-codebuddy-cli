@@ -2,15 +2,15 @@
 
 [简体中文](安装教程.md) · **English** · [Home](../README.en.md)
 
-For version **0.2.3**.
+For version **0.2.4**.
 
 ## 1. Download and install
 
-[Download the latest `.tgz`](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/raw/refs/heads/main/releases/dsh-codebuddy-cli-cn-0.2.3.tgz) to your computer. Alternatively, open the file in the repository's `releases` directory and use GitHub's download button. This is a package directory, not a GitHub Release. The source ZIP is not an installable DSH plugin package.
+[Version package](../releases/dsh-codebuddy-cli-cn-0.2.4.tgz). Save it locally, or use the delivered local `dsh-codebuddy-cli-cn-0.2.4.tgz`. GitHub availability depends on the files actually published in the repository. The source ZIP is not an installable DSH plugin package.
 
 Open DSH's Plugins page and select the local `.tgz` through its package installation entry. If it asks for a path, use the real downloaded file path, not a web URL. Exact button names can vary by DSH version.
 
-Find **`dsh-codebuddy-cli-cn`**, open component **`llm-codebuddy-cli-cn`**, and check that the settings page reports running version **0.2.3**. Restart DSH if it still shows an older version.
+Find **`dsh-codebuddy-cli-cn`**, open component **`llm-codebuddy-cli-cn`**, and check that the settings page reports running version **0.2.4**. Restart DSH if it still shows an older version.
 
 ## 2. Set up the CLI and sign in
 
@@ -53,7 +53,7 @@ Rates come from the current catalog. Check remaining credits on the official Cod
 | `CLI_NOT_FOUND` | Run setup, or save the actual local CLI path in advanced settings after official installation. |
 | Version check passes but calls fail | Confirm official CLI sign-in, refresh the catalog and try a short prompt in a new conversation. |
 | 180-second timeout | Confirm running version 0.2.3, stop the task and test a short prompt. Inspect error code, elapsed time and output byte counts. Complex tasks may need 300000–600000 ms; a longer deadline cannot fix sign-in or network faults. |
-| Invalid response format | Confirm the latest version and record the model ID, error code and reproduction steps. No automatic repair call is sent. |
+| Invalid response format | Confirm running version 0.2.4 and inspect result diagnostics and recent failures. Empty output, unclosed JSON and invalid fields are distinguished. No missing content is invented and no automatic repair call is sent. |
 | Missing new models | Save settings before refreshing, and check CLI/configuration paths. Failed refreshes retain the previous catalog. |
 | Large input or odd speed | Separate last-call from cumulative usage, and bytes from tokens. History and tools add input. Real decoding speed is not exposed; saved old conversation statistics are not rewritten. |
 

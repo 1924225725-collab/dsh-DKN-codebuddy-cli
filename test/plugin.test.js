@@ -123,6 +123,32 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(result.setup.state, 'ready')
   assert.equal(result.setup.installed, false)
   assert.equal(result.setup.path, executable)
+
+  // Exercise recovery through the full process/adapter boundary, then verify
+  // invalid output never yields partial text/tools or triggers another call.
+  const recovered = []
+  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:fenced-tool' }], tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }] })) recovered.push(chunk)
+  assert.equal(recovered.at(-1).reason.kind, 'tool-calls')
+  assert.deepEqual(JSON.parse(recovered.find(x => x.type === 'block-end').block.arguments), { target: 'sandbox.txt' })
+  const beforeFailures = (await readFile(path.join(binDirectory, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.args).length
+  for (const variant of ['truncated', 'wrong-shape', 'truncated', 'wrong-shape', 'truncated', 'wrong-shape']) {
+    const delivered = []
+    await assert.rejects(async () => {
+      for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: `response-case:${variant}` }] })) delivered.push(chunk)
+    }, error => error.code === 'STRUCTURED_OUTPUT_INVALID' && error.message.includes(variant === 'truncated' ? 'possibly-truncated-json' : 'invalid-text-field'))
+    assert.deepEqual(delivered, [], 'invalid replies cannot deliver partial blocks')
+  }
+  const afterFailures = (await readFile(path.join(binDirectory, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.args).length
+  assert.equal(afterFailures - beforeFailures, 6, 'one CLI invocation per request, no paid repair or retry')
+  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'normal reply after failure' }] })) {}
+  const history = await (await fetch(`${origin}/plugins/dsh-codebuddy-cli-cn/status`)).json()
+  assert.equal(history.usage.lastCall.state, 'success')
+  assert.equal(history.usage.lastCall.responseDiagnostics.reason, 'valid')
+  assert.equal(history.usage.recentFailures.length, 5)
+  assert.equal(history.usage.recentFailures[0].responseDiagnostics.reason, 'invalid-text-field')
+  assert.equal(history.usage.recentFailures[1].responseDiagnostics.reason, 'possibly-truncated-json')
+  assert.equal(JSON.stringify(history).includes('PRIVATE_FAILED_REPLY'), false)
+
   const denied = await fetch(`${origin}/plugins/dsh-codebuddy-cli-cn/actions`, {
     method: 'POST', headers: { Origin: 'https://other.example', 'Content-Type': 'application/json', 'X-DSH-CodeBuddy-Action': '1' }, body: JSON.stringify({ action: 'setup' })
   })

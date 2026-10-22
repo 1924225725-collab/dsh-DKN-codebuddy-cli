@@ -4,9 +4,17 @@
 
 Use models available to your China-region account in **DeepSeek Harness (DSH)** through the official, signed-in CodeBuddy CLI. DSH manages conversations, model selection and tool execution; this plugin translates requests and results.
 
-**Current version: 0.2.3** · China-region CLI · Text input · Tools executed by DSH
+**Current version: 0.2.4** · China-region CLI · Text input · Tools executed by DSH
 
-[Download the plugin](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/raw/refs/heads/main/releases/dsh-codebuddy-cli-cn-0.2.3.tgz) · [Installation guide](docs/INSTALL.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
+[Latest package](releases/dsh-codebuddy-cli-cn-0.2.4.tgz) · [Installation guide](docs/INSTALL.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
+
+## 0.2.4 structured result compatibility
+
+Accepts complete JSON fences, one complete unambiguous JSON container with surrounding prose, double-encoded JSON, singleton arrays and single-key data/result wrappers. Unambiguous text-only/tool-only replies and complete string-encoded tool arguments can be normalized. Tool names must still match the current DSH declarations and arguments must decode to complete objects. DSH retains tool permissions and execution.
+
+Settings distinguish empty output, invalid syntax, possible truncation, incorrect fields and undeclared tools. Result type, size, normalization and up to five failure summaries remain in memory until restart. No reply content or arbitrary response keys are recorded.
+
+Incomplete or conflicting results and invalid tool arguments still fail. Missing content is never invented, and there are no automatic repair calls or replays of completed tools. This reduces recoverable format failures; it cannot guarantee valid output from every model or recover content lost to truncation.
 
 ## Why this exists
 
