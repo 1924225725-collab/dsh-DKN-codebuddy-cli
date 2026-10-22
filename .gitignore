@@ -1,0 +1,13 @@
+research/
+node_modules/
+.env
+.env.*
+*.log
+DSH_CODEBUDDY_PLUGIN_PLAN.md
+docs/CLI登录与真实请求验证补充-2026-10-21.md
+docs/CLI替代反代-第一轮验证报告-2026-10-21.md
+dsh-codebuddy-cli-cn-0.1.*.tgz
+docs/0.2.0-模型检测与自动配置验证.md
+docs/0.2.1-Token统计与输入开销验证.md
+*.tgz
+!releases/*.tgz

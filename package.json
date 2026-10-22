@@ -1,0 +1,73 @@
+{
+  "name": "dsh-codebuddy-cli-cn",
+  "displayName": "DSH CodeBuddy CLI（国内版）",
+  "description": "自动检测官方 CodeBuddy CLI 国内模型与积分倍率，支持一键配置 CLI，工具由 DSH 管理。",
+  "version": "0.2.3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1924225725-collab/dsh-codebuddy-cli-cn.git"
+  },
+  "homepage": "https://github.com/1924225725-collab/dsh-codebuddy-cli-cn#readme",
+  "bugs": {
+    "url": "https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/issues"
+  },
+  "scripts": {
+    "test": "node --test test/cli-response.test.js test/model-catalog.test.js test/cli-runtime.test.js test/local-http.test.js test/plugin.test.js test/client.test.js test/usage.test.js test/request.test.js"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "CHANGELOG.md",
+    "docs/安装教程.md",
+    "docs/INSTALL.en.md",
+    "docs/工作原理.md",
+    "docs/ARCHITECTURE.en.md",
+    "docs/验证与限制.md",
+    "docs/images"
+  ],
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "dependencies": {
+    "cross-spawn": "^7.0.6"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.5",
+    "@deepseek-ai/dsh-client-locale": "0.2.1-rc.2",
+    "@deepseek-ai/dsh-client-ui-plugin-manager": "0.2.1-rc.2",
+    "@deepseek-ai/dsh-client-ui-renderer": "0.2.1-rc.2",
+    "@deepseek-ai/dsh-client-ui-settings": "0.2.1-rc.2",
+    "@deepseek-ai/dsh-llm": "0.2.1-rc.2",
+    "@deepseek-ai/schemastery": "^3.18.5",
+    "react": "^18.2.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-plugin-manager",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-locale"
+      ],
+      "platform": "web"
+    }
+  },
+  "devDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-test-renderer": "^18.2.0"
+  }
+}
