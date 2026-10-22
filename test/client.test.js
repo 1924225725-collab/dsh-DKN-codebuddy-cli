@@ -22,7 +22,7 @@ test('settings UI displays live rates, refreshes new models, and saves a portabl
     }
   }
   const status = {
-    pluginVersion: '0.2.7', timeoutMs: 180000,
+    pluginVersion: '0.2.8', timeoutMs: 180000,
     logs: { entries: 12, failures: 1, samples: 0, captureArmed: false },
     activeCalls: 0, cliCheck: { state: 'available', version: '9.8.7' }, setup: { state: 'idle' },
     usage: { calls: 12, inputTokens: 170000, outputTokens: 100, uncachedInputTokens: 10000, cacheReadTokens: 150000, cacheWriteTokens: 10000,
@@ -82,7 +82,7 @@ test('settings UI displays live rates, refreshes new models, and saves a portabl
   assert.ok(text().includes('发送文本 3200 字节'))
   assert.ok(text().includes('CLI 程序可启动'))
   assert.ok(text().includes('不验证账号登录'))
-  assert.ok(text().includes('0.2.7'))
+  assert.ok(text().includes('0.2.8'))
   const button = (name) => tree.root.findAllByType('button').find((item) => item.children.join('') === name)
   await act(async () => { await button('刷新模型与倍率').props.onClick() })
   assert.ok(text().includes('brand-new-after-update'))

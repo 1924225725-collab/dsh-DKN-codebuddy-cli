@@ -2,15 +2,15 @@
 
 [简体中文](反馈与日志.md) · [Home](../README.en.md)
 
-Install 0.2.7, restart DSH and open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`. Scroll to **Diagnostic logs and feedback** and verify the running version at the top.
+Install 0.2.8, restart DSH and open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`. Scroll to **Diagnostic logs and feedback** and verify the running version at the top.
 
-0.2.7 appends `diagnostic-id` to new failure messages, matching each exported record `id`; DSH also retains the machine code. Settings show the same ID. Earlier uncorrelated failures cannot be retroactively repaired. See the [20-step test manual](TESTING.en.md) for instructions and a feedback form.
+0.2.8 appends `diagnostic-id` to new failure messages, matching each exported record `id`; DSH also retains the machine code. Settings show the same ID. Earlier uncorrelated failures cannot be retroactively repaired. See the [20-step test manual](TESTING.en.md) for instructions and a feedback form.
 
 0.2.6 recognizes empty output and fixed CLI error notices. For `CLI_AUTH_REQUIRED`, start the official CLI using the settings sign-in command and run `/login`. The plugin does not replace credentials. Numeric process diagnostics include stdout/stderr byte counts, elapsed time and exit status, without raw notices. Authentication failures usually have no model result to capture; basic logs are sufficient for that classification.
 
 ## Basic logs
 
-Basic logs record timestamps, plugin/CLI versions, models, reasoning effort, deadlines, timing, tokens, history/tool counts, request byte sizes, error codes and structural summaries. Exports include the OS, architecture and Node version. DSH version is not automatically detected; include it manually in reports.
+Basic logs record timestamps, plugin/CLI versions, models, reasoning effort, deadlines, timing, tokens, history/tool counts, request byte sizes, error codes and structural summaries. Version 0.2.8 also records `scanIncomplete`, `scanBroken`, `insideString` and `openContainerDepth` to distinguish incomplete/mismatched structures without saving reply text. Exports include the OS, architecture and Node version. DSH version is not automatically detected; include it manually in reports.
 
 Basic logs exclude request/reply bodies, tool arguments, credentials, CLI output bodies and configuration/executable paths. Record IDs are diagnostic IDs, not account/session IDs. Fragment summaries contain only fixed types, sizes and field-presence flags, without field values or arbitrary field names. Model choices may still reveal usage preferences; review before sharing.
 
@@ -40,6 +40,8 @@ Raw replies may repeat chats, code, file contents, tool arguments or other sensi
 **Clear logs** requires another confirmation. It clears local plugin records/samples and disarms capture, while preserving session counters, DSH conversations and CLI sign-in. Delete downloaded files and personal backups separately. If storage fails, clearing may not reach disk; check the warning.
 
 ## Report template
+
+The easiest report is the partially completed `feedback.md` from the test kit plus exported basic JSON; there is no need to paste the entire conversation. For a single failure, include its test ID, exact error, `diagnostic-id`, time, and whether DSH selected the test-kit folder as its active workspace. If attachments are inconvenient, paste those fields in chat. Mark ACL/`grantWrite` failures as environment-blocked and stop file tests; do not change permissions.
 
 ```text
 Running plugin version:

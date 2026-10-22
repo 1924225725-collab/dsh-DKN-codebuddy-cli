@@ -1,5 +1,15 @@
 # 更新记录 / Changelog
 
+## 0.2.8
+
+- 将 CLI 返回的无分隔符纯文本作为最终文字交给 DSH，不据此推断或执行工具调用。
+- 不丢弃未闭合 JSON 尾部；带结构但未闭合、损坏或多个协议结果仍拒绝，防止把半截回复当作完整答复。
+- 仅含普通文字、JSON 示例或方括号标记且没有协议结果时，作为无工具纯文字交付。
+- 普通日志新增 JSON 扫描状态、开放容器深度和字符串状态，不保存响应正文。
+- 更新中英测试手册与可移植素材包：明确把素材文件夹本身设为 DSH 工作区；ACL 错误标记阻塞并停止，不建议修改权限。
+- 使用 `feedback.md` 与普通诊断日志 JSON 作为常规反馈；详细原始回复仍需用户主动开启并检查。
+- The two source incidents had no raw samples; this release improves plain-text handling and diagnostics but cannot claim those exact historical replies are fixed.
+
 ## 0.2.7
 
 - 修复 DSH 将外部 Error 归为 UNKNOWN；保留机器错误码及诊断 ID，与持久化日志逐条关联。

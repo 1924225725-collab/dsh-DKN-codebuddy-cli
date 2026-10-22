@@ -4,9 +4,17 @@
 
 Use models available to your China-region account in **DeepSeek Harness (DSH)** through the official, signed-in CodeBuddy CLI. DSH manages conversations, model selection and tool execution; this plugin translates requests and results.
 
-**Current version: 0.2.7** · China-region CLI · Text input · Tools executed by DSH
+**Current version: 0.2.8** · China-region CLI · Text input · Tools executed by DSH
 
-[Latest package](releases/dsh-codebuddy-cli-cn-0.2.7.tgz) · [Installation guide](docs/INSTALL.en.md) · [20-step test manual](docs/TESTING.en.md) · [Test kit ZIP](releases/dsh-codebuddy-cli-cn-0.2.7-test-kit.zip) · [Logs and feedback](docs/TROUBLESHOOTING.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
+[Latest package](releases/dsh-codebuddy-cli-cn-0.2.8.tgz) · [Installation guide](docs/INSTALL.en.md) · [20-step test manual](docs/TESTING.en.md) · [Test kit ZIP](releases/dsh-codebuddy-cli-cn-0.2.8-test-kit.zip) · [Logs and feedback](docs/TROUBLESHOOTING.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
+
+## 0.2.8 plain-text compatibility and failure diagnostics
+
+Delimiter-free plain text and text containing only unrelated JSON/bracket examples are delivered as ordinary text; the adapter never infers or executes tools from them. Unclosed or malformed protocol-shaped output and multiple valid results remain rejected; incomplete tails are never discarded. Basic logs add scanner flags without storing response content.
+
+The updated manual tells users to extract the test kit into a dedicated empty folder and select that exact folder as the DSH workspace. If fixtures are missing or Windows ACL access fails, mark the case blocked and stop; do not repair permissions. For feedback, attach the completed `feedback.md` and exported basic log JSON. Capture a detailed sample only when needed and review it before sharing.
+
+The two historical failures had no saved raw replies, so this release cannot claim both exact old samples are resolved. Natural-language output without protocol structure can be shown as text; incomplete or malformed JSON still fails with structural evidence and may need one opt-in sample.
 
 ## 0.2.7 error correlation and tool-result fixes
 

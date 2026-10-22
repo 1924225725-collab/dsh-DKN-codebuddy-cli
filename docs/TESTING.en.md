@@ -1,22 +1,22 @@
-# China plugin 0.2.7 manual testing
+# China plugin 0.2.8 manual testing
 
 [简体中文](测试手册.md) · [Installation](INSTALL.en.md) · [Logs](TROUBLESHOOTING.en.md)
 
-Test only `dsh-codebuddy-cli-cn`; international work remains paused. Follow the cases in order using a dedicated workspace. Model requests use your account credits: start with one model you already have access to. Automated tests do not replace actual DSH testing. An old failure without its raw result cannot be declared fixed from the error text alone. Use **Pass / Fail / Not triggered / Skipped**; an untriggered intermittent error is not a pass.
+Test only `dsh-codebuddy-cli-cn`; international work remains paused. Follow the cases in order using a dedicated workspace. Model requests use your account credits: start with one model you already have access to. Automated tests do not replace actual DSH testing. An old failure without its raw result cannot be declared fixed from the error text alone. Use **Pass / Fail / Not triggered / Skipped / Environment blocked**; an untriggered intermittent error is not a pass.
 
 ## Preparation
 
-Finish other model tasks so active-request counts are meaningful. Save a settings screenshot, including CLI/configuration paths, model, effort and timeout. Install `dsh-codebuddy-cli-cn-0.2.7.tgz`, fully exit DSH and reopen it. Uploading/downloading the package does not update the running plugin.
+Finish other model tasks so active-request counts are meaningful. Save a settings screenshot, including CLI/configuration paths, model, effort and timeout. Install `dsh-codebuddy-cli-cn-0.2.8.tgz`, fully exit DSH and reopen it. Uploading/downloading the package does not update the running plugin.
 
-Extract `dsh-codebuddy-cli-cn-0.2.7-test-kit.zip` into a dedicated folder and use that folder as the DSH workspace. On the developer machine a copy is prepared at `D:\ai项目\dsh-workbuddy插件\manual-tests\cn-0.2.7`; on other computers use your actual extracted location. The kit contains `input.txt`, `calc.mjs`, `README.md` and `feedback.md`. Store feedback, screenshots and exported logs there. Do not test in a real project.
+Extract `dsh-codebuddy-cli-cn-0.2.8-test-kit.zip` into a dedicated folder. In DSH, select the extracted `dsh-codebuddy-cli-cn-0.2.8-test-kit` folder itself as the workspace. Before T08, verify in File Explorer that `input.txt`, `calc.mjs`, `README.md` and `feedback.md` are directly inside that folder, and confirm DSH shows that same folder as the active workspace. If they differ, switch workspaces before proceeding. If DSH reports `SetNamedSecurityInfoW`, `grantWrite` or another ACL access error, mark file/tool tests blocked and stop; do not repair permissions or ownership. Do not test in a real project.
 
-Create a fresh conversation such as `CN027-Core` and select a **CodeBuddy CLI (China)** model. Record its exact ID and reasoning effort. A version check is not a model-connectivity test, and a DSH tool permission refusal is not a JSON-parser error.
+Create a fresh conversation such as `CN028-Core` and select a **CodeBuddy CLI (China)** model. Record its exact ID and reasoning effort. A version check is not a model-connectivity test, and a DSH tool permission refusal is not a JSON-parser error.
 
 ## T01 — Running version
 
 Open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`, and its settings.
 
-Expected: running version **0.2.7** and **Diagnostic logs and feedback**, including basic viewing/export, clearing and one-failure capture. Resolve stale running versions before continuing. Record DSH/OS versions and the package filename.
+Expected: running version **0.2.8** and **Diagnostic logs and feedback**, including basic viewing/export, clearing and one-failure capture. Resolve stale running versions before continuing. Record DSH/OS versions and the package filename.
 
 ## T02 — Executable
 
@@ -33,7 +33,7 @@ Expected: T04 works after accepted sign-in. Catalog refresh alone is insufficien
 ## T04 — Short real reply
 
 ```text
-Connectivity test. Do not use tools. Reply only: CN027_OK
+Connectivity test. Do not use tools. Reply only: CN028_OK
 ```
 
 Expected: that text appears and the turn completes. A successful call is recorded, and its active count returns to zero shortly afterward. Token counts include CLI overhead; they need not equal the prompt length. For failures record model, effort, time, full error and `diagnostic-id`.
@@ -43,7 +43,7 @@ Expected: that text appears and the turn completes. A successful call is recorde
 Send these one at a time in the same conversation:
 
 ```text
-Remember CN027-CONTEXT. Do not use tools; acknowledge only.
+Remember CN028-CONTEXT. Do not use tools; acknowledge only.
 ```
 
 ```text
@@ -54,7 +54,7 @@ What is 2+3? Do not use tools.
 What code did I ask you to remember? Reply only with the code.
 ```
 
-Expected: the final answer is `CN027-CONTEXT`, without another conversation's data or parser failure. Record wrong answers separately from adapter errors.
+Expected: the final answer is `CN028-CONTEXT`, without another conversation's data or parser failure. Record wrong answers separately from adapter errors.
 
 ## T06 — Quotes, paths, brackets and code
 
@@ -66,29 +66,29 @@ C:\测试目录\含 空格\demo.txt
 He said: "hello"; backslash: \
 ```
 
-Expected: content/code blocks display normally, without a false ambiguity caused by examples inside the answer. Quotes, backslashes and line breaks remain meaningful. A displayed code fence is not itself a protocol failure. Record the diagnostic ID if parsing fails; T18 can capture a later reproduction.
+Expected: content/code blocks display normally, including JSON examples and bracket labels inside the answer. Quotes, backslashes and line breaks remain meaningful. Plain text is delivered without tool execution. A displayed code fence is not itself a protocol failure. Record the diagnostic ID if parsing fails; T18 can capture a later reproduction.
 
 ## T07 — Long answer
 
-Ask for about 1,500 Chinese characters (or a comparable English answer) on making a software promo, in 12 numbered sections, ending with `CN027_LONG_END`, without tools or claims of created files.
+Ask for about 1,500 Chinese characters (or a comparable English answer) on making a software promo, in 12 numbered sections, ending with `CN028_LONG_END`, without tools or claims of created files.
 
-Expected: a complete reply including the ending, without a blank turn or a response failing midway. Approximate length is sufficient. Initially repeat at most once if needed and record frequency. Truly lost/truncated content cannot be reconstructed by guessing.
+Expected: a complete reply including the ending, without a blank turn or a response failing midway. Delimiter-free text can be delivered as text with no tools. If JSON structure is visibly incomplete, the plugin must keep the failure rather than discard the tail or present a partial answer as complete. Approximate length is sufficient. Initially repeat at most once if needed and record frequency.
 
 ## T08 — Read-only tool
 
-Ask the model to read `input.txt` from this test workspace and report the marker and two numbers without modifying files.
+Confirm the active DSH workspace is the extracted test-kit folder and `input.txt` is visible at its root in File Explorer. If the workspace differs, switch it; if an ACL error appears, stop and mark the case blocked. Ask the model to read `input.txt` and report the marker and two numbers without modifying files.
 
-Expected: an actual DSH read tool, marker `CN027-A`, numbers `2` and `3`, and unchanged file contents. A claim to have read the file without a tool record is insufficient.
+Expected: an actual DSH read tool, marker `CN028-A`, numbers `2` and `3`, and unchanged file contents. A claim to have read the file without a tool record is insufficient.
 
 ## T09 — Create and read back
 
-Ask to create `notes.txt` containing one line `FIRST_WRITE_CN027`, then read it back using a tool, changing no other files.
+Ask to create `notes.txt` containing one line `FIRST_WRITE_CN028`, then read it back using a tool, changing no other files.
 
 Expected: the real file exists with that marker, with visible write/read tools. Check existing files yourself before repeating the case; an earlier result is not evidence of a new successful write.
 
 ## T10 — Read before editing
 
-Ask to read `notes.txt`, append exactly one line `SECOND_WRITE_CN027`, preserve existing content and read it back.
+Ask to read `notes.txt`, append exactly one line `SECOND_WRITE_CN028`, preserve existing content and read it back.
 
 Expected: reading precedes editing, with each marker appearing once. If DSH reports “file has not been read”, the model should read the file before retrying that edit, respecting the policy. Do not bypass permissions. A model correcting a failed tool call is different from the plugin automatically replaying a completed request.
 
@@ -102,11 +102,11 @@ Expected: actual output `5` and a successful syntax-check exit. Handle DSH comma
 
 Ensure `missing-for-T12.txt` does not exist. Ask for exactly one read attempt, a truthful explanation if missing, and then stop without creating the file, network access or repeated attempts.
 
-Expected: the tool reports missing-file failure and the model explains it rather than inventing contents/success. Then ask for a plain `CN027_AFTER_TOOL_ERROR` reply; conversation should still work. The failure flag now reaches the model, but correct model behavior still needs observation.
+Expected: the tool reports missing-file failure and the model explains it rather than inventing contents/success. Then ask for a plain `CN028_AFTER_TOOL_ERROR` reply; conversation should still work. The failure flag now reaches the model, but correct model behavior still needs observation.
 
 ## T13 — Complete tool cycle
 
-Ask to read the numbers from `input.txt`, run `calc.mjs` to add them, create `result.txt` with `CN027_RESULT=5`, and read that result back. Restrict all operations to this test folder and avoid repeated writes.
+Ask to read the numbers from `input.txt`, run `calc.mjs` to add them, create `result.txt` with `CN028_RESULT=5`, and read that result back. Restrict all operations to this test folder and avoid repeated writes.
 
 Expected: read → run → write → read, with real results matching the final answer. Multiple CLI/model steps are normal for a tool workflow; request count greater than one does not itself prove paid retries. Look for duplicate execution of already-completed writes.
 
@@ -132,9 +132,9 @@ Expected: discovered rates/fields appear, unavailable fields may remain unknown,
 
 View/export basic logs and open the downloaded JSON in a text editor.
 
-Expected: version/model/state/time/usage/request-size/structural information, and process statistics when available. A new failure's `diagnostic-id` should equal its exported record `id`; machine codes should survive instead of all becoming `UNKNOWN`. Old records cannot acquire missing IDs retroactively.
+Expected: version/model/state/time/usage/request-size/structural information, including `scanIncomplete`, `scanBroken`, `insideString` and `openContainerDepth` when JSON scanning ran; process statistics appear when available. A new failure's `diagnostic-id` should equal its exported record `id`; machine codes should survive instead of all becoming `UNKNOWN`. Old records cannot acquire missing IDs retroactively.
 
-Search for body markers such as `FIRST_WRITE_CN027` and `SECOND_WRITE_CN027`: basic exports must exclude them, request/reply bodies, credentials and actual configuration paths. Model IDs and timestamps still reveal usage preferences; review before sharing.
+Search for body markers such as `FIRST_WRITE_CN028` and `SECOND_WRITE_CN028`: basic exports must exclude them, request/reply bodies, credentials and actual configuration paths. Model IDs and timestamps still reveal usage preferences; review before sharing.
 
 ## T18 — One failed reply capture (conditional)
 
@@ -148,7 +148,7 @@ Review/remove private content before sharing. If no natural format failure occur
 
 Export a basic log and record the count/capture state. Finish tasks, fully restart DSH and revisit settings.
 
-Expected: running version remains 0.2.7; saved logs/samples survive within the 100-record/2-MiB main-file limits, with oldest records rotated. Capture is disarmed. Session usage counters and the five recent-failure summaries reset by design. Record storage warnings rather than treating unsaved data loss as a successful persistence test.
+Expected: running version remains 0.2.8; saved logs/samples survive within the 100-record/2-MiB main-file limits, with oldest records rotated. Capture is disarmed. Session usage counters and the five recent-failure summaries reset by design. Record storage warnings rather than treating unsaved data loss as a successful persistence test.
 
 ## T20 — Clear and finish
 
@@ -158,7 +158,7 @@ Expected: records/samples clear and capture disarms, while DSH conversations, of
 
 ## What to send back
 
-Complete the kit's `feedback.md` with test IDs, results, versions, model/effort, times, full errors, diagnostic IDs, frequency, screenshots and actual file/tool outcomes. Attach basic JSON logs. Share detailed logs only after reviewing/removing private contents; never send passwords, cookies or tokens.
+The easiest feedback is two attachments: the kit's partially completed `feedback.md` (only fill the cases you ran) and the settings page's exported basic JSON log. You do not need to paste the entire conversation. For one specific failure, include its test ID, exact error, diagnostic ID, time and whether the test-kit folder was the active workspace. Share detailed samples only after reviewing/removing private content; never send passwords, cookies or tokens. If attachments are inconvenient, paste those same fields in chat.
 
 Compare fresh-conversation T04/T06/T07 with old-history failures. Avoid asking an old production session to “continue” just to test: it could resume real modifications. Use a copied test workspace/session if historical reproduction is necessary.
 

@@ -14,7 +14,8 @@ async function setup(t) {
   return { directory, store: createDiagnosticsStore({ directory }) }
 }
 const call = { state: 'error', at: 1000, model: 'test-model', durationMs: 20, errorCode: 'STRUCTURED_OUTPUT_INVALID',
-  diagnostics: { promptBytes: 10, messageCount: 2 }, responseDiagnostics: { reason: 'ambiguous-json', completeContainers: 3, normalizations: [] } }
+  diagnostics: { promptBytes: 10, messageCount: 2 }, responseDiagnostics: { reason: 'possibly-truncated-json', completeContainers: 1,
+    scanIncomplete: true, scanBroken: false, insideString: true, openContainerDepth: 1, incompleteTailIgnored: false, normalizations: [] } }
 
 test('basic logs use a field allowlist, persist across restarts and exclude raw replies from every basic export', async t => {
   const { directory, store } = await setup(t)
@@ -27,13 +28,17 @@ test('basic logs use a field allowlist, persist across restarts and exclude raw 
   assert.equal(basic.includes('PRIVATE_REPLY'), false)
   assert.equal(JSON.parse(basic).privacy.includesRawReplies, false)
   assert.equal(JSON.parse(basic).entries[1].sampleAvailable, true)
+  assert.equal(JSON.parse(basic).entries[0].responseDiagnostics.scanIncomplete, true)
+  assert.equal(JSON.parse(basic).entries[0].responseDiagnostics.scanBroken, false)
+  assert.equal(JSON.parse(basic).entries[0].responseDiagnostics.insideString, true)
+  assert.equal(JSON.parse(basic).entries[0].responseDiagnostics.openContainerDepth, 1)
   const restored = createDiagnosticsStore({ directory })
   await restored.ready
   assert.equal(restored.status().captureArmed, false)
   assert.equal(restored.status().entries, 2)
   const detailed = await restored.export(true)
   assert.equal(detailed.entries[1].sample.head, 'PRIVATE_REPLY')
-  assert.equal(detailed.entries[1].pluginVersion, '0.2.7')
+  assert.equal(detailed.entries[1].pluginVersion, '0.2.8')
   assert.equal(detailed.privacy.includesRawReplies, true)
   assert.equal(JSON.stringify(await restored.export()).includes('PRIVATE_REPLY'), false)
 })

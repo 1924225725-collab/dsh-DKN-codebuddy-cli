@@ -1,4 +1,4 @@
-# 国内版 0.2.7 测试反馈 / Test feedback
+# 国内版 0.2.8 测试反馈 / Test feedback
 
 测试日期与时区 / Date and timezone：
 实际运行插件版本 / Running plugin version：
@@ -8,11 +8,14 @@ CLI 版本 / CLI version：
 模型 ID、推理强度 / Model ID, effort：
 超时设置 / Timeout：
 测试工作区路径 / Test workspace：
+是否确认 DSH 选择的正是素材文件夹 / DSH workspace matches test kit：
+资源管理器能看到 input.txt / input.txt visible in Explorer：
+是否遇到 grantWrite / ACL 错误 / ACL error：
 是否新对话 / Fresh conversation：
 会话 ID / Session ID：
 是否还有其他任务运行 / Other tasks active：
 
-结果填写：通过 Pass / 失败 Fail / 未触发 Not triggered / 跳过 Skipped。
+结果填写：通过 Pass / 失败 Fail / 未触发 Not triggered / 跳过 Skipped / 环境阻塞 Environment blocked。
 
 | 编号 / ID | 结果 / Result | 现象、诊断 ID、附件 / Notes, diagnostic ID, attachments |
 | --- | --- | --- |
@@ -51,4 +54,4 @@ CLI 版本 / CLI version：
 附件文件名 / Attachments：
 已检查日志不含私人内容 / Logs reviewed for private content：
 
-请附普通日志 JSON。详细样本只在检查并移除敏感信息后分享，不附密码、Cookie 或 Token。
+请附配置页导出的普通日志 JSON。详细样本仅在普通日志不足以定位时采集，并在检查、移除敏感信息后分享。不要附密码、Cookie 或 Token。出现 SetNamedSecurityInfoW / grantWrite / ACL 错误时停止文件测试，标记环境阻塞，不修改权限。

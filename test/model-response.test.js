@@ -45,14 +45,61 @@ test('never selects between multiple results, repairs incomplete JSON or accepts
   assert.throws(() => parseModelResponse([envelope, envelope]), (error) => error.responseDiagnostics.reason === 'invalid-envelope')
 })
 
+test('accepts delimiter-free plain text as a text-only response without inferring or executing tools', () => {
+  const reply = '工作区文件没有列出；请先确认当前测试文件夹已放入 DSH 工作区。'
+  const result = parseModelResponse(reply, [tool])
+  assert.equal(result.text, reply)
+  assert.deepEqual(result.calls, [])
+  assert.equal(result.responseDiagnostics.reason, 'plain-text-fallback')
+  assert.ok(result.responseDiagnostics.normalizations.includes('plain-text-fallback'))
+  for (const malformed of ['{"text":', '{]bad', 'prefix {"text":"ok"']) {
+    assert.throws(() => parseModelResponse(malformed, [tool]), error => error.code === 'STRUCTURED_OUTPUT_INVALID')
+  }
+})
+
+test('preserves complete JSON examples and bracket labels as ordinary text when no protocol result exists', () => {
+  for (const reply of [
+    'Example: {"example":1}',
+    '```json\n{"example":1}\n```',
+    'Stage marker [阶段一]',
+    'Stages: [阶段一] then [阶段二]',
+    'Examples: {} and []',
+    '```text\nC:\\测试目录\\含 空格\\demo.txt\n{"example":1} [阶段一] [阶段二]\n他说："hello"；反斜杠是 \\\n```'
+  ]) {
+    const result = parseModelResponse(reply, [tool])
+    assert.equal(result.text, reply)
+    assert.deepEqual(result.calls, [])
+    assert.equal(result.responseDiagnostics.reason, 'plain-text-fallback')
+  }
+})
+
+test('rejects incomplete tails even after a complete text-only candidate', () => {
+  const json = JSON.stringify(envelope)
+  for (const tail of ['{"example":', '{"toolCalls":', '{"name":"edit_demo"', '{"text":"second']) {
+    assert.throws(() => parseModelResponse(`${json}\n${tail}`, [tool]), error => {
+      assert.equal(error.responseDiagnostics.reason, 'possibly-truncated-json')
+      assert.equal(error.responseDiagnostics.scanIncomplete, true)
+      assert.equal(error.responseDiagnostics.incompleteTailIgnored, undefined)
+      return true
+    })
+  }
+  assert.throws(() => parseModelResponse(`${JSON.stringify(toolEnvelope)}\n{"example":`, [tool]), error => error.responseDiagnostics.reason === 'possibly-truncated-json')
+})
+
 test('diagnostics distinguish empty, syntax and shape failures without including response content or keys', () => {
   const secret = 'PRIVATE_CONTENT_NEVER_LOG'
-  const cases = [['', 'empty-result'], ['not json ' + secret, 'invalid-json'], ['{"text":"' + secret, 'possibly-truncated-json'], [{ [secret]: secret }, 'invalid-text-field'], [{ text: secret, toolCalls: '[]' }, 'invalid-tool-calls-field']]
+  const cases = [['', 'empty-result'], ['{] ' + secret, 'invalid-json'], ['{"text":"' + secret, 'possibly-truncated-json'], [{ [secret]: secret }, 'invalid-text-field'], [{ text: secret, toolCalls: '[]' }, 'invalid-tool-calls-field']]
   for (const [value, reason] of cases) {
     assert.throws(() => parseModelResponse(value), (error) => {
       assert.equal(error.responseDiagnostics.reason, reason)
       assert.equal(JSON.stringify(error.responseDiagnostics).includes(secret), false)
       assert.equal(error.message.includes(secret), false)
+      if (reason === 'possibly-truncated-json') {
+        assert.equal(error.responseDiagnostics.scanIncomplete, true)
+        assert.equal(error.responseDiagnostics.scanBroken, false)
+        assert.equal(error.responseDiagnostics.insideString, true)
+      }
+      if (reason === 'invalid-json') assert.equal(error.responseDiagnostics.scanBroken, true)
       return true
     })
   }
