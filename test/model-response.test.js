@@ -64,3 +64,34 @@ test('large complete replies and multiline tool content pass without truncation'
   assert.equal(parsed.text, content)
   assert.equal(JSON.parse(parsed.calls[0].arguments).content, content)
 })
+
+test('selects one validated protocol result beside unrelated complete fragments only', () => {
+  const json = JSON.stringify(toolEnvelope)
+  for (const prefix of ['说明 [阶段一] [阶段二]\n', '{}\n[]\n', '{"example":1}\n["example"]\n']) {
+    const parsed = parseModelResponse(prefix + json, [tool])
+    assert.equal(parsed.calls.length, 1)
+    assert.deepEqual(JSON.parse(parsed.calls[0].arguments), toolEnvelope.toolCalls[0].arguments)
+    assert.equal(parsed.responseDiagnostics.validProtocolCandidates, 1)
+    assert.equal(parsed.responseDiagnostics.ignoredContainers, 2)
+    assert.ok(parsed.responseDiagnostics.normalizations.includes('unique-protocol-result'))
+  }
+})
+
+test('never ignores a second valid, malformed, wrapped or undeclared tool candidate', () => {
+  const json = JSON.stringify(envelope)
+  for (const other of [json, JSON.stringify(toolEnvelope), '{"text":42,"toolCalls":[]}', '{"tool_calls":[{"name":"edit_demo"}]}', '{"data":{"text":42}}', '{"name":"edit_demo","arguments":{}}', '{"command":"do not execute"}', JSON.stringify([JSON.stringify(toolEnvelope)]), '{"x":}', '[1,]', '{"text":']) {
+    assert.throws(() => parseModelResponse(json + '\n' + other), error => error.code === 'STRUCTURED_OUTPUT_INVALID')
+  }
+  assert.throws(() => parseModelResponse(json + '\n' + JSON.stringify(toolEnvelope)), error => {
+    assert.equal(error.responseDiagnostics.reason, 'ambiguous-json')
+    assert.equal(error.responseDiagnostics.containerSummaries[1].toolCount, 1)
+    assert.equal(JSON.stringify(error.responseDiagnostics).includes('content'), false)
+    return true
+  })
+  assert.throws(() => parseModelResponse(Array(20).fill(json).join('\n')), error => {
+    assert.equal(error.responseDiagnostics.containerSummaries.length, 12)
+    assert.equal(error.responseDiagnostics.completeContainers, 20)
+    assert.equal(error.responseDiagnostics.containerSummariesTruncated, true)
+    return true
+  })
+})

@@ -4,17 +4,17 @@
 
 Use models available to your China-region account in **DeepSeek Harness (DSH)** through the official, signed-in CodeBuddy CLI. DSH manages conversations, model selection and tool execution; this plugin translates requests and results.
 
-**Current version: 0.2.4** · China-region CLI · Text input · Tools executed by DSH
+**Current version: 0.2.5** · China-region CLI · Text input · Tools executed by DSH
 
-[Latest package](releases/dsh-codebuddy-cli-cn-0.2.4.tgz) · [Installation guide](docs/INSTALL.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
+[Latest package](releases/dsh-codebuddy-cli-cn-0.2.5.tgz) · [Installation guide](docs/INSTALL.en.md) · [Logs and feedback](docs/TROUBLESHOOTING.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
 
-## 0.2.4 structured result compatibility
+## 0.2.5 diagnostic logs and multi-fragment compatibility
 
-Accepts complete JSON fences, one complete unambiguous JSON container with surrounding prose, double-encoded JSON, singleton arrays and single-key data/result wrappers. Unambiguous text-only/tool-only replies and complete string-encoded tool arguments can be normalized. Tool names must still match the current DSH declarations and arguments must decode to complete objects. DSH retains tool permissions and execution.
+Settings now offer local log viewing, export and clearing. Basic logs exclude request/reply bodies and configuration paths, survive restarts and retain up to 100 calls in a main file capped at 2 MiB. Attach the basic JSON log and reproduction steps to issue reports.
 
-Settings distinguish empty output, invalid syntax, possible truncation, incorrect fields and undeclared tools. Result type, size, normalization and up to five failure summaries remain in memory until restart. No reply content or arbitrary response keys are recorded.
+For format errors, explicitly acknowledge the privacy notice and arm capture of the next failed raw model result. Capture turns off after that failure and excludes requests, CLI stderr and login files. Detailed samples may contain chats and code: preview and review before sharing. No logs are uploaded automatically.
 
-Incomplete or conflicting results and invalid tool arguments still fail. Missing content is never invented, and there are no automatic repair calls or replays of completed tools. This reduces recoverable format failures; it cannot guarantee valid output from every model or recover content lost to truncation.
+Fixes treating every separate bracketed fragment as a protocol result. A single validated result can be recovered only when all remaining fragments are clearly unrelated annotations/examples. Multiple valid results, possible tool requests and malformed or incomplete fragments remain errors. Complete-wrapper compatibility from 0.2.4 is retained, without guessed repairs, retries or tool replays. Earlier unrecorded failures cannot be recovered; the exact reported incident still needs a captured sample to classify.
 
 ## Why this exists
 

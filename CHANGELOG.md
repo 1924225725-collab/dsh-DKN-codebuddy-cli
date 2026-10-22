@@ -1,5 +1,16 @@
 # 更新记录 / Changelog
 
+## 0.2.5
+
+- 配置页增加普通日志查看、导出与清空；本机持久化最近 100 次调用，主文件上限 2 MiB。
+- Add settings controls to view, export and clear local logs, retaining up to 100 calls across restarts in a main file capped at 2 MiB.
+- 增加默认关闭的一次失败回复采集、隐私提示、详细预览和独立导出；不采集请求、CLI 标准错误或登录文件，不自动上传。
+- Add opt-in one-failure reply capture, a privacy notice, detailed preview and separate export, excluding requests, CLI stderr and login files; no automatic uploads.
+- 多片段逐个验证，仅恢复唯一有效结果与无关说明/示例；保留冲突、疑似工具请求和损坏片段的拒绝行为。
+- Validate fragments independently; recover only one valid result beside unrelated annotations/examples, rejecting conflicts, possible tool requests and malformed fragments.
+- 增加无正文的候选结构摘要、日志隐私/限额/重启恢复、导出与完整适配流程测试。
+- Add content-free fragment summaries and regression coverage for privacy, limits, restart recovery, exports and the full adapter flow.
+
 ## 0.2.4
 
 - 兼容可明确识别的完整 JSON 包装、二次编码及纯文字/纯工具结构。
