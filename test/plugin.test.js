@@ -167,6 +167,8 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(history.logs.samples, 1)
   const basic = await logAction('exportLogs')
   assert.equal(basic.status, 200)
+  assert.equal(basic.body.entries[0].processDiagnostics.exitCode, 0)
+  assert.ok(basic.body.entries[0].processDiagnostics.stdoutBytes > 0)
   assert.equal(JSON.stringify(basic.body).includes('PRIVATE_FAILED_REPLY'), false)
   assert.equal(basic.body.entries.filter(x => x.state === 'error').length, 6)
   const detail = await logAction('exportDetailedLogs')
@@ -181,6 +183,22 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal((await logAction('arbitrary-command')).status, 400)
   assert.equal((await logAction('clearLogs')).body.logs.entries, 0)
   assert.equal((await logAction('exportDetailedLogs')).body.entries.length, 0)
+  await logAction('armCapture')
+  for (const [variant, code] of [['auth-required', 'CLI_AUTH_REQUIRED'], ['empty-output', 'CLI_OUTPUT_INVALID'], ['non-json', 'CLI_OUTPUT_INVALID']]) {
+    const delivered = []
+    await assert.rejects(async () => {
+      for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: `response-case:${variant}` }] })) delivered.push(chunk)
+    }, error => error.code === code)
+    assert.deepEqual(delivered, [])
+  }
+  const processLog = (await logAction('exportDetailedLogs')).body
+  assert.equal(processLog.entries.length, 3)
+  assert.equal(processLog.entries[0].errorCode, 'CLI_AUTH_REQUIRED')
+  assert.equal(processLog.entries[0].processDiagnostics.exitCode, 0)
+  assert.equal(processLog.entries[0].processDiagnostics.stdoutBytes, 0)
+  assert.ok(processLog.entries[0].processDiagnostics.stderrBytes > 0)
+  assert.equal(processLog.entries[0].captureAttempted, true)
+  assert.equal(JSON.stringify(processLog).includes('PRIVATE_'), false)
 
   const denied = await fetch(`${origin}/plugins/dsh-codebuddy-cli-cn/actions`, {
     method: 'POST', headers: { Origin: 'https://other.example', 'Content-Type': 'application/json', 'X-DSH-CodeBuddy-Action': '1' }, body: JSON.stringify({ action: 'setup' })

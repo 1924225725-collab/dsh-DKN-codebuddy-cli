@@ -1,5 +1,14 @@
 # 更新记录 / Changelog
 
+## 0.2.6
+
+- 修复 CLI 在标准错误报告 401、标准输出为空且退出码为 0 时，被误报为无效 JSON 的问题；显示 `CLI_AUTH_REQUIRED` 和官方重新登录步骤。
+- Recognize CLI authentication notices on stderr even when stdout is empty and exit status is zero, reporting `CLI_AUTH_REQUIRED` with official sign-in guidance.
+- 区分空输出、非 JSON、部分明确的权限/限流错误；日志增加进程字节数、耗时和退出码，不保存 CLI 原始诊断输出。
+- Distinguish empty/non-JSON output and fixed permission/rate-limit notices; log numeric process diagnostics and exit codes without raw CLI diagnostic output.
+- 登录鉴权失败时展开官方登录说明；不读取、替换或自动刷新登录凭据，不自动重试请求。
+- Expand official sign-in instructions on authentication failure, without reading/replacing credentials or automatic retries.
+
 ## 0.2.5
 
 - 配置页增加普通日志查看、导出与清空；本机持久化最近 100 次调用，主文件上限 2 MiB。

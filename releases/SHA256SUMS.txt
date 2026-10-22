@@ -1,3 +1,4 @@
 107e761234c59eb0ff4e646035f4aa24a635484f4578fcf393bdace80026bf14  dsh-codebuddy-cli-cn-0.2.3.tgz
 94bbe34de6e7f38d463772bde3f15c4778e87cbd441c87334507b43d572a46d2  dsh-codebuddy-cli-cn-0.2.4.tgz
 e35b1a33ddb23a04843c6039a207c820e48d6ad11ca8d6c873e6242898128980  dsh-codebuddy-cli-cn-0.2.5.tgz
+62c59ab910e38db69685eefd6151ccbdbe4cac4efb02f4ac889837c00637b20d  dsh-codebuddy-cli-cn-0.2.6.tgz

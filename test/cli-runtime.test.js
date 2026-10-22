@@ -102,6 +102,16 @@ test('a hanging CLI times out with numeric diagnostics without exposing stdout o
   assert.ok(Date.now() - startedAt < 6000, 'the deadline must settle without waiting indefinitely for process cleanup')
 })
 
+test('nonzero CLI exits classify fixed authentication failures and preserve numeric process diagnostics only', async () => {
+  await assert.rejects(runProcess(process.execPath, ['-e', "process.stderr.write('401 Authentication required PRIVATE_AUTH_TOKEN');process.exitCode=1"], { timeoutMs: 5000 }), error => {
+    assert.equal(error.code, 'CLI_AUTH_REQUIRED')
+    assert.equal(error.processDiagnostics.exitCode, 1)
+    assert.equal(error.processDiagnostics.stdoutBytes, 0)
+    assert.equal(JSON.stringify(error).includes('PRIVATE_AUTH_TOKEN'), false)
+    return true
+  })
+})
+
 test('Windows npm/pnpm shims resolve their actual CLI entry even outside the shim directory', { skip: process.platform !== 'win32' }, async (t) => {
   const directory = await mkdtemp(path.join(tmpdir(), 'dsh-shim-test-'))
   t.after(async () => {

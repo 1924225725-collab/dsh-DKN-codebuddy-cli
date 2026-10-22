@@ -2,15 +2,15 @@
 
 [简体中文](安装教程.md) · **English** · [Home](../README.en.md)
 
-For version **0.2.5**.
+For version **0.2.6**.
 
 ## 1. Download and install
 
-[Version package](../releases/dsh-codebuddy-cli-cn-0.2.5.tgz). Save it locally, or use the delivered local `dsh-codebuddy-cli-cn-0.2.5.tgz`. GitHub availability depends on the files actually published in the repository. The source ZIP is not an installable DSH plugin package.
+[Version package](../releases/dsh-codebuddy-cli-cn-0.2.6.tgz). Save it locally, or use the delivered local `dsh-codebuddy-cli-cn-0.2.6.tgz`. GitHub availability depends on the files actually published in the repository. The source ZIP is not an installable DSH plugin package.
 
 Open DSH's Plugins page and select the local `.tgz` through its package installation entry. If it asks for a path, use the real downloaded file path, not a web URL. Exact button names can vary by DSH version.
 
-Find **`dsh-codebuddy-cli-cn`**, open component **`llm-codebuddy-cli-cn`**, and check that the settings page reports running version **0.2.5**. Restart DSH if it still shows an older version.
+Find **`dsh-codebuddy-cli-cn`**, open component **`llm-codebuddy-cli-cn`**, and check that the settings page reports running version **0.2.6**. Restart DSH if it still shows an older version.
 
 ## 2. Set up the CLI and sign in
 
@@ -52,8 +52,9 @@ Rates come from the current catalog. Check remaining credits on the official Cod
 | Invalid package or missing path | Select the downloaded local `.tgz`, not a source ZIP, website link or nonexistent file. |
 | `CLI_NOT_FOUND` | Run setup, or save the actual local CLI path in advanced settings after official installation. |
 | Version check passes but calls fail | Confirm official CLI sign-in, refresh the catalog and try a short prompt in a new conversation. |
+| `CLI_AUTH_REQUIRED` / 401 | Copy the settings sign-in command into PowerShell, then run `/login` inside the official CLI and refresh models. Updating the plugin cannot restore account authorization. |
 | 180-second timeout | Confirm running version 0.2.3, stop the task and test a short prompt. Inspect error code, elapsed time and output byte counts. Complex tasks may need 300000–600000 ms; a longer deadline cannot fix sign-in or network faults. |
-| Invalid response format | Confirm running version 0.2.5 and inspect result diagnostics and recent failures. Empty output, unclosed JSON and invalid fields are distinguished. No missing content is invented and no automatic repair call is sent. |
+| Invalid response format | Confirm running version 0.2.6 and inspect result diagnostics and recent failures. Empty output, unclosed JSON and invalid fields are distinguished. No missing content is invented and no automatic repair call is sent. |
 | Missing new models | Save settings before refreshing, and check CLI/configuration paths. Failed refreshes retain the previous catalog. |
 | Large input or odd speed | Separate last-call from cumulative usage, and bytes from tokens. History and tools add input. Real decoding speed is not exposed; saved old conversation statistics are not rewritten. |
 

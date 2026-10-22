@@ -32,6 +32,9 @@ if (process.argv.includes('--version')) {
   process.stdin.on('data', (chunk) => { input += chunk })
   process.stdin.on('end', () => {
     record({ args: process.argv.slice(2), input })
+    if (input.includes('response-case:auth-required')) { process.stderr.write('401 Authentication required. Please use /login PRIVATE_AUTH_TOKEN'); return }
+    if (input.includes('response-case:empty-output')) return
+    if (input.includes('response-case:non-json')) { process.stdout.write('PRIVATE_NON_JSON'); return }
     const envelope = JSON.parse(input.slice(input.indexOf('{"protocol"')))
     const toolCalls = input.includes('tool-round') && envelope.tools.length && !envelope.messages.some((message) => message.role === 'tool') ? [{ name: envelope.tools[0].name, arguments: { target: 'sandbox.txt' } }] : []
     let response = JSON.stringify({ text: toolCalls.length ? '' : 'fixture response', toolCalls })
