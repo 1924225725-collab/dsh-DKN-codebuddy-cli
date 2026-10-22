@@ -1,5 +1,6 @@
 research/
 node_modules/
+manual-tests/
 .env
 .env.*
 *.log

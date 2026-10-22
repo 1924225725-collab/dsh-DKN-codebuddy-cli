@@ -1,5 +1,16 @@
 # 更新记录 / Changelog
 
+## 0.2.7
+
+- 修复 DSH 将外部 Error 归为 UNKNOWN；保留机器错误码及诊断 ID，与持久化日志逐条关联。
+- Preserve DSH failure codes and diagnostic IDs instead of UNKNOWN, correlating failures with persisted records.
+- 保留工具结果的 isError 标记，补充遵守权限及先读后改的模型说明；不改变 DSH 权限策略。
+- Preserve tool-result isError flags and describe DSH permission/read-before-edit requirements without changing enforcement.
+- CLI 完成后即释放活动计数，消费端暂停读取不再使已完成请求滞留；空白且无工具的结果明确报错。
+- Release active counts when CLI processing completes, even for paused consumers; reject blank replies without tools.
+- 增加中英 20 步测试手册、独立测试素材和反馈表。
+- Add bilingual 20-step test manuals, isolated fixtures and a feedback form.
+
 ## 0.2.6
 
 - 修复 CLI 在标准错误报告 401、标准输出为空且退出码为 0 时，被误报为无效 JSON 的问题；显示 `CLI_AUTH_REQUIRED` 和官方重新登录步骤。

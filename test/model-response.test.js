@@ -65,6 +65,13 @@ test('large complete replies and multiline tool content pass without truncation'
   assert.equal(JSON.parse(parsed.calls[0].arguments).content, content)
 })
 
+test('empty or whitespace-only text without tools fails instead of silently ending the turn', () => {
+  for (const value of [{ text: '', toolCalls: [] }, { text: ' \n\t', toolCalls: [] }, { text: '' }]) {
+    assert.throws(() => parseModelResponse(value), error => error.code === 'STRUCTURED_OUTPUT_INVALID' && error.responseDiagnostics.reason === 'empty-content')
+  }
+  assert.equal(parseModelResponse(toolEnvelope, [tool]).calls.length, 1)
+})
+
 test('selects one validated protocol result beside unrelated complete fragments only', () => {
   const json = JSON.stringify(toolEnvelope)
   for (const prefix of ['说明 [阶段一] [阶段二]\n', '{}\n[]\n', '{"example":1}\n["example"]\n']) {

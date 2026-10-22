@@ -4,9 +4,15 @@
 
 Use models available to your China-region account in **DeepSeek Harness (DSH)** through the official, signed-in CodeBuddy CLI. DSH manages conversations, model selection and tool execution; this plugin translates requests and results.
 
-**Current version: 0.2.6** · China-region CLI · Text input · Tools executed by DSH
+**Current version: 0.2.7** · China-region CLI · Text input · Tools executed by DSH
 
-[Latest package](releases/dsh-codebuddy-cli-cn-0.2.6.tgz) · [Installation guide](docs/INSTALL.en.md) · [Logs and feedback](docs/TROUBLESHOOTING.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
+[Latest package](releases/dsh-codebuddy-cli-cn-0.2.7.tgz) · [Installation guide](docs/INSTALL.en.md) · [20-step test manual](docs/TESTING.en.md) · [Test kit ZIP](releases/dsh-codebuddy-cli-cn-0.2.7-test-kit.zip) · [Logs and feedback](docs/TROUBLESHOOTING.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
+
+## 0.2.7 error correlation and tool-result fixes
+
+Preserves DSH machine failure codes instead of `UNKNOWN`, with a `diagnostic-id` matching the exported log record `id`. Tool failure flags reach the model, blank replies without tools fail explicitly, and completed CLI calls release their active count even if the consumer pauses delivery.
+
+Adds Chinese/English test manuals, isolated fixtures and feedback forms. Historical failures without raw results still need capture; not every format failure can be declared resolved. A 401 still requires official sign-in. This update changes the China plugin only.
 
 ## 0.2.6 CLI authentication diagnostics
 

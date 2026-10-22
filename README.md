@@ -4,9 +4,15 @@
 
 在 **DeepSeek Harness（DSH）** 中，通过已登录的官方 CodeBuddy CLI 调用国内账号可用的模型。你继续在 DSH 中对话、选择模型和处理工具任务，插件负责转换请求与结果。
 
-**当前版本：0.2.6** · 国内 CLI · 文本输入 · 工具由 DSH 执行
+**当前版本：0.2.7** · 国内 CLI · 文本输入 · 工具由 DSH 执行
 
-[最新版本安装包](releases/dsh-codebuddy-cli-cn-0.2.6.tgz) · [安装教程](docs/安装教程.md) · [日志与反馈](docs/反馈与日志.md) · [工作原理](docs/工作原理.md) · [更新记录](CHANGELOG.md)
+[最新版本安装包](releases/dsh-codebuddy-cli-cn-0.2.7.tgz) · [安装教程](docs/安装教程.md) · [20 步测试手册](docs/测试手册.md) · [测试素材 ZIP](releases/dsh-codebuddy-cli-cn-0.2.7-test-kit.zip) · [日志与反馈](docs/反馈与日志.md) · [工作原理](docs/工作原理.md) · [更新记录](CHANGELOG.md)
+
+## 0.2.7 错误关联与工具结果修复
+
+修复 DSH 将插件错误统一记为 `UNKNOWN` 的问题，保留错误码和诊断 ID；报错中的 `diagnostic-id` 对应导出日志的 `id`。工具失败的 `isError` 标记会传给模型；空白且无工具的回复不再静默结束；CLI 已完成时会释放活动计数，消费端暂停读取不会让它一直显示运行中。
+
+新增中英测试手册、独立测试素材和反馈表。历史失败缺少原始返回的部分仍需采样，不能承诺所有格式错误已消除；401 仍需官方重新登录。本轮只更新国内版。
 
 ## 0.2.6 CLI 登录错误识别
 

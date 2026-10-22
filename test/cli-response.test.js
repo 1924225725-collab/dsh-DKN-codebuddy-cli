@@ -92,3 +92,16 @@ test('classifies fixed CLI notices and distinguishes empty from non-JSON output 
   assert.throws(() => collectResult(''), error => error.message.includes('标准输出为空'))
   assert.throws(() => collectResult('plain'), error => error.message.includes('非 JSON'))
 })
+
+test('carries immutable DSH-compatible failure facts with a diagnostic ID instead of UNKNOWN', () => {
+  const requestId = '9f68b497-ec6a-4cdf-ad81-c2c5384d0583'
+  const error = new CodeBuddyCliError('CLI_AUTH_REQUIRED', 'Synthetic authentication failure', { requestId })
+  assert.equal(Object.getOwnPropertyDescriptor(error, 'code').value, 'CLI_AUTH_REQUIRED')
+  assert.equal(Object.getOwnPropertyDescriptor(error, 'failure').value.code, error.code)
+  assert.equal(error.failure.requestId, requestId)
+  assert.equal(error.failure.status, 401)
+  assert.equal(error.failure.message, error.message)
+  assert.ok(error.message.includes(requestId))
+  assert.ok(Object.isFrozen(error.failure))
+  assert.equal(new CodeBuddyCliError('CLI_TIMEOUT', 'timeout').failure.code, 'CLI_TIMEOUT')
+})

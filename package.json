@@ -2,7 +2,7 @@
   "name": "dsh-codebuddy-cli-cn",
   "displayName": "DSH CodeBuddy CLI（国内版）",
   "description": "自动检测官方 CodeBuddy CLI 国内模型与积分倍率，支持一键配置 CLI，工具由 DSH 管理。",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "repository": {
     "type": "git",
     "url": "https://github.com/1924225725-collab/dsh-codebuddy-cli-cn.git"
@@ -35,6 +35,9 @@
     "docs/验证与限制.md",
     "docs/反馈与日志.md",
     "docs/TROUBLESHOOTING.en.md",
+    "docs/测试手册.md",
+    "docs/TESTING.en.md",
+    "docs/manual-test",
     "docs/images"
   ],
   "engines": {

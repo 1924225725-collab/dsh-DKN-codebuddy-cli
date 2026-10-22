@@ -146,11 +146,15 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(annotated.filter(x => x.type === 'block-end' && x.block.type === 'tool-call').length, 1)
   assert.equal((await logAction('armCapture')).body.logs.captureArmed, true)
   const beforeFailures = (await readFile(path.join(binDirectory, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.args).length
+  const reportedFailures = []
   for (const variant of ['truncated', 'wrong-shape', 'ambiguous', 'wrong-shape', 'truncated', 'wrong-shape']) {
     const delivered = []
     await assert.rejects(async () => {
       for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: `response-case:${variant}` }] })) delivered.push(chunk)
-    }, error => error.code === 'STRUCTURED_OUTPUT_INVALID' && error.message.includes(variant === 'truncated' ? 'possibly-truncated-json' : variant === 'ambiguous' ? 'ambiguous-json' : 'invalid-text-field'))
+    }, error => {
+      reportedFailures.push(error.failure)
+      return error.code === 'STRUCTURED_OUTPUT_INVALID' && error.message.includes(variant === 'truncated' ? 'possibly-truncated-json' : variant === 'ambiguous' ? 'ambiguous-json' : 'invalid-text-field')
+    })
     assert.deepEqual(delivered, [], 'invalid replies cannot deliver partial blocks')
   }
   const afterFailures = (await readFile(path.join(binDirectory, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.args).length
@@ -171,6 +175,10 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.ok(basic.body.entries[0].processDiagnostics.stdoutBytes > 0)
   assert.equal(JSON.stringify(basic.body).includes('PRIVATE_FAILED_REPLY'), false)
   assert.equal(basic.body.entries.filter(x => x.state === 'error').length, 6)
+  const failureEntries = basic.body.entries.filter(x => x.state === 'error')
+  assert.equal(new Set(reportedFailures.map(x => x.requestId)).size, 6)
+  assert.deepEqual(reportedFailures.map(x => x.requestId), failureEntries.map(x => x.id))
+  assert.ok(reportedFailures.every(x => x.code === 'STRUCTURED_OUTPUT_INVALID' && x.message.includes(x.requestId)))
   const detail = await logAction('exportDetailedLogs')
   assert.equal(detail.body.entries.filter(x => x.sample).length, 1)
   assert.equal(detail.body.entries.find(x => x.sample).sample.head, '{"text":"PRIVATE_FAILED_REPLY')
@@ -199,6 +207,12 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.ok(processLog.entries[0].processDiagnostics.stderrBytes > 0)
   assert.equal(processLog.entries[0].captureAttempted, true)
   assert.equal(JSON.stringify(processLog).includes('PRIVATE_'), false)
+  const paused = adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'pause consumption after first block' }] })
+  assert.equal((await paused.next()).value.type, 'block-start')
+  const pausedStatus = await (await fetch(`${origin}/plugins/dsh-codebuddy-cli-cn/status`)).json()
+  assert.equal(pausedStatus.activeCalls, 0, 'a completed CLI call must not remain active while its consumer is paused')
+  await paused.return()
+  assert.equal((await (await fetch(`${origin}/plugins/dsh-codebuddy-cli-cn/status`)).json()).activeCalls, 0)
 
   const denied = await fetch(`${origin}/plugins/dsh-codebuddy-cli-cn/actions`, {
     method: 'POST', headers: { Origin: 'https://other.example', 'Content-Type': 'application/json', 'X-DSH-CodeBuddy-Action': '1' }, body: JSON.stringify({ action: 'setup' })
