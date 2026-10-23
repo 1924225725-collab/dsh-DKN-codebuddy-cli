@@ -118,6 +118,7 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(status.pluginVersion, JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')).version)
   assert.equal(status.timeoutMs, 15000)
   assert.equal(status.responseMode, 'native-json-schema')
+  assert.equal(status.reasoningMode, 'stream-json-reasoning-blocks')
   assert.equal(status.usage.lastCall.model, 'future-alpha')
   assert.equal(status.usage.calls, 5)
   assert.equal(status.usage.inputTokens, 55)
@@ -278,6 +279,23 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(cancelledStatus.activeCalls, 0)
   assert.equal(cancelledStatus.logs.captureArmed, true, 'native cancellation preserves opt-in failure capture')
   await logAction('cancelCapture')
+
+  // Reasoning reaches DSH as its own content block ahead of the reply text.
+  // --output-format json drops it entirely, so this guards the stream-json path.
+  const reasoned = []
+  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:reasoning' }] })) reasoned.push(chunk)
+  const reasoning = reasoned.find((chunk) => chunk.type === 'block-end' && chunk.block.type === 'reasoning')
+  assert.equal(reasoning.index, 0, 'reasoning must open the assistant turn')
+  assert.equal(reasoning.block.text, 'fixture first thought\n\nfixture second thought')
+  assert.equal(reasoned.find((chunk) => chunk.type === 'block-end' && chunk.block.type === 'text').index, 1)
+  assert.equal(reasoned.some((chunk) => chunk.type.endsWith('-delta')), false, 'reasoning blocks must not fabricate timing deltas')
+  const blankReasoned = []
+  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:blank-reasoning' }] })) blankReasoned.push(chunk)
+  assert.equal(blankReasoned.some((chunk) => chunk.type === 'block-end' && chunk.block.type === 'reasoning'), false, 'whitespace-only thinking must not render a block')
+  const plain = []
+  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'no reasoning emitted here' }] })) plain.push(chunk)
+  assert.equal(plain.some((chunk) => chunk.type === 'block-end' && chunk.block.type === 'reasoning'), false, 'a model without thinking blocks must stay unchanged')
+  assert.ok(adapter.stream.toString().length > 0)
 
   const denied = await fetch(`${origin}/plugins/dsh-codebuddy-cli-cn/actions`, {
     method: 'POST', headers: { Origin: 'https://other.example', 'Content-Type': 'application/json', 'X-DSH-CodeBuddy-Action': '1' }, body: JSON.stringify({ action: 'setup' })

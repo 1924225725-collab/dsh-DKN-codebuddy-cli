@@ -51,7 +51,7 @@
 
 ![DSH、插件、官方 CLI 和官方服务](docs/images/architecture.svg)
 
-流程为 DSH → 本机插件 → 官方 CLI → 官方模型服务 → 插件校验 → DSH 展示或执行工具。CLI 使用 `--print --output-format json`，使用官方 --json-schema，仅开放 StructuredOutput，其他内置业务工具、MCP 和会话持久化关闭；上下文由 DSH 历史提供。详见[工作原理](docs/工作原理.md)。
+流程为 DSH → 本机插件 → 官方 CLI → 官方模型服务 → 插件校验 → DSH 展示或执行工具。CLI 使用 `--print --output-format stream-json`，使用官方 --json-schema，仅开放 StructuredOutput，其他内置业务工具、MCP 和会话持久化关闭；流式输出里的 thinking 块会作为思考过程一并交给 DSH，上下文由 DSH 历史提供。详见[工作原理](docs/工作原理.md)。
 
 本项目是独立第三方适配插件，作者不提供中转服务器、共享账号或额度转售。登录由官方 CLI 处理；使用官方 CLI 不代表本项目取得官方授权，也不保证未来服务策略不变。
 

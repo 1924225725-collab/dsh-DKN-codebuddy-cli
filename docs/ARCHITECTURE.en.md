@@ -6,9 +6,11 @@ Version 0.3.1 adapts the signed-in China-region official CLI into a DSH model pr
 
 ## Native result path
 
-The adapter supplies messages, instructions, tool definitions and responseSchema. CLI flags include --print --output-format json --json-schema and a whitelist containing only StructuredOutput. Other built-in business tools, MCP, auto memory and transcript persistence are disabled.
+The adapter supplies messages, instructions, tool definitions and responseSchema. CLI flags include --print --output-format stream-json --json-schema and a whitelist containing only StructuredOutput. Other built-in business tools, MCP, auto memory and transcript persistence are disabled.
 
 StructuredOutput submits a text/toolCalls object; it performs no project file or command operation. The adapter consumes the official final record's structured_output object, never searching result prose for JSON. Code, paths and protocol examples inside text remain data.
+
+Reasoning comes from the thinking blocks of the streaming output. The adapter joins them in arrival order into one reasoning content block delivered ahead of the reply text, so DSH can display the model's thinking. All-whitespace thinking is skipped and no progressive deltas are synthesized, leaving usage and timing reporting unchanged. --output-format json returns the final result record alone, which contains no thinking text; that is why reasoning was previously invisible.
 
 Missing native output, string/wrapper envelopes, extra fields, invalid names/arguments and multiple final records fail without prose fallback or last-result selection. Arguments must be objects. The complete plan is validated before DSH blocks are delivered. Repeated operations inside one plan remain intact.
 
