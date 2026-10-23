@@ -73,6 +73,18 @@ test('preserves complete JSON examples and bracket labels as ordinary text when 
   }
 })
 
+test('treats balanced malformed non-protocol examples as text but rejects malformed protocol-shaped results', () => {
+  for (const reply of ['Example: {"example":,}', '```json\n{"example":,}\n```', 'Text {"example":,} and [label]']) {
+    const result = parseModelResponse(reply, [tool])
+    assert.equal(result.text, reply)
+    assert.deepEqual(result.calls, [])
+    assert.equal(result.responseDiagnostics.reason, 'plain-text-fallback')
+  }
+  for (const reply of ['{"text":,}', '{"toolCalls":,}', '{"name":"edit_demo","arguments":,}']) {
+    assert.throws(() => parseModelResponse(reply, [tool]), error => error.code === 'STRUCTURED_OUTPUT_INVALID')
+  }
+})
+
 test('rejects incomplete tails even after a complete text-only candidate', () => {
   const json = JSON.stringify(envelope)
   for (const tail of ['{"example":', '{"toolCalls":', '{"name":"edit_demo"', '{"text":"second']) {

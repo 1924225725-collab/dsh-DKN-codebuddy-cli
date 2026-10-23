@@ -1,5 +1,13 @@
 # 更新记录 / Changelog
 
+## 0.2.9
+
+- 根据 0.2.8 用户测试日志，新增对语法错误但括号完整、且不含协议字段或已声明工具名的 JSON 示例/片段的纯文本回退；不推断工具，也不吞掉不完整结构。
+- 协议形状的损坏 JSON、未闭合内容和多个有效结果仍明确失败，避免把工具请求误当普通文字。
+- 新增覆盖该边界的回归测试并更新中英测试手册与测试素材包。0.2.8 的原始模型回复未被采集，因此仍需按 T06 复测确认真实样本。
+- Based on the 0.2.8 user-test log, balanced but syntactically invalid JSON examples/fragments fall back to plain text only when they contain no protocol fields or declared tool names. No tools are inferred and incomplete structures are not discarded.
+- Malformed protocol-shaped JSON, incomplete content and multiple valid results still fail. Regression tests and the bilingual manual/test kit are updated; the original 0.2.8 model reply was not captured, so retest T06 to confirm that exact case.
+
 ## 0.2.8
 
 - 将 CLI 返回的无分隔符纯文本作为最终文字交给 DSH，不据此推断或执行工具调用。

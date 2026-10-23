@@ -4,9 +4,15 @@
 
 Use models available to your China-region account in **DeepSeek Harness (DSH)** through the official, signed-in CodeBuddy CLI. DSH manages conversations, model selection and tool execution; this plugin translates requests and results.
 
-**Current version: 0.2.8** · China-region CLI · Text input · Tools executed by DSH
+**Current version: 0.2.9** · China-region CLI · Text input · Tools executed by DSH
 
-[Latest package](releases/dsh-codebuddy-cli-cn-0.2.8.tgz) · [Installation guide](docs/INSTALL.en.md) · [20-step test manual](docs/TESTING.en.md) · [Test kit ZIP](releases/dsh-codebuddy-cli-cn-0.2.8-test-kit.zip) · [Logs and feedback](docs/TROUBLESHOOTING.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
+[Latest package](releases/dsh-codebuddy-cli-cn-0.2.9.tgz) · [Installation guide](docs/INSTALL.en.md) · [20-step test manual](docs/TESTING.en.md) · [Test kit ZIP](releases/dsh-codebuddy-cli-cn-0.2.9-test-kit.zip) · [Logs and feedback](docs/TROUBLESHOOTING.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
+
+## 0.2.9 compatibility for unrelated malformed JSON examples
+
+The local basic log for 0.2.8 recorded one syntactically invalid but balanced result with no tool call. Detailed reply capture was off, so its original content is unavailable. Version 0.2.9 delivers balanced malformed fragments as plain text only when they contain no protocol fields or declared tool names; it never infers tools. Malformed protocol-shaped JSON, incomplete content and multiple valid results still fail. Retest T06 in the updated manual; the missing raw reply prevents claiming that exact historical case is resolved.
+
+Regression coverage and the test kit now use CN029 markers. If fixtures are missing or Windows reports an ACL error, verify the active workspace and stop file tests on ACL failures.
 
 ## 0.2.8 plain-text compatibility and failure diagnostics
 

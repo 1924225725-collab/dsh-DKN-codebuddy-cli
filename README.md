@@ -4,9 +4,15 @@
 
 在 **DeepSeek Harness（DSH）** 中，通过已登录的官方 CodeBuddy CLI 调用国内账号可用的模型。你继续在 DSH 中对话、选择模型和处理工具任务，插件负责转换请求与结果。
 
-**当前版本：0.2.8** · 国内 CLI · 文本输入 · 工具由 DSH 执行
+**当前版本：0.2.9** · 国内 CLI · 文本输入 · 工具由 DSH 执行
 
-[最新版本安装包](releases/dsh-codebuddy-cli-cn-0.2.8.tgz) · [安装教程](docs/安装教程.md) · [20 步测试手册](docs/测试手册.md) · [测试素材 ZIP](releases/dsh-codebuddy-cli-cn-0.2.8-test-kit.zip) · [日志与反馈](docs/反馈与日志.md) · [工作原理](docs/工作原理.md) · [更新记录](CHANGELOG.md)
+[最新版本安装包](releases/dsh-codebuddy-cli-cn-0.2.9.tgz) · [安装教程](docs/安装教程.md) · [20 步测试手册](docs/测试手册.md) · [测试素材 ZIP](releases/dsh-codebuddy-cli-cn-0.2.9-test-kit.zip) · [日志与反馈](docs/反馈与日志.md) · [工作原理](docs/工作原理.md) · [更新记录](CHANGELOG.md)
+
+## 0.2.9 无关损坏 JSON 示例兼容
+
+0.2.8 的本机普通日志记录到一次语法无效但括号完整的结果，未发生工具调用；详细回复采集当时关闭，因此原始内容无法确认。0.2.9 只把不含协议字段和已声明工具名的此类片段作为纯文字交付，不推断工具。协议形状的损坏 JSON、未闭合内容和多个有效结果仍失败。请按更新后的 T06 复测；不能据缺失原文断言那条历史回复已解决。
+
+本版同时补充回归测试，并将测试素材标记更新为 CN029。测试文件缺失或 Windows ACL 报错时，应确认素材目录与 DSH 工作区后再继续；ACL 错误标为环境阻塞并停止文件测试。
 
 ## 0.2.8 纯文本兼容与失败诊断
 
