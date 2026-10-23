@@ -1,6 +1,11 @@
 research/
 node_modules/
 manual-tests/
+AGENTS.md
+docs/manual-test/
+docs/测试手册.md
+docs/TESTING.en.md
+docs/验证与限制.md
 .env
 .env.*
 *.log

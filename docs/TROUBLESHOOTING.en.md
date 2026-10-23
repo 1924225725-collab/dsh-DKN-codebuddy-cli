@@ -2,15 +2,15 @@
 
 [简体中文](反馈与日志.md) · [Home](../README.en.md)
 
-Install 0.2.9, restart DSH and open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`. Scroll to **Diagnostic logs and feedback** and verify the running version at the top.
+Install 0.3.0, restart DSH and open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`. Scroll to **Diagnostic logs and feedback** and verify the running version at the top.
 
-0.2.9 appends `diagnostic-id` to new failure messages, matching each exported record `id`; DSH also retains the machine code. Settings show the same ID. Earlier uncorrelated failures cannot be retroactively repaired. See the [20-step test manual](TESTING.en.md) for instructions and a feedback form.
+New failure messages include a `diagnostic-id` matching each exported record `id`; DSH also retains the machine code. Settings show the same ID. Earlier uncorrelated failures cannot be retroactively repaired. Include reproduction steps and reviewed logs in reports.
 
 0.2.6 recognizes empty output and fixed CLI error notices. For `CLI_AUTH_REQUIRED`, start the official CLI using the settings sign-in command and run `/login`. The plugin does not replace credentials. Numeric process diagnostics include stdout/stderr byte counts, elapsed time and exit status, without raw notices. Authentication failures usually have no model result to capture; basic logs are sufficient for that classification.
 
 ## Basic logs
 
-Basic logs record timestamps, plugin/CLI versions, models, reasoning effort, deadlines, timing, tokens, history/tool counts, request byte sizes, error codes and structural summaries. Since 0.2.8 they include `scanIncomplete`, `scanBroken`, `insideString` and `openContainerDepth` to distinguish incomplete/mismatched structures without saving reply text. Version 0.2.9 delivers balanced malformed JSON examples as plain text only when they contain no protocol fields or declared tool names. Exports include the OS, architecture and Node version. DSH version is not automatically detected; include it manually in reports.
+Basic logs record timestamps, plugin/CLI versions, models, reasoning effort, deadlines, timing, tokens, history/tool counts, request byte sizes, error codes and structural summaries. Since 0.2.8 they include `scanIncomplete`, `scanBroken`, `insideString` and `openContainerDepth` to distinguish incomplete/mismatched structures without saving reply text. Version 0.2.9 delivers balanced malformed JSON examples as plain text only when they contain no protocol fields or declared tool names. Version 0.3.0 additionally recovers text string escapes/control characters only in complete explicitly text-only envelopes, marked text-string-escape-recovery in basic logs. Exports include the OS, architecture and Node version. DSH version is not automatically detected; include it manually in reports.
 
 Basic logs exclude request/reply bodies, tool arguments, credentials, CLI output bodies and configuration/executable paths. Record IDs are diagnostic IDs, not account/session IDs. Fragment summaries contain only fixed types, sizes and field-presence flags, without field values or arbitrary field names. Model choices may still reveal usage preferences; review before sharing.
 
@@ -30,7 +30,7 @@ Some format failures need the raw result to diagnose. Capture is off by default:
 
 1. Read and acknowledge the privacy notice.
 2. Click **Capture next failed reply**.
-3. Reproduce in DSH. The next failure disables capture; successful calls do not consume it. Cancel manually or restart to disarm.
+3. Reproduce in DSH. The next failure other than user cancellation disables capture; successful calls and user cancellations do not consume it. Cancel manually or restart to disarm.
 4. Return to settings and **Preview detailed logs**. Review and remove private material before sharing an exported detailed JSON file.
 
 Capture stores only an available failed model result, excluding request bodies, full CLI stdout/stderr, environment variables and login files. Startup/network/timeout failures may have no complete result to capture. Earlier failures cannot be recovered retroactively.
@@ -41,7 +41,7 @@ Raw replies may repeat chats, code, file contents, tool arguments or other sensi
 
 ## Report template
 
-The easiest report is the partially completed `feedback.md` from the test kit plus exported basic JSON; there is no need to paste the entire conversation. For a single failure, include its test ID, exact error, `diagnostic-id`, time, and whether DSH selected the test-kit folder as its active workspace. If attachments are inconvenient, paste those fields in chat. Mark ACL/`grantWrite` failures as environment-blocked and stop file tests; do not change permissions.
+Include a short reproduction, the exact error/code, diagnostic-id and time, plus an exported basic JSON log. State whether tools already completed before the final reply failed. Review detailed samples privately before sharing.
 
 ```text
 Running plugin version:
@@ -55,4 +55,4 @@ Only with long histories or tools?:
 Attachments: basic JSON log; reviewed detailed sample only if needed
 ```
 
-0.2.5 recovers certain false ambiguities caused by unrelated bracketed fragments. Multiple valid protocol results, possible tool requests and malformed/incomplete structures still fail, with candidate summaries logged. Logging does not retry calls or send additional model requests.
+Version 0.3.0 records `duplicate-protocol-result` and the numeric `duplicateProtocolCandidates` when identical complete results are recovered. Conflicting results remain blocked. See the [user guide](USER_GUIDE.en.md). Logging does not retry calls or send additional model requests.

@@ -1,71 +1,60 @@
 # 更新记录 / Changelog
 
-## 0.2.9
+历史版本现补齐 GitHub Releases，原安装包不变。0.2.10 仅为本地候选，改动合入 0.3.0，未单独公开发布。
 
-- 根据 0.2.8 用户测试日志，新增对语法错误但括号完整、且不含协议字段或已声明工具名的 JSON 示例/片段的纯文本回退；不推断工具，也不吞掉不完整结构。
-- 协议形状的损坏 JSON、未闭合内容和多个有效结果仍明确失败，避免把工具请求误当普通文字。
-- 新增覆盖该边界的回归测试并更新中英测试手册与测试素材包。0.2.8 的原始模型回复未被采集，因此仍需按 T06 复测确认真实样本。
-- Based on the 0.2.8 user-test log, balanced but syntactically invalid JSON examples/fragments fall back to plain text only when they contain no protocol fields or declared tool names. No tools are inferred and incomplete structures are not discarded.
-- Malformed protocol-shaped JSON, incomplete content and multiple valid results still fail. Regression tests and the bilingual manual/test kit are updated; the original 0.2.8 model reply was not captured, so retest T06 to confirm that exact case.
+Historical GitHub Releases are backfilled with the unchanged packages. The local 0.2.10 candidate is included in 0.3.0 and has no separate public release.
 
-## 0.2.8
+## [0.3.0](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.0)
 
-- 将 CLI 返回的无分隔符纯文本作为最终文字交给 DSH，不据此推断或执行工具调用。
-- 不丢弃未闭合 JSON 尾部；带结构但未闭合、损坏或多个协议结果仍拒绝，防止把半截回复当作完整答复。
-- 仅含普通文字、JSON 示例或方括号标记且没有协议结果时，作为无工具纯文字交付。
-- 普通日志新增 JSON 扫描状态、开放容器深度和字符串状态，不保存响应正文。
-- 更新中英测试手册与可移植素材包：明确把素材文件夹本身设为 DSH 工作区；ACL 错误标记阻塞并停止，不建议修改权限。
-- 使用 `feedback.md` 与普通诊断日志 JSON 作为常规反馈；详细原始回复仍需用户主动开启并检查。
-- The two source incidents had no raw samples; this release improves plain-text handling and diagnostics but cannot claim those exact historical replies are fixed.
+- 仅当多个完整协议对象交付的文字及有序工具名称/参数完全一致时，恢复为一份结果；不合并冲突计划，不删除同一计划中的重复工具。
+- 合入 0.2.10 本地候选版的文字转义恢复：仅限完整对象、恰好 text 与空 toolCalls 两字段，不补全缺失结构、不恢复工具参数。
+- 用户主动取消任务不再消耗“一次失败回复采集”；普通日志标记重复候选数量。
+- 配置页增加中英故障处理指南，说明多结果冲突、长回复、工具已执行后的失败、字面转义和日志隐私。
+- 加强单一最终结果及转义说明；保留全部既有结构、工具、鉴权和日志回归检查。
+- Recover repeated complete envelopes only when their delivered text and ordered tool names/arguments are identical. Never merge conflicting plans or remove repeated calls within a plan.
+- Include the unpublished 0.2.10 candidate: bounded text escape recovery only for complete objects containing exactly text and empty toolCalls; no invented structure or tool-argument repair.
+- User cancellation preserves armed failure capture. Basic logs count duplicate candidates. Add bilingual in-settings troubleshooting and reinforce final-result/escaping instructions.
+- Validation: 55 automated checks passed and two synthetic official CLI requests succeeded. Recovery boundaries are covered by deterministic tests; these checks do not guarantee every model reply or device.
 
-## 0.2.7
+## [0.2.9](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.2.9)
 
-- 修复 DSH 将外部 Error 归为 UNKNOWN；保留机器错误码及诊断 ID，与持久化日志逐条关联。
-- Preserve DSH failure codes and diagnostic IDs instead of UNKNOWN, correlating failures with persisted records.
-- 保留工具结果的 isError 标记，补充遵守权限及先读后改的模型说明；不改变 DSH 权限策略。
-- Preserve tool-result isError flags and describe DSH permission/read-before-edit requirements without changing enforcement.
-- CLI 完成后即释放活动计数，消费端暂停读取不再使已完成请求滞留；空白且无工具的结果明确报错。
-- Release active counts when CLI processing completes, even for paused consumers; reject blank replies without tools.
-- 增加中英 20 步测试手册、独立测试素材和反馈表。
-- Add bilingual 20-step test manuals, isolated fixtures and a feedback form.
+- 对括号完整、无协议字段且不含已声明工具名的损坏 JSON 示例，作为无工具文字交付；协议形状或未闭合内容仍拦截。
+- Deliver balanced malformed JSON examples as plain text only when they have no protocol fields or declared tool names; reject protocol-shaped and incomplete content.
 
-## 0.2.6
+## [0.2.8](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.2.8)
 
-- 修复 CLI 在标准错误报告 401、标准输出为空且退出码为 0 时，被误报为无效 JSON 的问题；显示 `CLI_AUTH_REQUIRED` 和官方重新登录步骤。
-- Recognize CLI authentication notices on stderr even when stdout is empty and exit status is zero, reporting `CLI_AUTH_REQUIRED` with official sign-in guidance.
-- 区分空输出、非 JSON、部分明确的权限/限流错误；日志增加进程字节数、耗时和退出码，不保存 CLI 原始诊断输出。
-- Distinguish empty/non-JSON output and fixed permission/rate-limit notices; log numeric process diagnostics and exit codes without raw CLI diagnostic output.
-- 登录鉴权失败时展开官方登录说明；不读取、替换或自动刷新登录凭据，不自动重试请求。
-- Expand official sign-in instructions on authentication failure, without reading/replacing credentials or automatic retries.
+- 完善普通文字、JSON 示例和方括号标记的无工具回退；保留未闭合尾部检查，不把截断内容当完整结果。
+- 普通日志增加扫描完整性、字符串状态和容器深度，不记录正文。
+- Improve text-only fallback for prose, examples and bracketed markers while retaining incomplete-tail rejection. Add content-free scan/string/depth diagnostics.
 
-## 0.2.5
+## [0.2.7](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.2.7)
 
-- 配置页增加普通日志查看、导出与清空；本机持久化最近 100 次调用，主文件上限 2 MiB。
-- Add settings controls to view, export and clear local logs, retaining up to 100 calls across restarts in a main file capped at 2 MiB.
-- 增加默认关闭的一次失败回复采集、隐私提示、详细预览和独立导出；不采集请求、CLI 标准错误或登录文件，不自动上传。
-- Add opt-in one-failure reply capture, a privacy notice, detailed preview and separate export, excluding requests, CLI stderr and login files; no automatic uploads.
-- 多片段逐个验证，仅恢复唯一有效结果与无关说明/示例；保留冲突、疑似工具请求和损坏片段的拒绝行为。
-- Validate fragments independently; recover only one valid result beside unrelated annotations/examples, rejecting conflicts, possible tool requests and malformed fragments.
-- 增加无正文的候选结构摘要、日志隐私/限额/重启恢复、导出与完整适配流程测试。
-- Add content-free fragment summaries and regression coverage for privacy, limits, restart recovery, exports and the full adapter flow.
+- 修复 DSH 错误分类丢失；显示机器错误码和可关联日志的 diagnostic-id。
+- 保留工具结果 isError，完善权限/先读后改说明；及时释放完成请求计数，拒绝空白无工具结果。
+- Preserve DSH error codes and diagnostic IDs, tool-result isError flags, and permission/read-before-edit instructions. Release completed request counts promptly; reject blank tool-free results.
 
-## 0.2.4
+## [0.2.6](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.2.6)
 
-- 兼容可明确识别的完整 JSON 包装、二次编码及纯文字/纯工具结构。
-- Normalize recognized complete JSON wrappers, encoded JSON and unambiguous text/tool-only replies.
-- 增加不含正文的分类诊断和内存中最近 5 条失败摘要；成功调用不会覆盖失败历史。
-- Add content-free diagnostic categories and five in-memory failure summaries that survive later successful calls.
-- 未闭合、多个冲突结果、未知工具与不完整参数仍失败，不猜测补全、不自动重试。
-- Reject incomplete/ambiguous output, unknown tools and invalid arguments without invented content or automatic retries.
-- 增加长回复、异常结构、完整工具往返和失败无部分交付的回归测试。
-- Add long-output, malformed-response and adapter/tool-continuation regression coverage, including no partial delivery on failure.
+- 识别标准错误中的固定鉴权/权限/限流提示，即使 stdout 为空且退出码为零，也不再一律误报 JSON 无效。
+- 区分空输出与非 JSON，记录输出字节数、耗时和退出码；鉴权错误显示官方登录指引。
+- Recognize fixed auth/permission/rate-limit notices, including empty stdout with zero exit status. Distinguish empty/non-JSON output, log numeric process diagnostics and show official sign-in guidance.
 
-## 0.2.3
+## [0.2.5](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.2.5)
 
-- 取消 CLI 原生 `--json-schema`，在提示词中描述协议，在本地检查最终结果；不自动追加修复请求。
-- Replace native JSON Schema processing with a prompt-described protocol and local result validation, without automatic repair calls.
-- 验证普通回复、合成工具请求与工具结果后的继续回复。
-- Validate normal replies, synthetic tool requests and continuation after synthetic tool results.
+- 增加本机持久化日志、查看/导出/清空与默认关闭的一次失败原文采集；普通导出不含原文，不自动上传。
+- 逐个验证片段，允许唯一有效结果旁的明确无关完整示例；冲突与疑似工具片段继续拒绝。
+- Add local persistent diagnostics, view/export/clear, and opt-in one-failure raw-result capture. Basic exports omit raw text; no automatic uploads. Validate fragments independently and accept a unique valid result beside clearly unrelated complete examples.
+
+## [0.2.4](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.2.4)
+
+- 支持明确的完整 JSON 包装、二次编码及纯文字/纯工具结构，增加不含正文的分类诊断和最近失败摘要。
+- 补充长回复、结构异常及完整工具往返的自动回归；冲突/缺失结构不猜测、不自动重试。
+- Recognize complete wrappers, encoded JSON and unambiguous text/tool-only structures. Add content-free diagnostics and regression coverage for long replies, malformed output and tool continuation, without guessing conflicts or missing content.
+
+## [0.2.3](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.2.3)
+
+- 使用提示词描述输出协议并在本地验证，取消 CLI 原生 --json-schema 处理，不自动追加修复请求。
+- Describe the response protocol in the prompt and validate locally instead of native --json-schema processing; no automatic repair request.
 
 ## 0.2.2
 

@@ -22,7 +22,7 @@ test('settings UI displays live rates, refreshes new models, and saves a portabl
     }
   }
   const status = {
-    pluginVersion: '0.2.9', timeoutMs: 180000,
+    pluginVersion: '0.3.0', timeoutMs: 180000,
     logs: { entries: 12, failures: 1, samples: 0, captureArmed: false },
     activeCalls: 0, cliCheck: { state: 'available', version: '9.8.7' }, setup: { state: 'idle' },
     usage: { calls: 12, inputTokens: 170000, outputTokens: 100, uncachedInputTokens: 10000, cacheReadTokens: 150000, cacheWriteTokens: 10000,
@@ -82,7 +82,13 @@ test('settings UI displays live rates, refreshes new models, and saves a portabl
   assert.ok(text().includes('发送文本 3200 字节'))
   assert.ok(text().includes('CLI 程序可启动'))
   assert.ok(text().includes('不验证账号登录'))
-  assert.ok(text().includes('0.2.9'))
+  assert.ok(text().includes('故障处理与使用指南'))
+  assert.ok(text().includes('最终回复失败不代表之前的工具没有执行'))
+  assert.ok(locales.en.guideTitle.includes('Troubleshooting'))
+  const guideLink = tree.root.findAllByType('a').find(link => link.children.join('') === '查看完整用户指南')
+  assert.ok(guideLink.props.href.endsWith('/docs/使用与故障处理指南.md'))
+  assert.equal(guideLink.props.rel, 'noreferrer')
+  assert.ok(text().includes('0.3.0'))
   const button = (name) => tree.root.findAllByType('button').find((item) => item.children.join('') === name)
   await act(async () => { await button('刷新模型与倍率').props.onClick() })
   assert.ok(text().includes('brand-new-after-update'))
@@ -121,7 +127,7 @@ test('settings UI displays live rates, refreshes new models, and saves a portabl
   const consent = tree.root.findAllByType('input').find(item => item.props.type === 'checkbox')
   await act(async () => { consent.props.onChange({ target: { checked: true } }) })
   await act(async () => { await button('采集下一次失败回复').props.onClick() })
-  assert.ok(text().includes('等待下一次失败'))
+  assert.ok(text().includes('等待下一次非主动取消的失败'))
   await act(async () => { await button('取消详细采集').props.onClick() })
   status.logs.samples = 1
   await act(async () => { await button('刷新模型与倍率').props.onClick() })

@@ -38,7 +38,7 @@ test('basic logs use a field allowlist, persist across restarts and exclude raw 
   assert.equal(restored.status().entries, 2)
   const detailed = await restored.export(true)
   assert.equal(detailed.entries[1].sample.head, 'PRIVATE_REPLY')
-  assert.equal(detailed.entries[1].pluginVersion, '0.2.9')
+  assert.equal(detailed.entries[1].pluginVersion, '0.3.0')
   assert.equal(detailed.privacy.includesRawReplies, true)
   assert.equal(JSON.stringify(await restored.export()).includes('PRIVATE_REPLY'), false)
 })
@@ -63,6 +63,21 @@ test('one-time capture survives success, captures only the next failure and supp
   assert.equal((await readFile(path.join(directory, 'diagnostics.json'), 'utf8')).includes('PRIVATE'), false)
   const restored = createDiagnosticsStore({ directory }); await restored.ready
   assert.equal(restored.status().entries, 0)
+})
+
+test('user-aborted requests preserve failure capture for the next real failure', async t => {
+  const { store } = await setup(t)
+  store.arm()
+  await store.record({ ...call, errorCode: 'ABORTED' }, 'CANCELLED_PARTIAL_PRIVATE')
+  assert.equal(store.status().captureArmed, true)
+  assert.equal(store.status().samples, 0)
+  assert.equal((await store.export()).entries[0].captureAttempted, undefined)
+  await store.record(call, 'NEXT_REAL_FAILURE_PRIVATE')
+  assert.equal(store.status().captureArmed, false)
+  const report = await store.export(true)
+  assert.equal(report.entries[1].sample.head, 'NEXT_REAL_FAILURE_PRIVATE')
+  assert.equal(JSON.stringify(report).includes('CANCELLED_PARTIAL_PRIVATE'), false)
+  assert.equal(JSON.stringify(await store.export()).includes('NEXT_REAL_FAILURE_PRIVATE'), false)
 })
 
 test('bounds stored records and raw samples, preserves both ends and serializes concurrent writes', async t => {

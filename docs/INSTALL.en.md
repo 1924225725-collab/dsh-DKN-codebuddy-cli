@@ -2,15 +2,15 @@
 
 [简体中文](安装教程.md) · **English** · [Home](../README.en.md)
 
-For version **0.2.9**.
+For version **0.3.0**.
 
 ## 1. Download and install
 
-[Version package](../releases/dsh-codebuddy-cli-cn-0.2.9.tgz). Save it locally, or use the delivered local `dsh-codebuddy-cli-cn-0.2.9.tgz`. GitHub availability depends on the files actually published in the repository. The source ZIP is not an installable DSH plugin package.
+[Version package](../releases/dsh-codebuddy-cli-cn-0.3.0.tgz). Save it locally, or use the delivered local `dsh-codebuddy-cli-cn-0.3.0.tgz`. You can also download from [GitHub Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/latest). The source ZIP is not an installable DSH plugin package.
 
 Open DSH's Plugins page and select the local `.tgz` through its package installation entry. If it asks for a path, use the real downloaded file path, not a web URL. Exact button names can vary by DSH version.
 
-Find **`dsh-codebuddy-cli-cn`**, open component **`llm-codebuddy-cli-cn`**, and check that the settings page reports running version **0.2.9**. Restart DSH if it still shows an older version.
+Find **`dsh-codebuddy-cli-cn`**, open component **`llm-codebuddy-cli-cn`**, and check that the settings page reports running version **0.3.0**. Restart DSH if it still shows an older version.
 
 ## 2. Set up the CLI and sign in
 
@@ -53,15 +53,14 @@ Rates come from the current catalog. Check remaining credits on the official Cod
 | `CLI_NOT_FOUND` | Run setup, or save the actual local CLI path in advanced settings after official installation. |
 | Version check passes but calls fail | Confirm official CLI sign-in, refresh the catalog and try a short prompt in a new conversation. |
 | `CLI_AUTH_REQUIRED` / 401 | Copy the settings sign-in command into PowerShell, then run `/login` inside the official CLI and refresh models. Updating the plugin cannot restore account authorization. |
-| 180-second timeout | Confirm running version 0.2.3, stop the task and test a short prompt. Inspect error code, elapsed time and output byte counts. Complex tasks may need 300000–600000 ms; a longer deadline cannot fix sign-in or network faults. |
-| Invalid response format | Confirm running version 0.2.9 and inspect result diagnostics and recent failures. Balanced malformed JSON examples with no protocol fields or declared tool names are delivered as plain text; malformed protocol-shaped JSON, incomplete content and multiple valid results still fail. The plugin neither completes missing content nor drops an incomplete tail. |
-| Test tool cannot find `input.txt` | Confirm DSH selected the extracted test-kit folder itself and that the file is at its root. For `SetNamedSecurityInfoW`, `grantWrite` or other ACL errors, mark file tests blocked and stop; do not change permissions or ownership. |
+| 180-second timeout | Confirm running version 0.3.0, stop the task and test a short prompt. Inspect error code, elapsed time and output byte counts. Complex tasks may need 300000–600000 ms; a longer deadline cannot fix sign-in or network faults. |
+| Invalid response format | Confirm running version 0.3.0 and inspect result diagnostics and recent failures. Local escape/control-character recovery requires a complete object containing exactly text and empty toolCalls. Repeated complete results are recovered only when delivered text and ordered tool contents match exactly. Conflicts, missing structure and unsupported malformed content still fail. See the [user guide](USER_GUIDE.en.md). |
 | Missing new models | Save settings before refreshing, and check CLI/configuration paths. Failed refreshes retain the previous catalog. |
 | Large input or odd speed | Separate last-call from cumulative usage, and bytes from tokens. History and tools add input. Real decoding speed is not exposed; saved old conversation statistics are not rewritten. |
 
 ## Upgrading and reporting
 
-After updating to 0.2.9, follow the [20-step manual](TESTING.en.md) with the [isolated test kit](../releases/dsh-codebuddy-cli-cn-0.2.9-test-kit.zip) and complete its feedback form.
+Open **Troubleshooting and usage guide** in settings, or read the full [user guide](USER_GUIDE.en.md).
 
 Use **Diagnostic logs and feedback** in settings to view, export or clear basic logs. If needed, acknowledge the privacy notice, capture the next failed reply and reproduce. Preview detailed samples before sharing: they may contain chats, code and tool arguments. Earlier unrecorded failures cannot be recovered. See [logs and feedback](TROUBLESHOOTING.en.md) for instructions and a report template.
 

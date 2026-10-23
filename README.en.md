@@ -2,123 +2,67 @@
 
 [简体中文](README.md) · **English**
 
-Use models available to your China-region account in **DeepSeek Harness (DSH)** through the official, signed-in CodeBuddy CLI. DSH manages conversations, model selection and tool execution; this plugin translates requests and results.
+Use models available to your China-region account in **DeepSeek Harness (DSH)** through the signed-in official CodeBuddy CLI. DSH manages conversations and tools; this adapter translates model requests and results.
 
-**Current version: 0.2.9** · China-region CLI · Text input · Tools executed by DSH
+**Latest version: 0.3.0**
 
-[Latest package](releases/dsh-codebuddy-cli-cn-0.2.9.tgz) · [Installation guide](docs/INSTALL.en.md) · [20-step test manual](docs/TESTING.en.md) · [Test kit ZIP](releases/dsh-codebuddy-cli-cn-0.2.9-test-kit.zip) · [Logs and feedback](docs/TROUBLESHOOTING.en.md) · [Architecture](docs/ARCHITECTURE.en.md)
+[Download plugin](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/download/v0.3.0/dsh-codebuddy-cli-cn-0.3.0.tgz) · [All releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [Installation](docs/INSTALL.en.md) · [Usage and troubleshooting](docs/USER_GUIDE.en.md) · [Changelog](CHANGELOG.md)
 
-## 0.2.9 compatibility for unrelated malformed JSON examples
+[Repository download fallback](releases/dsh-codebuddy-cli-cn-0.3.0.tgz) · [SHA-256](releases/SHA256SUMS.txt)
 
-The local basic log for 0.2.8 recorded one syntactically invalid but balanced result with no tool call. Detailed reply capture was off, so its original content is unavailable. Version 0.2.9 delivers balanced malformed fragments as plain text only when they contain no protocol fields or declared tool names; it never infers tools. Malformed protocol-shaped JSON, incomplete content and multiple valid results still fail. Retest T06 in the updated manual; the missing raw reply prevents claiming that exact historical case is resolved.
+## What's new in 0.3.0
 
-Regression coverage and the test kit now use CN029 markers. If fixtures are missing or Windows reports an ACL error, verify the active workspace and stop file tests on ACL failures.
+- Identical complete replies with the same text, ordered tools and delivered arguments are delivered once. Different plans remain blocked instead of being merged or selected arbitrarily.
+- Includes final-text escape recovery from the earlier local candidate, limited to complete explicitly text-only replies.
+- User-aborted tasks no longer consume the next-failed-reply capture opportunity.
+- Bilingual troubleshooting guidance is available directly inside plugin settings, covering triggers, limits and recovery steps.
+- Reinforces one-result-per-request and literal-text instructions, retaining local validation without extra model calls or replaying completed tools.
 
-## 0.2.8 plain-text compatibility and failure diagnostics
+Includes the 0.2.4–0.2.9 parsing, authentication, logging, error-correlation and tool-result fixes. Historical notes are recorded in [GitHub Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) and [CHANGELOG](CHANGELOG.md). Version 0.2.10 was a local candidate, incorporated into 0.3.0 without a separate public release.
 
-Delimiter-free plain text and text containing only unrelated JSON/bracket examples are delivered as ordinary text; the adapter never infers or executes tools from them. Unclosed or malformed protocol-shaped output and multiple valid results remain rejected; incomplete tails are never discarded. Basic logs add scanner flags without storing response content.
+## Install and start
 
-The updated manual tells users to extract the test kit into a dedicated empty folder and select that exact folder as the DSH workspace. If fixtures are missing or Windows ACL access fails, mark the case blocked and stop; do not repair permissions. For feedback, attach the completed `feedback.md` and exported basic log JSON. Capture a detailed sample only when needed and review it before sharing.
+1. Download the `.tgz` locally and install it from DSH's plugin manager. A source ZIP is not a plugin package.
+2. Open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`, and select **Set up CLI**.
+3. Expand **Sign in or switch account**, copy the official command into PowerShell (Terminal on macOS/Linux), and complete China-region sign-in.
+4. Refresh models/rates and select a model in DSH. Restart after upgrading and verify running version **0.3.0**.
 
-The two historical failures had no saved raw replies, so this release cannot claim both exact old samples are resolved. Natural-language output without protocol structure can be shown as text; incomplete or malformed JSON still fails with structural evidence and may need one opt-in sample.
-
-## 0.2.7 error correlation and tool-result fixes
-
-Preserves DSH machine failure codes instead of `UNKNOWN`, with a `diagnostic-id` matching the exported log record `id`. Tool failure flags reach the model, blank replies without tools fail explicitly, and completed CLI calls release their active count even if the consumer pauses delivery.
-
-Adds Chinese/English test manuals, isolated fixtures and feedback forms. Historical failures without raw results still need capture; not every format failure can be declared resolved. A 401 still requires official sign-in. This update changes the China plugin only.
-
-## 0.2.6 CLI authentication diagnostics
-
-Recognizes 401 notices written to stderr even when stdout is empty and the CLI exits with status zero, instead of reporting invalid JSON. `CLI_AUTH_REQUIRED` now directs users to official `/login`. Logs retain numeric timing, byte counts and exit status without raw error output. Updating the plugin cannot restore account authorization; users must complete official sign-in.
-
-## 0.2.5 diagnostic logs and multi-fragment compatibility
-
-Settings now offer local log viewing, export and clearing. Basic logs exclude request/reply bodies and configuration paths, survive restarts and retain up to 100 calls in a main file capped at 2 MiB. Attach the basic JSON log and reproduction steps to issue reports.
-
-For format errors, explicitly acknowledge the privacy notice and arm capture of the next failed raw model result. Capture turns off after that failure and excludes requests, CLI stderr and login files. Detailed samples may contain chats and code: preview and review before sharing. No logs are uploaded automatically.
-
-Fixes treating every separate bracketed fragment as a protocol result. A single validated result can be recovered only when all remaining fragments are clearly unrelated annotations/examples. Multiple valid results, possible tool requests and malformed or incomplete fragments remain errors. Complete-wrapper compatibility from 0.2.4 is retained, without guessed repairs, retries or tool replays. Earlier unrecorded failures cannot be recovered; the exact reported incident still needs a captured sample to classify.
-
-## Why this exists
-
-The author previously used a WorkBuddy reverse-proxy integration in DSH. After that integration became restricted, the goal was to keep the DSH conversation and tool workflow while routing model calls through the official CodeBuddy CLI.
-
-This is an independent third-party adapter. The local official CLI connects to the official service; the author runs no relay server. Sign-in is handled by the official CLI. Using a documented CLI does not mean this project has official authorization or guarantee that account permissions and service policies will remain unchanged.
+See the [installation guide](docs/INSTALL.en.md). For failures, expand **Troubleshooting and usage guide** inside settings or read the [full guide](docs/USER_GUIDE.en.md).
 
 ## Features
 
-- **Dynamic model discovery:** reads the current China CLI catalog through ACP, without a fixed model allowlist. Refreshes at startup, every 15 minutes and on demand.
-- **Credit multipliers:** displays rates, reasoning options and context information returned by the catalog. Missing fields remain unknown.
-- **One-click CLI setup:** finds an existing installation or tries the official installer, with a fallback to the official npm package in a user-specific directory.
-- **DSH tools:** the model requests tools, DSH executes them under its own permissions, and results become part of the next request.
-- **Usage and diagnostics:** separate cumulative and last-call tokens, cache categories, request size, elapsed time and failure details.
-- **Portable paths:** uses the current user's directories and system paths instead of the author's username.
+- **Dynamic model discovery and rates:** ACP synchronizes the current CLI catalog, rates, reasoning options and context without a fixed allowlist, at startup, every 15 minutes and on demand.
+- **Portable setup:** detects the current user's installation or uses the official installer/npm package, without fixed usernames or paths.
+- **DSH tool workflow:** DSH enforces permissions, executes model-requested tools and passes results into subsequent requests.
+- **Usage diagnostics:** separate cumulative, per-call and cache accounting, request sizes and total durations; no artificial token-generation speed.
+- **Local logs:** view/export/clear basic logs, with opt-in detailed failure capture and no automatic upload.
 
-A catalog entry is not proof that every account can invoke that model. Permissions, credit allocation and billing are determined by the official service. Remaining credits must be checked on the official website; this plugin has no live balance API.
+Catalog visibility does not guarantee every model is authorized. Rates and token counters are not remaining credits; official usage pages determine balances and billing.
 
-## Interface previews
+## Interface examples
 
-These previews render the **actual 0.2.3 settings component** with explicitly labeled example state and fictional models. They illustrate the layout, not a real account or the current official catalog. Screenshots show the Chinese UI; the component also includes English strings. The outer DSH interface varies with its version and theme.
+These historical 0.2.3 component previews use fictional models and states, without account data. Version 0.3.0 also includes the in-settings guide and updated error handling.
 
-![CLI setup and sign-in entry, example state](docs/images/ui-setup.png)
+![Automatic CLI setup and sign-in example](docs/images/ui-setup.png)
 
-![Model catalog and multipliers, fictional example data](docs/images/ui-models.png)
+![Model/rate catalog with fictional data](docs/images/ui-models.png)
 
-## Quick start
+## Architecture and limits
 
-1. Download the `.tgz` above to your computer and install it from DSH's Plugins page. Open `dsh-codebuddy-cli-cn`, then the configuration page for component `llm-codebuddy-cli-cn`.
-2. Click **Set up CLI**. Expand the sign-in section, copy its generated command into PowerShell or Terminal, and complete the official China-region sign-in flow.
-3. Refresh models and rates, select a discovered model in the DSH conversation model selector, then test a short prompt in a new conversation.
+![DSH, adapter, official CLI and service](docs/images/architecture.svg)
 
-See the [installation and troubleshooting guide](docs/INSTALL.en.md). GitHub's source ZIP is not a DSH plugin package; install the `.tgz`.
+DSH → local adapter → official CLI → official model service → adapter validation → DSH text/tools. The CLI uses `--print --output-format json`, with built-in tools, MCP and session persistence disabled. DSH supplies history. See [architecture](docs/ARCHITECTURE.en.md).
 
-## How it works
+This is an independent third-party adapter. The author provides no relay server, shared accounts or credit resale. Official CLI sign-in does not confer official authorization on this project or guarantee future service policies.
 
-```mermaid
-flowchart LR
-  DSH[DSH: history and tool definitions] --> Adapter[Local adapter]
-  Adapter --> CLI[Official CodeBuddy CLI]
-  CLI --> Service[Official model service]
-  Service --> CLI
-  CLI --> Adapter
-  Adapter --> Result[Text or tool request]
-  Result --> DSH
-  DSH --> Tools[DSH executes tools]
-  Tools --> DSH
-```
+Text only; no image input or true token streaming. The default total deadline is 180 seconds. A version check only proves the executable starts. Node.js ≥ 22.19.0 is required. Windows has local validation; macOS/Linux installation branches have synthetic coverage, with full physical-device workflows still unverified.
 
-The adapter sends DSH system instructions, history and tool definitions as text through `--print --output-format json`. It validates the final model result locally and returns text/tool blocks to DSH. CLI tools, MCP and session persistence are disabled. DSH history supplies continuity.
+Conflicting plans, missing content and invalid tool requests may still fail. A failed final reply does not undo completed tools: verify actual state before retrying. See the [user guide](docs/USER_GUIDE.en.md).
 
-Version 0.2.3 describes the response schema in the prompt instead of using native `--json-schema`. It does not automatically send repair requests. [Architecture details](docs/ARCHITECTURE.en.md).
+This release passed 55 automated checks and two official CLI calls using entirely synthetic tool results. This does not guarantee every future model response.
 
-## Scope and data
+## Feedback
 
-- Text input only; image input is not integrated. Responses arrive as complete blocks, without measured token-by-token generation speed.
-- Each call sends the current DSH history and tool descriptions to the official service. A CLI call's usage may include multiple internal model requests.
-- The plugin passes an optional configuration directory to the CLI; it does not read, copy or package credentials. No account sharing, credit resale or author-operated relay is provided.
-- Installation and CLI operation require network access. Catalog discovery sends no model prompt; actual conversations use account credits.
-- The default deadline is 180 seconds. Timed-out calls are terminated, without automatic retries. A successful version check only verifies that the executable starts.
-- Requires Node.js ≥ 22.19.0 and the DSH dependencies listed in `package.json`. Windows has been tested locally. macOS/Linux installation branches have synthetic test coverage but no complete physical-machine validation.
+Export basic logs from settings with the error code, diagnostic ID, version and reproduction steps. Arm capture beforehand only when raw replies are necessary and review before sharing. See [logging help](docs/TROUBLESHOOTING.en.md). Never publish credentials, private sessions or unreviewed raw logs.
 
-## Validation and development
-
-27 local tests passed for 0.2.3. Synthetic live scenarios also covered a normal reply, 32 fictional tool definitions, a tool request and continuation with a synthetic tool result. These checks do not establish compatibility with every model, account or environment.
-
-```sh
-npm install --legacy-peer-deps
-npm test
-npm pack
-```
-
-Tests use synthetic fixtures and do not invoke real models. DSH supplies host dependencies. `scripts/generate-preview.mjs` renders the documentation previews without sign-in or model calls.
-
-The public repository contains source, synthetic tests, documentation and the latest package. It excludes account research, credentials and real conversation records.
-
-## Official references
-
-- [CLI installation](https://www.codebuddy.cn/docs/cli/installation)
-- [Headless mode](https://www.codebuddy.cn/docs/cli/headless)
-- [ACP integration](https://www.codebuddy.cn/docs/cli/acp)
-- [Cost management](https://www.codebuddy.cn/docs/cli/costs)
-- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
+This repository contains source, automated tests and user documentation. Historical packages live in Releases; manual test forms and fixtures are distributed separately.

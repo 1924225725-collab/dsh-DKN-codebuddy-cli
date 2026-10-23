@@ -144,6 +144,32 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:annotated-tool' }], tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }] })) annotated.push(chunk)
   assert.equal(annotated.at(-1).reason.kind, 'tool-calls')
   assert.equal(annotated.filter(x => x.type === 'block-end' && x.block.type === 'tool-call').length, 1)
+  // Synthetic T11 boundary: the tool result has already arrived. Recover only
+  // the final text, without replaying a model request or yielding any new tool.
+  const requestCount = async () => (await readFile(path.join(binDirectory, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.args).length
+  const beforeDuplicate = await requestCount()
+  const duplicate = []
+  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:duplicate-tool' }], tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }] })) duplicate.push(chunk)
+  assert.equal(await requestCount() - beforeDuplicate, 1, 'duplicate recovery must not invoke the CLI again')
+  assert.equal(duplicate.at(-1).reason.kind, 'tool-calls')
+  assert.equal(duplicate.filter(x => x.type === 'block-end' && x.block.type === 'tool-call').length, 1, 'a repeated complete reply must be delivered once')
+  const duplicateLog = (await logAction('exportLogs')).body.entries.at(-1)
+  assert.equal(duplicateLog.responseDiagnostics.duplicateProtocolCandidates, 1)
+  assert.ok(duplicateLog.responseDiagnostics.normalizations.includes('duplicate-protocol-result'))
+  const beforeFinalReply = await requestCount()
+  const finalReply = []
+  for await (const chunk of adapter.stream({ model: 'future-alpha', tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }], messages: [
+    { role: 'user', content: 'response-case:malformed-final-text' },
+    { role: 'assistant', content: [{ type: 'tool-call', id: 'already-done', name: 'read_test', arguments: '{}' }] },
+    { role: 'tool', toolCallId: 'already-done', content: '5; exit=0', isError: false }
+  ] })) finalReply.push(chunk)
+  assert.equal(await requestCount() - beforeFinalReply, 1, 'final text recovery must not retry the CLI')
+  assert.equal(finalReply.at(-1).reason.kind, 'stop')
+  assert.equal(finalReply.filter(x => x.type === 'block-end' && x.block.type === 'tool-call').length, 0)
+  assert.equal(finalReply.find(x => x.type === 'block-end' && x.block.type === 'text').block.text, '输出 5\n退出码 0；路径 C:\\project\\demo')
+  const recoveredLog = (await logAction('exportLogs')).body.entries.at(-1)
+  assert.ok(recoveredLog.responseDiagnostics.normalizations.includes('text-string-escape-recovery'))
+  assert.equal(JSON.stringify(recoveredLog).includes('project'), false)
   assert.equal((await logAction('armCapture')).body.logs.captureArmed, true)
   const beforeFailures = (await readFile(path.join(binDirectory, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.args).length
   const reportedFailures = []
