@@ -2,7 +2,7 @@
 
 [简体中文](使用与故障处理指南.md) · [Installation](INSTALL.en.md) · [Logs](TROUBLESHOOTING.en.md) · [Home](../README.en.md)
 
-For 0.3.0. Plugin settings contain an offline-readable troubleshooting summary. This page provides the full guide. All examples below are fictional.
+For 0.3.1. Plugin settings contain an offline-readable troubleshooting summary. This page provides the full guide. All examples below are fictional.
 
 ## Check the failure stage before retrying
 
@@ -14,9 +14,10 @@ The adapter converts model replies into DSH text and tool requests. DSH executes
 
 | Symptom | When it can occur | What to do |
 | --- | --- | --- |
-| `ambiguous-json` | One result contains different complete replies/tool plans or unresolved protocol fragments | Do not pick the last plan or merge them. Check completed operations, then use a short fresh conversation with a necessary summary and one clear next action. Capture a raw failure before reporting a recurrence |
-| `possibly-truncated-json` | A string or container is unclosed; content may be missing | Split large tasks and reduce single-response code/file volume. Missing content cannot be reliably reconstructed. Verify completed tools first |
-| `invalid-json` or field errors | Escapes, quotes, types or the root object violate the protocol | Update the adapter and try a smaller task. Limited text recovery does not repair every syntax error. Keep the error code and diagnostic ID |
+| CLI_STRUCTURED_OUTPUT_MISSING | Official CLI returned no native structured_output | Check the running plugin/CLI versions and selected model. Export basic logs; try a small request. Prose is not substituted. Update the official CLI through its supported installation flow if needed |
+| native-final-results | No unique final CLI record | The adapter never picks the last result. Save diagnostics and report the recurrence |
+| native-envelope / field errors | Native output is a string, wrapper, partial object or has invalid fields | Missing content is not reconstructed. Reduce output size and report the diagnostic ID |
+| Legacy ambiguous-json / possibly-truncated-json | A saved older call used the text protocol | Verify running 0.3.1 and reproduce a new call; upgrading does not rewrite historical messages |
 | `TOOL_CALL_INVALID` | A tool name is undeclared or arguments are invalid | Confirm the intended DSH tools are enabled and make the request precise. Never substitute a similar tool name and execute it. Include DSH/CLI/plugin versions in the report |
 | Final failure after successful command output | A tool completed, but the following summary or next-step response failed | Check output, exit codes and files. If only the summary is missing, explicitly request a summary of existing results without repeating operations |
 | Changed quotes, code or backslashes | The model may add/remove escaping or alter literal content | Ask for only the affected small block and compare characters. The adapter never unescapes every valid text field a second time; verify content before executing it |
@@ -24,16 +25,13 @@ The adapter converts model replies into DSH text and tool requests. DSH executes
 | `CLI_TIMEOUT` | The total CLI deadline expired, including startup, model processing and process exit | Split the task, check connectivity/service status, and adjust the deadline if needed. A longer deadline cannot resolve conflicting JSON plans |
 | Missing file, `grantWrite`, ACL or permission error | Wrong workspace, absent path, or DSH/OS access refusal | Verify the workspace and path in the file manager and follow actual DSH permissions. Do not classify every permission error as model formatting, or change permissions to fix formatting |
 
-## Recovery boundaries
+## Native output boundaries
 
-- A unique validated protocol result can be recovered beside clearly unrelated complete annotations/examples.
-- Complete results with identical text, ordered tool names and delivered arguments are delivered once. This does not remove repeated operations inside a single plan.
-- Raw controls/illegal escapes can be recovered only inside text in a complete object containing exactly text and explicit empty toolCalls. Existing valid JSON escapes keep their meaning.
-- Clearly non-protocol plain text can be delivered as text, without inferring tools.
+Only the official structured_output object is accepted, with exactly text and toolCalls. Text is never scanned for extra protocol fragments. Tools must be declared and arguments must be objects. String/wrapper recovery, missing-field inference and escape repair do not run on current calls.
 
-Different plans, missing content, ambiguous fields and invalid tool requests may still fail. No adapter can guarantee recovery of every future model response.
+The StructuredOutput output tool is allowed, while CLI file/command/MCP business tools remain disabled. DSH executes business operations. Multiple final records are rejected, and repeated operations inside one submitted plan are preserved.
 
-Fictional example: while organizing a sample inventory, a reply proposes both “inspect low-stock items only” and “modify the inventory and export it.” Clarify the goal and request one step at a time; do not assume a later plan supersedes an earlier one.
+The adapter starts no extra CLI repair process. Official structured processing allows bounded internal turns and may use more than one model request. Network, sign-in, limits, truncation and invalid results can still fail; native output is not a guarantee of correct task intent.
 
 ## Reducing failures in long conversations
 

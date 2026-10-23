@@ -24,4 +24,7 @@ test('preserves tool failure flags and instructs the model to honor DSH file and
   assert.deepEqual(envelope.messages, messages)
   assert.ok(MODEL_SYSTEM_PROMPT.includes('isError=true'))
   assert.ok(MODEL_SYSTEM_PROMPT.includes('read-before-edit'))
+  assert.ok(MODEL_SYSTEM_PROMPT.includes('StructuredOutput'))
+  assert.ok(MODEL_SYSTEM_PROMPT.includes('exactly once'))
+  assert.ok(envelope.instructions.includes('仅允许调用 StructuredOutput'))
 })

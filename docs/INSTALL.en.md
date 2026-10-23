@@ -2,15 +2,15 @@
 
 [简体中文](安装教程.md) · **English** · [Home](../README.en.md)
 
-For version **0.3.0**.
+For version **0.3.1**.
 
 ## 1. Download and install
 
-[Version package](../releases/dsh-codebuddy-cli-cn-0.3.0.tgz). Save it locally, or use the delivered local `dsh-codebuddy-cli-cn-0.3.0.tgz`. You can also download from [GitHub Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/latest). The source ZIP is not an installable DSH plugin package.
+[Version package](../releases/dsh-codebuddy-cli-cn-0.3.1.tgz). Save it locally, or use the delivered local `dsh-codebuddy-cli-cn-0.3.1.tgz`. You can also download from [GitHub Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/latest). The source ZIP is not an installable DSH plugin package.
 
 Open DSH's Plugins page and select the local `.tgz` through its package installation entry. If it asks for a path, use the real downloaded file path, not a web URL. Exact button names can vary by DSH version.
 
-Find **`dsh-codebuddy-cli-cn`**, open component **`llm-codebuddy-cli-cn`**, and check that the settings page reports running version **0.3.0**. Restart DSH if it still shows an older version.
+Find **`dsh-codebuddy-cli-cn`**, open component **`llm-codebuddy-cli-cn`**, and check that the settings page reports running version **0.3.1**. Restart DSH if it still shows an older version.
 
 ## 2. Set up the CLI and sign in
 
@@ -40,7 +40,7 @@ Tools follow DSH's permissions and approval flow. Catalog visibility alone does 
 
 ## 4. Read usage correctly
 
-Cumulative and last-call tokens are separate. Input includes system instructions, history, tool definitions, caches and CLI overhead. It is not the length of your latest question, and request bytes are not tokens. One CLI call may include multiple internal model requests.
+Cumulative and last-call tokens are separate. Input includes system instructions, history, tool definitions, caches and CLI overhead. It is not the length of your latest question, and request bytes are not tokens. Native structured processing allows bounded internal turns; one CLI call may include multiple model requests and their usage.
 
 Rates come from the current catalog. Check remaining credits on the official CodeBuddy website under Profile → Plan and Usage. Local counters reset when DSH restarts.
 
@@ -53,8 +53,8 @@ Rates come from the current catalog. Check remaining credits on the official Cod
 | `CLI_NOT_FOUND` | Run setup, or save the actual local CLI path in advanced settings after official installation. |
 | Version check passes but calls fail | Confirm official CLI sign-in, refresh the catalog and try a short prompt in a new conversation. |
 | `CLI_AUTH_REQUIRED` / 401 | Copy the settings sign-in command into PowerShell, then run `/login` inside the official CLI and refresh models. Updating the plugin cannot restore account authorization. |
-| 180-second timeout | Confirm running version 0.3.0, stop the task and test a short prompt. Inspect error code, elapsed time and output byte counts. Complex tasks may need 300000–600000 ms; a longer deadline cannot fix sign-in or network faults. |
-| Invalid response format | Confirm running version 0.3.0 and inspect result diagnostics and recent failures. Local escape/control-character recovery requires a complete object containing exactly text and empty toolCalls. Repeated complete results are recovered only when delivered text and ordered tool contents match exactly. Conflicts, missing structure and unsupported malformed content still fail. See the [user guide](USER_GUIDE.en.md). |
+| 180-second timeout | Confirm running version 0.3.1, stop the task and test a short prompt. Inspect error code, elapsed time and output byte counts. Complex tasks may need 300000–600000 ms; a longer deadline cannot fix sign-in or network faults. |
+| Missing or invalid native output | Verify running 0.3.1 and CLI/model structured-output support. CLI_STRUCTURED_OUTPUT_MISSING has no prose fallback; multiple final records are not resolved by picking the last. See the [guide](USER_GUIDE.en.md). |
 | Missing new models | Save settings before refreshing, and check CLI/configuration paths. Failed refreshes retain the previous catalog. |
 | Large input or odd speed | Separate last-call from cumulative usage, and bytes from tokens. History and tools add input. Real decoding speed is not exposed; saved old conversation statistics are not rewritten. |
 

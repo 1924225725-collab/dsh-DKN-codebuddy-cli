@@ -1,10 +1,34 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseModelResponse } from '../lib/model-response.js'
+import { parseModelResponse, parseStructuredResponse } from '../lib/model-response.js'
 
 const envelope = { text: 'hello', toolCalls: [] }
 const tool = { name: 'edit_demo' }
 const toolEnvelope = { text: '', toolCalls: [{ name: tool.name, arguments: { content: 'quoted "text"\nC:\\demo\\file.txt { [ ] }' } }] }
+
+test('native mode preserves literal text and repeated operations without parsing inner protocol examples', () => {
+  const text = 'C:\\fictional samples\\demo\n{"text":"example"} {"toolCalls":[]}\n```json\n{"example":1}\n```'
+  const value = { text, toolCalls: [toolEnvelope.toolCalls[0], toolEnvelope.toolCalls[0]] }
+  const parsed = parseStructuredResponse(value, [tool])
+  assert.equal(parsed.text, text)
+  assert.equal(parsed.calls.length, 2)
+  assert.deepEqual(parsed.calls.map(x => JSON.parse(x.arguments)), value.toolCalls.map(x => x.arguments))
+  assert.equal(parsed.responseDiagnostics.outputMode, 'native-json-schema')
+  assert.deepEqual(parsed.responseDiagnostics.normalizations, [])
+})
+
+test('native mode rejects string/wrapper/partial/extra envelopes without invoking legacy recovery', () => {
+  for (const value of [JSON.stringify(envelope), 'plain text', '{"text":', [envelope], { data: envelope }, { text: 'text only' }, { toolCalls: [toolEnvelope.toolCalls[0]] }, { ...envelope, extra: true }]) {
+    assert.throws(() => parseStructuredResponse(value, [tool]), e => e.code === 'STRUCTURED_OUTPUT_INVALID' && e.responseDiagnostics.reason === 'native-envelope')
+  }
+})
+
+test('native mode retains declared-tool and nonempty-result checks and requires object arguments', () => {
+  assert.throws(() => parseStructuredResponse(toolEnvelope, []), e => e.code === 'TOOL_CALL_INVALID' && e.responseDiagnostics.reason === 'unknown-tool')
+  assert.throws(() => parseStructuredResponse({ text: ' ', toolCalls: [] }), e => e.responseDiagnostics.reason === 'empty-content')
+  for (const args of ['{}', [], null]) assert.throws(() => parseStructuredResponse({ text: '', toolCalls: [{ name: tool.name, arguments: args }] }, [tool]), e => e.code === 'TOOL_CALL_INVALID')
+  assert.throws(() => parseStructuredResponse({ text: '', toolCalls: [{ ...toolEnvelope.toolCalls[0], id: 'untrusted' }] }, [tool]), e => e.responseDiagnostics.reason === 'native-tool-envelope')
+})
 
 test('accepts exact envelopes and complete wrappers without changing reply or tool arguments', () => {
   const json = JSON.stringify(toolEnvelope)

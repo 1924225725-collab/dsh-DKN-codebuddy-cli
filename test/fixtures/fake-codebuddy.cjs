@@ -32,6 +32,7 @@ if (process.argv.includes('--version')) {
   process.stdin.on('data', (chunk) => { input += chunk })
   process.stdin.on('end', () => {
     record({ args: process.argv.slice(2), input })
+    if (input.includes('response-case:wait-for-cancel')) { setInterval(() => {}, 1000); return }
     if (input.includes('response-case:auth-required')) { process.stderr.write('401 Authentication required. Please use /login PRIVATE_AUTH_TOKEN'); return }
     if (input.includes('response-case:empty-output')) return
     if (input.includes('response-case:non-json')) { process.stdout.write('PRIVATE_NON_JSON'); return }
@@ -48,6 +49,30 @@ if (process.argv.includes('--version')) {
       response = plan + '\n' + plan
     }
     if (input.includes('response-case:ambiguous')) response = [JSON.stringify({ text: 'PRIVATE_FAILED_REPLY', toolCalls: [] }), JSON.stringify({ text: 'conflicting reply', toolCalls: [] })].join('\n')
+    if (process.argv.includes('--json-schema')) {
+      let value = { text: toolCalls.length ? '' : 'fixture response', toolCalls }
+      if (input.includes('response-case:native-literal-tool')) value = { text: '示例 {"text":"example"} {"toolCalls":[]}；路径 C:\\samples\\demo', toolCalls: [{ name: envelope.tools[0].name, arguments: { target: 'sandbox.txt' } }] }
+      if (input.includes('response-case:native-duplicate-tools')) {
+        const call = { name: envelope.tools[0].name, arguments: { target: 'sandbox.txt' } }
+        value = { text: '', toolCalls: [call, call] }
+      }
+      if (input.includes('response-case:native-final')) value = { text: '输出 5\n退出码 0；路径 C:\\project\\demo', toolCalls: [] }
+      if (input.includes('response-case:wrong-shape')) value = { text: { PRIVATE_FAILED_REPLY: true }, toolCalls: [] }
+      if (input.includes('response-case:native-string')) value = JSON.stringify(value)
+      if (input.includes('response-case:native-unknown-tool')) value = { text: '', toolCalls: [{ name: 'UNDECLARED_TOOL', arguments: {} }] }
+      if (input.includes('response-case:native-invalid-args')) value = { text: '', toolCalls: [{ name: envelope.tools[0].name, arguments: '{}' }] }
+      const result = { type: 'result', subtype: 'success', result: response,
+        structured_output: value, usage: { input_tokens: 11, output_tokens: 7, cache_read_input_tokens: 3, cache_creation_input_tokens: 4 } }
+      if (input.includes('response-case:truncated') || input.includes('response-case:missing-native')) delete result.structured_output
+      if (input.includes('response-case:null-native')) result.structured_output = null
+      if (input.includes('response-case:schema-error')) { result.is_error = true; result.subtype = 'error_max_turns' }
+      if (input.includes('response-case:ambiguous')) {
+        console.log(JSON.stringify([{ ...result, structured_output: { text: 'PRIVATE_FAILED_REPLY', toolCalls: [] } }, { ...result, structured_output: { text: 'different final', toolCalls: [] } }]))
+        return
+      }
+      console.log(JSON.stringify([{ type: 'system', subtype: 'init' }, result]))
+      return
+    }
     console.log(JSON.stringify([
       { type: 'system', subtype: 'init' },
       { type: 'result', subtype: 'success', result: response, usage: { input_tokens: 11, output_tokens: 7, cache_read_input_tokens: 3, cache_creation_input_tokens: 4 } }

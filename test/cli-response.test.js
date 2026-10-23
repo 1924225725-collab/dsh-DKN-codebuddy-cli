@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { collectResult, CodeBuddyCliError } from '../lib/cli-response.js'
+import { collectResult, collectStructuredResult, CodeBuddyCliError } from '../lib/cli-response.js'
 
 test('reads a structured result from the documented single-object response', () => {
   const response = collectResult(JSON.stringify({
@@ -104,4 +104,26 @@ test('carries immutable DSH-compatible failure facts with a diagnostic ID instea
   assert.ok(error.message.includes(requestId))
   assert.ok(Object.isFrozen(error.failure))
   assert.equal(new CodeBuddyCliError('CLI_TIMEOUT', 'timeout').failure.code, 'CLI_TIMEOUT')
+})
+
+test('native collection accepts only the official field and never falls back to valid-looking prose', () => {
+  const value = { text: 'literal {"text":"example"} {"toolCalls":[]}', toolCalls: [] }
+  assert.deepEqual(collectStructuredResult(JSON.stringify({ type: 'result', structured_output: value, result: 'conflicting prose' })).result, value)
+  for (const field of [{}, { structured_output: null }]) {
+    assert.throws(() => collectStructuredResult(JSON.stringify({ type: 'result', result: JSON.stringify(value), usage: { input_tokens: 7 }, ...field })), error => {
+      assert.equal(error.code, 'CLI_STRUCTURED_OUTPUT_MISSING')
+      assert.equal(error.usage.input_tokens, 7)
+      assert.equal(error.responseDiagnostics.outputMode, 'native-json-schema')
+      assert.equal(Object.keys(error).includes('rawResult'), false)
+      return true
+    })
+  }
+})
+
+test('native collection rejects multiple final records without selecting the last or losing CLI errors', () => {
+  const doc = { type: 'result', structured_output: { text: 'first', toolCalls: [] } }
+  for (const value of [[], [{ type: 'assistant', structured_output: doc.structured_output }], [doc, doc], [doc, { ...doc, structured_output: { text: 'different', toolCalls: [] } }]]) {
+    assert.throws(() => collectStructuredResult(JSON.stringify(value)), e => e.code === 'STRUCTURED_OUTPUT_INVALID' && e.responseDiagnostics.reason === 'native-final-results')
+  }
+  assert.throws(() => collectStructuredResult(JSON.stringify({ ...doc, is_error: true, subtype: 'error_max_turns', usage: { output_tokens: 13 } })), e => e.code === 'CLI_REQUEST_FAILED' && e.usage.output_tokens === 13)
 })

@@ -89,7 +89,13 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(calls[3].args.includes('--model'), false)
   assert.equal(calls[3].args.includes('--effort'), false)
   assert.ok(calls.every((call) => call.args.includes('--system-prompt') && !call.args.includes('--append-system-prompt')))
-  assert.ok(calls.every((call) => !call.args.includes('--json-schema')), 'avoid CLI internal structured-output retry calls')
+  for (const call of calls) {
+    assert.deepEqual(JSON.parse(call.args[call.args.indexOf('--json-schema') + 1]), JSON.parse(call.input.slice(call.input.indexOf('{"protocol"'))).responseSchema)
+    assert.equal(call.args[call.args.indexOf('--tools') + 1], 'StructuredOutput', 'only the output tool is enabled')
+    assert.equal(call.args[call.args.indexOf('--max-turns') + 1], '4')
+    assert.deepEqual(JSON.parse(call.args[call.args.indexOf('--mcp-config') + 1]), { mcpServers: {} })
+    assert.equal(call.args.includes('--dangerously-skip-permissions'), false)
+  }
   assert.ok(calls.every((call) => JSON.parse(call.input.slice(call.input.indexOf('{"protocol"'))).responseSchema))
   assert.ok(records.filter((record) => record.method).every((record) => ['initialize', 'session/new'].includes(record.method)))
 
@@ -111,6 +117,7 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(status.catalog.models.length, 2)
   assert.equal(status.pluginVersion, JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')).version)
   assert.equal(status.timeoutMs, 15000)
+  assert.equal(status.responseMode, 'native-json-schema')
   assert.equal(status.usage.lastCall.model, 'future-alpha')
   assert.equal(status.usage.calls, 5)
   assert.equal(status.usage.inputTokens, 55)
@@ -134,14 +141,15 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(result.setup.installed, false)
   assert.equal(result.setup.path, executable)
 
-  // Exercise recovery through the full process/adapter boundary, then verify
-  // invalid output never yields partial text/tools or triggers another call.
+  // Native object delivery ignores protocol-looking examples in text and the
+  // CLI's unrelated free-form result; it never scans either for tool plans.
   const recovered = []
-  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:fenced-tool' }], tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }] })) recovered.push(chunk)
+  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:native-literal-tool' }], tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }] })) recovered.push(chunk)
   assert.equal(recovered.at(-1).reason.kind, 'tool-calls')
-  assert.deepEqual(JSON.parse(recovered.find(x => x.type === 'block-end').block.arguments), { target: 'sandbox.txt' })
+  assert.deepEqual(JSON.parse(recovered.find(x => x.type === 'block-end' && x.block.type === 'tool-call').block.arguments), { target: 'sandbox.txt' })
+  assert.ok(recovered.find(x => x.type === 'block-end' && x.block.type === 'text').block.text.includes('{"text":"example"} {"toolCalls":[]}'))
   const annotated = []
-  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:annotated-tool' }], tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }] })) annotated.push(chunk)
+  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:native-literal-tool' }], tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }] })) annotated.push(chunk)
   assert.equal(annotated.at(-1).reason.kind, 'tool-calls')
   assert.equal(annotated.filter(x => x.type === 'block-end' && x.block.type === 'tool-call').length, 1)
   // Synthetic T11 boundary: the tool result has already arrived. Recover only
@@ -149,17 +157,17 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   const requestCount = async () => (await readFile(path.join(binDirectory, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.args).length
   const beforeDuplicate = await requestCount()
   const duplicate = []
-  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:duplicate-tool' }], tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }] })) duplicate.push(chunk)
+  for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:native-duplicate-tools' }], tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }] })) duplicate.push(chunk)
   assert.equal(await requestCount() - beforeDuplicate, 1, 'duplicate recovery must not invoke the CLI again')
   assert.equal(duplicate.at(-1).reason.kind, 'tool-calls')
-  assert.equal(duplicate.filter(x => x.type === 'block-end' && x.block.type === 'tool-call').length, 1, 'a repeated complete reply must be delivered once')
+  assert.equal(duplicate.filter(x => x.type === 'block-end' && x.block.type === 'tool-call').length, 2, 'repeated calls within one official plan must remain intact')
   const duplicateLog = (await logAction('exportLogs')).body.entries.at(-1)
-  assert.equal(duplicateLog.responseDiagnostics.duplicateProtocolCandidates, 1)
-  assert.ok(duplicateLog.responseDiagnostics.normalizations.includes('duplicate-protocol-result'))
+  assert.equal(duplicateLog.responseDiagnostics.outputMode, 'native-json-schema')
+  assert.deepEqual(duplicateLog.responseDiagnostics.normalizations, [])
   const beforeFinalReply = await requestCount()
   const finalReply = []
   for await (const chunk of adapter.stream({ model: 'future-alpha', tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }], messages: [
-    { role: 'user', content: 'response-case:malformed-final-text' },
+    { role: 'user', content: 'response-case:native-final' },
     { role: 'assistant', content: [{ type: 'tool-call', id: 'already-done', name: 'read_test', arguments: '{}' }] },
     { role: 'tool', toolCallId: 'already-done', content: '5; exit=0', isError: false }
   ] })) finalReply.push(chunk)
@@ -168,7 +176,8 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(finalReply.filter(x => x.type === 'block-end' && x.block.type === 'tool-call').length, 0)
   assert.equal(finalReply.find(x => x.type === 'block-end' && x.block.type === 'text').block.text, '输出 5\n退出码 0；路径 C:\\project\\demo')
   const recoveredLog = (await logAction('exportLogs')).body.entries.at(-1)
-  assert.ok(recoveredLog.responseDiagnostics.normalizations.includes('text-string-escape-recovery'))
+  assert.equal(recoveredLog.responseDiagnostics.outputMode, 'native-json-schema')
+  assert.deepEqual(recoveredLog.responseDiagnostics.normalizations, [])
   assert.equal(JSON.stringify(recoveredLog).includes('project'), false)
   assert.equal((await logAction('armCapture')).body.logs.captureArmed, true)
   const beforeFailures = (await readFile(path.join(binDirectory, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.args).length
@@ -179,7 +188,8 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
       for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: `response-case:${variant}` }] })) delivered.push(chunk)
     }, error => {
       reportedFailures.push(error.failure)
-      return error.code === 'STRUCTURED_OUTPUT_INVALID' && error.message.includes(variant === 'truncated' ? 'possibly-truncated-json' : variant === 'ambiguous' ? 'ambiguous-json' : 'invalid-text-field')
+      return variant === 'truncated' ? error.code === 'CLI_STRUCTURED_OUTPUT_MISSING'
+        : error.code === 'STRUCTURED_OUTPUT_INVALID' && error.message.includes(variant === 'ambiguous' ? 'native-final-results' : 'invalid-text-field')
     })
     assert.deepEqual(delivered, [], 'invalid replies cannot deliver partial blocks')
   }
@@ -191,7 +201,7 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(history.usage.lastCall.responseDiagnostics.reason, 'valid')
   assert.equal(history.usage.recentFailures.length, 5)
   assert.equal(history.usage.recentFailures[0].responseDiagnostics.reason, 'invalid-text-field')
-  assert.equal(history.usage.recentFailures[1].responseDiagnostics.reason, 'possibly-truncated-json')
+  assert.equal(history.usage.recentFailures[1].responseDiagnostics.reason, 'native-structured-output-missing')
   assert.equal(JSON.stringify(history).includes('PRIVATE_FAILED_REPLY'), false)
   assert.equal(history.logs.captureArmed, false)
   assert.equal(history.logs.samples, 1)
@@ -204,7 +214,8 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   const failureEntries = basic.body.entries.filter(x => x.state === 'error')
   assert.equal(new Set(reportedFailures.map(x => x.requestId)).size, 6)
   assert.deepEqual(reportedFailures.map(x => x.requestId), failureEntries.map(x => x.id))
-  assert.ok(reportedFailures.every(x => x.code === 'STRUCTURED_OUTPUT_INVALID' && x.message.includes(x.requestId)))
+  assert.ok(reportedFailures.every(x => ['STRUCTURED_OUTPUT_INVALID', 'CLI_STRUCTURED_OUTPUT_MISSING'].includes(x.code) && x.message.includes(x.requestId)))
+  assert.ok(failureEntries.every(x => x.processDiagnostics.stdoutBytes > 0), 'native validation failures retain process diagnostics')
   const detail = await logAction('exportDetailedLogs')
   assert.equal(detail.body.entries.filter(x => x.sample).length, 1)
   assert.equal(detail.body.entries.find(x => x.sample).sample.head, '{"text":"PRIVATE_FAILED_REPLY')
@@ -217,6 +228,15 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal((await logAction('arbitrary-command')).status, 400)
   assert.equal((await logAction('clearLogs')).body.logs.entries, 0)
   assert.equal((await logAction('exportDetailedLogs')).body.entries.length, 0)
+  for (const [variant, code] of [['missing-native', 'CLI_STRUCTURED_OUTPUT_MISSING'], ['null-native', 'CLI_STRUCTURED_OUTPUT_MISSING'], ['native-string', 'STRUCTURED_OUTPUT_INVALID'], ['native-unknown-tool', 'TOOL_CALL_INVALID'], ['native-invalid-args', 'TOOL_CALL_INVALID'], ['schema-error', 'CLI_REQUEST_FAILED']]) {
+    const delivered = [], before = await requestCount()
+    await assert.rejects(async () => {
+      for await (const chunk of adapter.stream({ model: 'future-alpha', tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }], messages: [{ role: 'user', content: `response-case:${variant}` }] })) delivered.push(chunk)
+    }, error => error.code === code)
+    assert.deepEqual(delivered, [], 'native failures never fall back or yield partial plans')
+    assert.equal(await requestCount() - before, 1)
+  }
+  await logAction('clearLogs')
   await logAction('armCapture')
   for (const [variant, code] of [['auth-required', 'CLI_AUTH_REQUIRED'], ['empty-output', 'CLI_OUTPUT_INVALID'], ['non-json', 'CLI_OUTPUT_INVALID']]) {
     const delivered = []
@@ -239,6 +259,25 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   assert.equal(pausedStatus.activeCalls, 0, 'a completed CLI call must not remain active while its consumer is paused')
   await paused.return()
   assert.equal((await (await fetch(`${origin}/plugins/dsh-codebuddy-cli-cn/status`)).json()).activeCalls, 0)
+
+  await logAction('armCapture')
+  const controller = new AbortController(), cancelledChunks = [], beforeCancel = await requestCount()
+  const cancelRun = (async () => {
+    try {
+      for await (const chunk of adapter.stream({ model: 'future-alpha', signal: controller.signal, messages: [{ role: 'user', content: 'response-case:wait-for-cancel' }] })) cancelledChunks.push(chunk)
+      return null
+    } catch (error) { return error }
+  })()
+  try {
+    for (let i = 0; await requestCount() === beforeCancel && i < 100; i++) await new Promise(resolve => setTimeout(resolve, 10))
+    assert.equal(await requestCount() - beforeCancel, 1)
+  } finally { controller.abort() }
+  assert.equal((await cancelRun).code, 'ABORTED')
+  assert.deepEqual(cancelledChunks, [])
+  const cancelledStatus = await (await fetch(`${origin}/plugins/dsh-codebuddy-cli-cn/status`)).json()
+  assert.equal(cancelledStatus.activeCalls, 0)
+  assert.equal(cancelledStatus.logs.captureArmed, true, 'native cancellation preserves opt-in failure capture')
+  await logAction('cancelCapture')
 
   const denied = await fetch(`${origin}/plugins/dsh-codebuddy-cli-cn/actions`, {
     method: 'POST', headers: { Origin: 'https://other.example', 'Content-Type': 'application/json', 'X-DSH-CodeBuddy-Action': '1' }, body: JSON.stringify({ action: 'setup' })

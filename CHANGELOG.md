@@ -4,6 +4,20 @@
 
 Historical GitHub Releases are backfilled with the unchanged packages. The local 0.2.10 candidate is included in 0.3.0 and has no separate public release.
 
+## [0.3.1](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.1)
+
+- 改用官方 --json-schema，只开放 StructuredOutput 输出工具，直接读取 structured_output 对象，退出普通文字 JSON 候选扫描路径。
+- 原生结果缺失、字符串/包装结果、不合法字段或多个最终记录明确失败，不静默回退、不选择最后一份。
+- 保留 DSH 工具名与对象参数检查；单一计划内的重复操作不删除，工具执行继续由 DSH 管理。
+- 保留取消、总超时、日志隐私和诊断 ID；原生校验失败也保留进程统计。更新配置页及中英故障指南。
+- 结构化处理允许有限 CLI 内部轮次；插件不额外启动 CLI 做修复，官方内部处理仍可能消耗多轮额度。
+- Use official --json-schema with only the StructuredOutput output tool enabled; read the structured_output object instead of scanning prose for JSON candidates.
+- Reject missing native output, string/wrapper envelopes, invalid fields and multiple final records without prose fallback or arbitrary last-result selection.
+- Retain DSH tool-name/object-argument validation and repeated operations within one plan. DSH continues to execute business tools.
+- Preserve cancellation, total deadlines, diagnostic IDs and log privacy. Native validation failures retain process diagnostics. Update bilingual in-settings and full troubleshooting guides.
+- Allow bounded CLI internal turns for structured processing. The adapter starts no extra CLI repair process; official processing can still consume multiple internal model turns.
+- 验证 / Validation: 60 automated checks and three synthetic official CLI calls through the new adapter passed. No real DSH business tool ran; not every model was tested.
+
 ## [0.3.0](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.0)
 
 - 仅当多个完整协议对象交付的文字及有序工具名称/参数完全一致时，恢复为一份结果；不合并冲突计划，不删除同一计划中的重复工具。

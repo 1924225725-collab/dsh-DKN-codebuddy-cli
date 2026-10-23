@@ -2,7 +2,7 @@
 
 [简体中文](反馈与日志.md) · [Home](../README.en.md)
 
-Install 0.3.0, restart DSH and open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`. Scroll to **Diagnostic logs and feedback** and verify the running version at the top.
+Install 0.3.1, restart DSH and open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`. Scroll to **Diagnostic logs and feedback** and verify the running version at the top.
 
 New failure messages include a `diagnostic-id` matching each exported record `id`; DSH also retains the machine code. Settings show the same ID. Earlier uncorrelated failures cannot be retroactively repaired. Include reproduction steps and reviewed logs in reports.
 
@@ -10,7 +10,7 @@ New failure messages include a `diagnostic-id` matching each exported record `id
 
 ## Basic logs
 
-Basic logs record timestamps, plugin/CLI versions, models, reasoning effort, deadlines, timing, tokens, history/tool counts, request byte sizes, error codes and structural summaries. Since 0.2.8 they include `scanIncomplete`, `scanBroken`, `insideString` and `openContainerDepth` to distinguish incomplete/mismatched structures without saving reply text. Version 0.2.9 delivers balanced malformed JSON examples as plain text only when they contain no protocol fields or declared tool names. Version 0.3.0 additionally recovers text string escapes/control characters only in complete explicitly text-only envelopes, marked text-string-escape-recovery in basic logs. Exports include the OS, architecture and Node version. DSH version is not automatically detected; include it manually in reports.
+Basic logs record timestamps, plugin/CLI versions, models, reasoning effort, deadlines, timing, tokens, history/tool counts, request byte sizes, error codes and structural summaries. Version 0.3.1 uses official native JSON Schema with only StructuredOutput enabled, reading the structured_output object. JSON examples inside text are not scanned as protocol candidates. Basic logs mark outputMode=native-json-schema and count multiple final records with finalResultCount. Older scan/escape-recovery fields may remain in saved historical records; current calls do not use that path.
 
 Basic logs exclude request/reply bodies, tool arguments, credentials, CLI output bodies and configuration/executable paths. Record IDs are diagnostic IDs, not account/session IDs. Fragment summaries contain only fixed types, sizes and field-presence flags, without field values or arbitrary field names. Model choices may still reveal usage preferences; review before sharing.
 
@@ -55,4 +55,4 @@ Only with long histories or tools?:
 Attachments: basic JSON log; reviewed detailed sample only if needed
 ```
 
-Version 0.3.0 records `duplicate-protocol-result` and the numeric `duplicateProtocolCandidates` when identical complete results are recovered. Conflicting results remain blocked. See the [user guide](USER_GUIDE.en.md). Logging does not retry calls or send additional model requests.
+Missing native output reports CLI_STRUCTURED_OUTPUT_MISSING. Multiple final records report native-final-results and are never selected arbitrarily. The adapter does not start additional CLI repair calls, but native processing can include internal model turns and usage. See the [user guide](USER_GUIDE.en.md).

@@ -1,23 +1,35 @@
 # Architecture
 
-[简体中文](工作原理.md) · [English home](../README.en.md)
+[简体中文](工作原理.md) · [Home](../README.en.md)
 
-The plugin registers a CodeBuddy CLI model provider in DSH. It converts the selected model ID, ordered conversation history, system instructions and tool definitions into a text envelope, then starts the official CLI using `--print --output-format json`.
+Version 0.3.1 adapts the signed-in China-region official CLI into a DSH model provider. DSH retains history, permissions and business-tool execution.
 
-Since 0.2.3, the response schema is included in the prompt rather than passed to native `--json-schema`. The model's final result contains a JSON object with `text` and `toolCalls`. The adapter validates its structure and tool names locally, then returns DSH text/tool blocks and reported usage. Invalid output fails without an automatic paid repair request.
+## Native result path
 
-Version 0.2.4 recognizes complete fences, unambiguous complete JSON containers, encoded JSON and a small set of wrappers before validation. Empty fields are inferred only for unambiguous text-only or nonempty tool-only replies. String arguments must decode into complete objects and tool names must be declared. Incomplete or conflicting results are never repaired by guessing. Fixed diagnostic categories, types, lengths and normalization steps are retained without content; five failure summaries remain in memory until restart, even after later successful calls.
+The adapter supplies messages, instructions, tool definitions and responseSchema. CLI flags include --print --output-format json --json-schema and a whitelist containing only StructuredOutput. Other built-in business tools, MCP, auto memory and transcript persistence are disabled.
 
-Version 0.2.5 validates multiple fragments separately, accepting one valid protocol result only when the others are clearly unrelated complete annotations/examples. Conflicting results, possible tool requests and malformed/incomplete fragments remain failures; it never selects the last result or merges tool requests. Fragment summaries contain only sizes, syntax validity, types and protocol field-presence flags.
+StructuredOutput submits a text/toolCalls object; it performs no project file or command operation. The adapter consumes the official final record's structured_output object, never searching result prose for JSON. Code, paths and protocol examples inside text remain data.
 
-Version 0.2.5 also persists content-free local call logs (100 records, 2 MiB main file). Raw model results require explicit one-failure capture, which ignores successful calls and user cancellations and disarms on other failures or restart; samples are capped at 256 KiB. Basic exports always remove samples; detailed preview/export and clearing are available in settings. No requests or login files are logged and nothing uploads automatically. See [logs and feedback](TROUBLESHOOTING.en.md) for paths, privacy and report templates.
+Missing native output, string/wrapper envelopes, extra fields, invalid names/arguments and multiple final records fail without prose fallback or last-result selection. Arguments must be objects. The complete plan is validated before DSH blocks are delivered. Repeated operations inside one plan remain intact.
 
-Version 0.3.0 recovers repeated complete strict protocol envelopes only when their delivered text and ordered tool names/arguments match exactly; it never merges conflicting results or removes repeated calls inside one plan. A separate bounded recovery handles illegal escapes/raw control characters only in complete objects containing exactly text and empty toolCalls. Missing structure and tool arguments are not repaired. See the [user guide](USER_GUIDE.en.md).
+DSH executes requested tools and puts results in its history for the next call. A failed summary cannot undo earlier tools; inspect actual state before retrying. Input is text only and history belongs to DSH.
 
-The CLI's own tools, MCP, automatic memory/background work for the call, and session persistence are disabled. The adapter supplies its own CLI system prompt, while preserving DSH instructions in the request envelope. DSH executes requested tools under its own permissions. Tool results enter DSH history and are included in the next call. Each call starts a CLI process; history continuity belongs to DSH.
+## Deadlines and usage
 
-Model discovery is a separate ACP flow: `initialize` and `session/new` obtain the current catalog, including available model IDs, credit multipliers, reasoning options and context metadata. It sends no model prompt. Refresh happens at startup, every 15 minutes and on demand; failed refreshes retain the catalog associated with that CLI/configuration path.
+One CLI process starts per DSH request. Native processing allows up to four CLI turns within the existing total deadline and cancellation flow. This is not a guarantee about billed request counts. The adapter starts no extra repair process or automatic retry, but official processing can involve internal model requests. Reported tokens and official usage pages determine accounting.
 
-One-click setup checks common current-user installation locations, tries the official installer when necessary, and can fall back to the official npm package. Sign-in remains an official CLI flow. The plugin passes an optional configuration directory without reading or copying credentials.
+## Account, catalog and setup
 
-Input is currently text only. Results are delivered as complete blocks, without a measured decoding speed. Token usage is reported by the CLI; it may include internal model calls and is not equivalent to billed credits or remaining balance. Account permissions and billing are determined by the official service.
+Sign-in remains an official China-region CLI flow; the plugin passes an optional configuration directory without reading or copying credentials. Conversation content goes to the official model service.
+
+A separate ACP initialize/session-new flow discovers catalog models, rates, reasoning and context metadata without a model prompt. Refresh occurs at startup, every 15 minutes and on demand. Visibility does not guarantee model access; rates are not balances.
+
+Setup detects the current user's installation or uses the official installer/npm package. It has no hardcoded author paths.
+
+## Validation and diagnostics
+
+60 automated checks and three synthetic official CLI calls through the new adapter passed. Tool outcomes were simulated; no real DSH project tool was executed. Every model/device/OS workflow remains unverified, and future success is not guaranteed.
+
+Basic logs exclude bodies. Raw failures require explicit opt-in capture and are never automatically uploaded. See [logs](TROUBLESHOOTING.en.md) and the [user guide](USER_GUIDE.en.md).
+
+[Official headless mode](https://www.codebuddy.cn/docs/cli/headless) · [Tools](https://www.codebuddy.cn/docs/cli/tools-reference) · [ACP](https://www.codebuddy.cn/docs/cli/acp)
