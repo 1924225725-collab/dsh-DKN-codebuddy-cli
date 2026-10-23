@@ -51,7 +51,7 @@ These historical 0.2.3 component previews use fictional models and states, witho
 
 ![DSH, adapter, official CLI and service](docs/images/architecture.svg)
 
-DSH → local adapter → official CLI → official model service → adapter validation → DSH text/tools. The CLI uses `--print --output-format json`, with official --json-schema and only StructuredOutput enabled. Other built-in business tools, MCP and session persistence are disabled. DSH supplies history. See [architecture](docs/ARCHITECTURE.en.md).
+DSH → local adapter → official CLI → official model service → adapter validation → DSH text/tools. The CLI uses `--print --output-format stream-json`, with official --json-schema and only StructuredOutput enabled. Thinking blocks from the streaming output are forwarded to DSH as reasoning. Other built-in business tools, MCP and session persistence are disabled. DSH supplies history. See [architecture](docs/ARCHITECTURE.en.md).
 
 This is an independent third-party adapter. The author provides no relay server, shared accounts or credit resale. Official CLI sign-in does not confer official authorization on this project or guarantee future service policies.
 

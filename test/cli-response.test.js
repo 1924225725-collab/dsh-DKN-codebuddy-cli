@@ -1,6 +1,56 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { collectResult, collectStructuredResult, CodeBuddyCliError } from '../lib/cli-response.js'
+import { collectResult, collectStructuredResult, collectStreamResult, CodeBuddyCliError } from '../lib/cli-response.js'
+
+const ndjson = (items) => items.map((item) => JSON.stringify(item)).join('\n')
+
+test('stream collection keeps native structured output and joins every thinking block in order', () => {
+  const value = { text: 'answer', toolCalls: [] }
+  const response = collectStreamResult(ndjson([
+    { type: 'system', subtype: 'init' },
+    { type: 'assistant', message: { content: [{ type: 'thinking', thinking: 'first' }] } },
+    { type: 'assistant', message: { content: [{ type: 'text', text: 'partial' }, { type: 'thinking', thinking: 'second' }] } },
+    { type: 'assistant', message: { content: [{ type: 'tool_use', name: 'StructuredOutput', input: value }] } },
+    { type: 'result', subtype: 'success', structured_output: value, usage: { input_tokens: 5, output_tokens: 2 } }
+  ]))
+  assert.deepEqual(response.result, value)
+  assert.equal(response.thinking, 'first\n\nsecond')
+  assert.deepEqual(response.usage, { input_tokens: 5, output_tokens: 2 })
+})
+
+test('stream collection omits the thinking field when the CLI reports no reasoning', () => {
+  const response = collectStreamResult(ndjson([
+    { type: 'assistant', message: { content: [{ type: 'text', text: 'direct' }] } },
+    { type: 'result', subtype: 'success', structured_output: { text: 'direct', toolCalls: [] } }
+  ]))
+  assert.equal(Object.hasOwn(response, 'thinking'), false)
+  for (const blank of ['', '   ']) {
+    const skipped = collectStreamResult(ndjson([
+      { type: 'assistant', message: { content: [{ type: 'thinking', thinking: blank }] } },
+      { type: 'result', subtype: 'success', structured_output: { text: '', toolCalls: [] } }
+    ]))
+    assert.equal(skipped.thinking, undefined)
+  }
+})
+
+test('stream collection ignores non-JSON progress lines but still fails on empty output', () => {
+  const response = collectStreamResult(`${[
+    'CodeBuddy CLI 9.8.7 starting',
+    JSON.stringify({ type: 'result', subtype: 'success', structured_output: { text: 'ok', toolCalls: [] } })
+  ].join('\n')}\n`)
+  assert.deepEqual(response.result, { text: 'ok', toolCalls: [] })
+  assert.throws(() => collectStreamResult('only progress lines\n'), (error) => error.code === 'CLI_OUTPUT_INVALID')
+})
+
+test('stream collection keeps native-only validation and failure facts', () => {
+  assert.throws(() => collectStreamResult(ndjson([{ type: 'result', subtype: 'success', result: '{"text":"prose"}' }])),
+    (error) => error.code === 'CLI_STRUCTURED_OUTPUT_MISSING' && error.responseDiagnostics.reason === 'native-structured-output-missing')
+  assert.throws(() => collectStreamResult(ndjson([{ type: 'result', subtype: 'error_max_turns', is_error: true, usage: { output_tokens: 3 } }])),
+    (error) => error.code === 'CLI_REQUEST_FAILED' && error.usage.output_tokens === 3)
+  const doc = { type: 'result', structured_output: { text: 'first', toolCalls: [] } }
+  assert.throws(() => collectStreamResult(ndjson([doc, { ...doc, structured_output: { text: 'second', toolCalls: [] } }])),
+    (error) => error.code === 'STRUCTURED_OUTPUT_INVALID' && error.responseDiagnostics.outputMode === 'native-json-schema')
+})
 
 test('reads a structured result from the documented single-object response', () => {
   const response = collectResult(JSON.stringify({

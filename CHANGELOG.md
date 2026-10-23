@@ -4,6 +4,18 @@
 
 Historical GitHub Releases are backfilled with the unchanged packages. The local 0.2.10 candidate is included in 0.3.0 and has no separate public release.
 
+## [Unreleased]
+
+- 改用 `--output-format stream-json`，把官方 CLI 的 `thinking` 块作为独立的 reasoning 内容块转发给 DSH，界面可以看到模型的思考过程；`--json-schema` 与 `StructuredOutput` 的原生校验路径保持不变。
+- `--output-format json` 只回传最终 result 记录，thinking 文本在其中完全缺失，此前思考过程在适配层被静默丢弃。
+- 思考块按到达顺序拼接，仅在全空白时跳过，不合成任何逐步增量，用量与耗时口径不变。
+- 状态接口新增 `reasoningMode` 字段；`responseMode` 保持原值，避免影响已有读取方。
+- Switch to `--output-format stream-json` and forward the official CLI's `thinking` blocks as a dedicated reasoning content block so DSH displays the model's reasoning; the native `--json-schema`/`StructuredOutput` validation path is unchanged.
+- `--output-format json` returns only the final result record, where thinking text is absent, so the adapter previously discarded it silently.
+- Thinking blocks are joined in arrival order and skipped only when whitespace-only; no synthetic deltas are emitted, so usage and timing reporting keep their existing semantics.
+- Add `reasoningMode` to the status payload; `responseMode` keeps its previous value for existing readers.
+- 验证 / Validation: 64 automated checks pass, including new stream-json unit cases and an adapter-level assertion that a reasoning block opens the turn. Real CodeBuddy CLI calls were also run against `--output-format stream-json` with `--json-schema` to confirm the thinking blocks and the native `structured_output` coexist.
+
 ## [0.3.1](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.1)
 
 - 改用官方 --json-schema，只开放 StructuredOutput 输出工具，直接读取 structured_output 对象，退出普通文字 JSON 候选扫描路径。

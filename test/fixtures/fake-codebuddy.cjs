@@ -66,17 +66,26 @@ if (process.argv.includes('--version')) {
       if (input.includes('response-case:truncated') || input.includes('response-case:missing-native')) delete result.structured_output
       if (input.includes('response-case:null-native')) result.structured_output = null
       if (input.includes('response-case:schema-error')) { result.is_error = true; result.subtype = 'error_max_turns' }
+      // Official CLI with --output-format stream-json emits newline-delimited JSON, one message per line.
+      const emit = (item) => console.log(JSON.stringify(item))
+      emit({ type: 'system', subtype: 'init' })
+      if (input.includes('response-case:reasoning')) {
+        emit({ type: 'assistant', message: { content: [{ type: 'text', text: 'preliminary note' }, { type: 'thinking', thinking: 'fixture first thought' }] } })
+        emit({ type: 'assistant', message: { content: [{ type: 'thinking', thinking: 'fixture second thought' }] } })
+      }
+      if (input.includes('response-case:blank-reasoning')) {
+        emit({ type: 'assistant', message: { content: [{ type: 'thinking', thinking: '   ' }] } })
+      }
       if (input.includes('response-case:ambiguous')) {
-        console.log(JSON.stringify([{ ...result, structured_output: { text: 'PRIVATE_FAILED_REPLY', toolCalls: [] } }, { ...result, structured_output: { text: 'different final', toolCalls: [] } }]))
+        emit({ ...result, structured_output: { text: 'PRIVATE_FAILED_REPLY', toolCalls: [] } })
+        emit({ ...result, structured_output: { text: 'different final', toolCalls: [] } })
         return
       }
-      console.log(JSON.stringify([{ type: 'system', subtype: 'init' }, result]))
+      emit(result)
       return
     }
-    console.log(JSON.stringify([
-      { type: 'system', subtype: 'init' },
-      { type: 'result', subtype: 'success', result: response, usage: { input_tokens: 11, output_tokens: 7, cache_read_input_tokens: 3, cache_creation_input_tokens: 4 } }
-    ]))
+    console.log(JSON.stringify({ type: 'system', subtype: 'init' }))
+    console.log(JSON.stringify({ type: 'result', subtype: 'success', result: response, usage: { input_tokens: 11, output_tokens: 7, cache_read_input_tokens: 3, cache_creation_input_tokens: 4 } }))
   })
 } else {
   throw new Error('Unexpected CLI invocation')
