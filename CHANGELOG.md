@@ -4,6 +4,16 @@
 
 Historical GitHub Releases are backfilled with the unchanged packages. The local 0.2.10 candidate is included in 0.3.0 and has no separate public release.
 
+## [0.3.3](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.3)
+
+- 修复 DSH 0.2.1-rc.3 对旧版精确 rc.2 依赖的兼容性拦截。engines.dsh 与六项 DSH peer 依赖均明确列出 0.2.1-rc.2、0.2.1-rc.3，不放宽到未经核查的未来版本。
+- 对比六项官方 npm 发布包：LLM、附件、渲染、设置和本地化运行文件一致；插件管理页新增导航入口，不影响现有配置页注册。
+- 模型、图片、工具、用量和日志运行代码不变；不需要版本豁免，不覆盖旧安装包。
+- Fix DSH 0.2.1-rc.3 rejecting the previous exact rc.2 requirements. Declare both reviewed runtimes in engines.dsh and all six DSH peers without claiming future versions.
+- Compare six official npm packages. The LLM, attachment, renderer, settings and locale runtime files are identical; the plugin-manager addition does not affect this adapter's configuration registration.
+- Keep model/image/tool/usage/logging runtime code unchanged. No version exemption is required and old packages are preserved.
+- 验证 / Validation: 74 existing automated checks and official DSH compatibility preflight checks. No new live model call or actual DSH upload-UI validation in this metadata-only update.
+
 ## [0.3.2](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.2)
 
 - 新增用户图片提问与历史追问：从 DSH 附件服务读取图片，使用官方 stream-json 原生 image 输入，保留原生 Schema 输出。

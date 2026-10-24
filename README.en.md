@@ -4,19 +4,17 @@
 
 Use models available to your China-region account in **DeepSeek Harness (DSH)** through the signed-in official CodeBuddy CLI. DSH manages conversations and tools; this adapter translates model requests and results.
 
-**Latest version: 0.3.2**
+**Latest version: 0.3.3**
 
-[Download plugin](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/download/v0.3.2/dsh-codebuddy-cli-cn-0.3.2.tgz) · [All releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [Installation](docs/INSTALL.en.md) · [Usage and troubleshooting](docs/USER_GUIDE.en.md) · [Changelog](CHANGELOG.md)
+[Download plugin](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/download/v0.3.3/dsh-codebuddy-cli-cn-0.3.3.tgz) · [All releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [Installation](docs/INSTALL.en.md) · [Usage and troubleshooting](docs/USER_GUIDE.en.md) · [Changelog](CHANGELOG.md)
 
-[Repository download fallback](releases/dsh-codebuddy-cli-cn-0.3.2.tgz) · [SHA-256](releases/SHA256SUMS.txt)
+[Repository download fallback](releases/dsh-codebuddy-cli-cn-0.3.3.tgz) · [SHA-256](releases/SHA256SUMS.txt)
 
-## What's new in 0.3.2
+## What's new in 0.3.3
 
-- Add user image questions and history follow-ups through DSH attachments and official native image blocks in stream-json, retaining native Schema output.
-- Show catalog-declared image capability; reject images for unknown/undeclared routes and preserve the existing text-only transport.
-- Associate images with history by index. Retain up to 5 request images, each converted to ≤2 MiB and longest edge ≤1920; combined Base64 ≤8 MiB, total text/image request ≤20 MiB. Request durable DSH image offloading rather than silently dropping history.
-- Bound image streams with cancellation, deadlines, strict JSONL and unique-terminal validation. DSH continues to execute business tools.
-- Disable raw failure capture for calls containing image history. Basic logs retain counts/byte totals only. Update bilingual settings, guides and installation instructions.
+- Fix the compatibility rejection after upgrading to DSH 0.2.1-rc.3. Declare both verified runtime versions, 0.2.1-rc.2 and 0.2.1-rc.3, in engines.dsh and DSH peer requirements.
+- Compare the official packages and retain the existing model, image, tool, cancellation and diagnostics implementation. No version exemption is needed for these two runtimes.
+- Other DSH versions require a separate compatibility review; this release does not claim future-version support.
 
 Earlier changes remain in [Changelog](CHANGELOG.md) and [Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases). The unpublished 0.2.10 local candidate was included in 0.3.0.
 
@@ -25,7 +23,7 @@ Earlier changes remain in [Changelog](CHANGELOG.md) and [Releases](https://githu
 1. Download the `.tgz` locally and install it from DSH's plugin manager. A source ZIP is not a plugin package.
 2. Open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`, and select **Set up CLI**.
 3. Expand **Sign in or switch account**, copy the official command into PowerShell (Terminal on macOS/Linux), and complete China-region sign-in.
-4. Refresh models/rates and select a model in DSH. Restart after upgrading and verify running version **0.3.2**.
+4. Refresh models/rates and select a model in DSH. Restart after upgrading and verify running version **0.3.3**.
 
 See the [installation guide](docs/INSTALL.en.md). For failures, expand **Troubleshooting and usage guide** inside settings or read the [full guide](docs/USER_GUIDE.en.md).
 
@@ -41,7 +39,7 @@ Catalog visibility does not guarantee every model is authorized. Rates and token
 
 ## Interface examples
 
-These historical 0.2.3 component previews use fictional models and states, without account data. Version 0.3.2 also includes the in-settings guide and updated error handling.
+These historical 0.2.3 component previews use fictional models and states, without account data. Version 0.3.3 also includes the in-settings guide and updated error handling.
 
 ![Automatic CLI setup and sign-in example](docs/images/ui-setup.png)
 
@@ -59,7 +57,7 @@ User-uploaded images and follow-ups are supported on routes declaring image inpu
 
 Missing native output, multiple final records and invalid tool requests still fail without prose fallback. A failed final reply does not undo completed tools: verify actual state before retrying. See the [user guide](docs/USER_GUIDE.en.md).
 
-This release passed 74 automated checks and six synthetic official CLI image calls through the new adapter: PNG single image, follow-up, two-image order, tool proposal, summary after a simulated tool result and a JPEG check. China-region live tests used deepseek-v4.1-flash and CLI 2.173.0 with an isolated attachment-service test double. No real DSH business tool ran; DSH upload-UI manual end-to-end validation and every-model coverage remain outstanding. Official structured processing may involve internal model turns; official usage applies.
+This compatibility release passes the existing 74 automated checks and the official DSH preflight compatibility matrix for both declared runtimes. Official package contents were compared; the LLM and attachment runtime files are identical between rc.2 and rc.3. Model/image live calls from 0.3.2 remain historical evidence, not new live or DSH upload-UI validation for 0.3.3.
 
 ## Feedback
 

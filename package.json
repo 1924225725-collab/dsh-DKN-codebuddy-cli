@@ -2,7 +2,7 @@
   "name": "dsh-codebuddy-cli-cn",
   "displayName": "DSH CodeBuddy CLI（国内版）",
   "description": "自动检测官方 CodeBuddy CLI 国内模型与积分倍率，支持一键配置 CLI，工具由 DSH 管理。",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/1924225725-collab/dsh-codebuddy-cli-cn.git"
@@ -39,19 +39,20 @@
     "docs/USER_GUIDE.en.md"
   ],
   "engines": {
-    "node": ">=22.19.0"
+    "node": ">=22.19.0",
+    "dsh": "0.2.1-rc.2 || 0.2.1-rc.3"
   },
   "dependencies": {
     "cross-spawn": "^7.0.6"
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh-attachment": "0.2.1-rc.2",
+    "@deepseek-ai/dsh-attachment": "0.2.1-rc.2 || 0.2.1-rc.3",
     "@deepseek-ai/cordis": "^4.0.5",
-    "@deepseek-ai/dsh-client-locale": "0.2.1-rc.2",
-    "@deepseek-ai/dsh-client-ui-plugin-manager": "0.2.1-rc.2",
-    "@deepseek-ai/dsh-client-ui-renderer": "0.2.1-rc.2",
-    "@deepseek-ai/dsh-client-ui-settings": "0.2.1-rc.2",
-    "@deepseek-ai/dsh-llm": "0.2.1-rc.2",
+    "@deepseek-ai/dsh-client-locale": "0.2.1-rc.2 || 0.2.1-rc.3",
+    "@deepseek-ai/dsh-client-ui-plugin-manager": "0.2.1-rc.2 || 0.2.1-rc.3",
+    "@deepseek-ai/dsh-client-ui-renderer": "0.2.1-rc.2 || 0.2.1-rc.3",
+    "@deepseek-ai/dsh-client-ui-settings": "0.2.1-rc.2 || 0.2.1-rc.3",
+    "@deepseek-ai/dsh-llm": "0.2.1-rc.2 || 0.2.1-rc.3",
     "@deepseek-ai/schemastery": "^3.18.5",
     "react": "^18.2.0"
   },
