@@ -4,6 +4,16 @@
 
 Historical GitHub Releases are backfilled with the unchanged packages. The local 0.2.10 candidate is included in 0.3.0 and has no separate public release.
 
+## [0.3.4](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.4)
+
+- 接入 DSH 工具结果中的标准图片附件，覆盖桌面/窗口/区域/浏览器截图、图片读取及其他工具图片，不按工具名设置白名单。
+- 保留工具调用 ID、失败标记、文字和图片次序；没有调用 ID 的工具图片明确拒绝。用户图和工具图共用预算与卸载，含图片失败不采集原文。
+- 识别官方 CLI 的 error 帧，安全归类鉴权、本机权限或通用错误，不交付其后的结果；更新日志版本标记。
+- 配置页和中英文档加入工具适配范围；原生音视频、二进制文档和模型原生图片生成未适配。
+- Accept standard DSH tool image results without a tool-name allowlist. Preserve tool call identity, error flags, adjacent text and image order; reject detached tool images.
+- Share upload/tool-image budgets, durable offloading and privacy protections. Classify CLI error frames safely and correct the log version marker. Add bilingual tool compatibility documentation and its settings link.
+- 验证 / Validation: 79 automated checks and three official CLI 2.174.0 / deepseek-v4.1-flash calls passed with synthetic tool images. Attachment service was isolated; no real desktop was captured or actual business tool executed. Actual DSH capture-tool UI flows and all-model coverage remain unverified.
+
 ## [0.3.3](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.3)
 
 - 修复 DSH 0.2.1-rc.3 对旧版精确 rc.2 依赖的兼容性拦截。engines.dsh 与六项 DSH peer 依赖均明确列出 0.2.1-rc.2、0.2.1-rc.3，不放宽到未经核查的未来版本。

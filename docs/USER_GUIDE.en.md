@@ -53,7 +53,7 @@ Retain evidence before retrying. One later success does not establish the cause 
 
 Upgrade, restart DSH, refresh the catalog and choose a route marked Images in settings. Upload through DSH attachments and ask about it; later questions may refer to that image. Image content goes to the official model service, not the diagnostic log.
 
-Prefer PNG/JPEG. Retain up to 5 request images, each converted to ≤2 MiB and longest edge ≤1920; combined Base64 ≤8 MiB, total request ≤20 MiB. DSH request conversion can make small text less readable; use a clear crop when needed. WebP/GIF depend on DSH and the model; animated-frame analysis, tool screenshots and image generation are not covered.
+Prefer PNG/JPEG. Retain up to 5 request images, each converted to ≤2 MiB and longest edge ≤1920; combined Base64 ≤8 MiB, total request ≤20 MiB. DSH request conversion can make small text less readable; use a clear crop when needed. WebP/GIF depend on DSH and the model; tool screenshots returned as standard DSH attachments are supported; animated-frame analysis and native model image generation are not covered.
 
 - IMAGE_MODEL_UNSUPPORTED: refresh the catalog and choose a declared image route. Unknown manually entered IDs do not enable images. Catalog declarations are not every-model validation.
 - IMAGE_SERVICE_UNAVAILABLE / IMAGE_READ_FAILED / IMAGE_ATTACHMENT_INVALID: update DSH, re-enable the plugin or re-upload. Do not enable CLI file tools to work around this.
@@ -62,3 +62,7 @@ Prefer PNG/JPEG. Retain up to 5 request images, each converted to ≤2 MiB and l
 - CLI_STREAM_INVALID / CLI_PERMISSION_REQUIRED: update official CLI and report basic diagnostics. Partial frames and interactive permission requests are not automatically accepted.
 
 Calls containing image history never capture raw failure samples, even when armed. That failure consumes the capture attempt with metadata only. Report basic logs, diagnostic ID, image format/dimensions/count and steps. Share a self-made non-private example image only if desired.
+
+## Tool image results (0.3.4)
+
+Images in tool results now use the same native image input as uploads. Preserve toolCallId, isError and order: visible evidence in a failed tool result is not proof the tool succeeded. IMAGE_TOOL_CALL_INVALID indicates a missing call identity. Paths/URLs/Base64 text are not read automatically. CLI error frames report safe authentication, directory-permission or generic request failures. See [tool and result compatibility](TOOL_COMPATIBILITY.en.md) for the supported representations and remaining gaps.

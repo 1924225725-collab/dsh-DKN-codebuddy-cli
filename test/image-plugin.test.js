@@ -45,11 +45,14 @@ test('full image adapter transmits native image blocks, retains tool authority a
   const plan = await collect(opts)
   assert.equal(plan.at(-1).reason.kind, 'tool-calls')
   const call = plan.find(c => c.type === 'block-end' && c.block.type === 'tool-call').block
-  const done = await collect({ ...opts, messages: [...opts.messages, { role: 'assistant', content: [call] }, { role: 'tool', toolCallId: call.id, content: 'synthetic result only' }, { role: 'user', content: 'summarize the image and result' }] })
+  const screenshotResult = { role: 'tool', toolCallId: call.id, isError: false, content: [{ type: 'text', text: 'synthetic screenshot result' }, images[1]] }
+  const done = await collect({ ...opts, messages: [...opts.messages, { role: 'assistant', content: [call] }, screenshotResult, { role: 'user', content: 'summarize the image and result' }] })
   assert.equal(done.at(-1).reason.kind, 'stop')
   assert.equal(done.some(c => c.type.endsWith('-delta')), false)
+  const screenshotOnly = await collect({ ...opts, messages: [{ role: 'user', content: 'capture then describe' }, { role: 'assistant', content: [call] }, { ...screenshotResult, isError: true }, { role: 'user', content: 'describe visible evidence without claiming tool success' }] })
+  assert.equal(screenshotOnly.at(-1).reason.kind, 'stop')
   const records = (await readFile(path.join(bin, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.args)
-  assert.equal(records.length, 2)
+  assert.equal(records.length, 3)
   for (const record of records) {
     assert.equal(record.args[record.args.indexOf('--tools') + 1], 'StructuredOutput')
     assert.equal(record.args[record.args.indexOf('--allowedTools') + 1], 'StructuredOutput')
@@ -60,6 +63,13 @@ test('full image adapter transmits native image blocks, retains tool authority a
     assert.match(message.message.content[0].text, /CLI image 1; DSH attachment synthetic-A/u)
     assert.equal(record.input.trim().split('\n').length, 1, 'DSH history is not replayed as separate CLI turns')
   }
+  const mixedInput = JSON.parse(records[1].input).message.content
+  assert.equal(mixedInput.length, 3, 'upload and tool screenshot remain two separate image occurrences')
+  const toolEnvelope = JSON.parse(JSON.parse(records[2].input).message.content[0].text.split('\n\n')[1])
+  assert.equal(toolEnvelope.messages[2].role, 'tool')
+  assert.equal(toolEnvelope.messages[2].toolCallId, call.id)
+  assert.equal(toolEnvelope.messages[2].isError, true)
+  assert.match(toolEnvelope.messages[2].content[1].text, /CLI image 1;/)
   await assert.rejects(collect({ ...opts, model: 'new-free-model' }), { code: 'IMAGE_MODEL_UNSUPPORTED' })
   await assert.rejects(collect({ ...opts, messages: [{ role: 'user', content: Array.from({ length: 7 }, () => images[1]) }] }), e => e.code === 'IMAGE_OFFLOAD_REQUIRED' && e.failure.offloadImages === 2 && typeof e.failure.requestId === 'string')
   const logsDir = path.join(directory, 'dsh-codebuddy-cli-cn', 'logs')
@@ -73,7 +83,7 @@ test('full image adapter transmits native image blocks, retains tool authority a
     return body
   }
   await action('armCapture')
-  await assert.rejects(collect({ ...opts, messages: [{ role: 'user', content: [{ type: 'text', text: 'response-case:wrong-shape' }, images[1]] }] }), { code: 'STRUCTURED_OUTPUT_INVALID' })
+  await assert.rejects(collect({ ...opts, messages: [{ role: 'user', content: 'response-case:wrong-shape' }, { role: 'tool', toolCallId: call.id, content: [images[1]] }] }), { code: 'STRUCTURED_OUTPUT_INVALID' })
   const log = await action('exportDetailedLogs')
   assert.equal(log.entries.at(-1).imageRequest, true)
   assert.equal(log.entries.at(-1).captureAttempted, true)
@@ -82,5 +92,5 @@ test('full image adapter transmits native image blocks, retains tool authority a
   assert.equal(stored.includes(bytes.toString('base64')), false)
   assert.equal(stored.includes('PRIVATE_FAILED_REPLY'), false)
   assert.equal(log.entries[0].diagnostics.imageBytes, bytes.length)
-  assert.equal(reads.length, 3)
+  assert.equal(reads.length, 4)
 })

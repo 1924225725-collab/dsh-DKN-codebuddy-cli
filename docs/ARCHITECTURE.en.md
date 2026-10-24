@@ -12,7 +12,7 @@ StructuredOutput submits a text/toolCalls object; it performs no project file or
 
 Missing native output, string/wrapper envelopes, extra fields, invalid names/arguments and multiple final records fail without prose fallback or last-result selection. Arguments must be objects. The complete plan is validated before DSH blocks are delivered. Repeated operations inside one plan remain intact.
 
-DSH executes requested tools and puts results in its history for the next call. A failed summary cannot undo earlier tools; inspect actual state before retrying. User image messages and follow-ups are supported; history belongs to DSH.
+DSH executes requested tools and puts results in its history for the next call. A failed summary cannot undo earlier tools; inspect actual state before retrying. User images, standard tool image results and follow-ups are supported; history belongs to DSH.
 
 ## Deadlines and usage
 

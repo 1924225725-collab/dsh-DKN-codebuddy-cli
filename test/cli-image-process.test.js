@@ -41,3 +41,9 @@ test('image stream cancellation and total deadline stop the process without a us
   await assert.rejects(pending, { code: 'ABORTED' })
   await assert.rejects(run('hang', { timeoutMs: 150 }), { code: 'CLI_TIMEOUT' })
 })
+
+test('CLI error frames fail immediately with safe classifications and never accept a later result', async () => {
+  for(const [mode,code] of [['error-permission','CLI_LOCAL_PERMISSION_DENIED'],['error-auth','CLI_AUTH_REQUIRED'],['error-generic','CLI_REQUEST_FAILED']]){
+    await assert.rejects(run(mode),e=>e.code===code&&!e.message.includes('PRIVATE')&&e.processDiagnostics.stdoutBytes>0)
+  }
+})
