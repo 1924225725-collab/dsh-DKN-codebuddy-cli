@@ -2,7 +2,7 @@
 
 [简体中文](反馈与日志.md) · [Home](../README.en.md)
 
-Install 0.3.1, restart DSH and open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`. Scroll to **Diagnostic logs and feedback** and verify the running version at the top.
+Install 0.3.2, restart DSH and open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`. Scroll to **Diagnostic logs and feedback** and verify the running version at the top.
 
 New failure messages include a `diagnostic-id` matching each exported record `id`; DSH also retains the machine code. Settings show the same ID. Earlier uncorrelated failures cannot be retroactively repaired. Include reproduction steps and reviewed logs in reports.
 
@@ -10,7 +10,7 @@ New failure messages include a `diagnostic-id` matching each exported record `id
 
 ## Basic logs
 
-Basic logs record timestamps, plugin/CLI versions, models, reasoning effort, deadlines, timing, tokens, history/tool counts, request byte sizes, error codes and structural summaries. Version 0.3.1 uses official native JSON Schema with only StructuredOutput enabled, reading the structured_output object. JSON examples inside text are not scanned as protocol candidates. Basic logs mark outputMode=native-json-schema and count multiple final records with finalResultCount. Older scan/escape-recovery fields may remain in saved historical records; current calls do not use that path.
+Basic logs record timestamps, plugin/CLI versions, models, reasoning effort, deadlines, timing, tokens, history/tool counts, request byte sizes, error codes and structural summaries. Version 0.3.2 uses official native JSON Schema with only StructuredOutput enabled, reading the structured_output object. JSON examples inside text are not scanned as protocol candidates. Basic logs mark outputMode=native-json-schema and count multiple final records with finalResultCount. Older scan/escape-recovery fields may remain in saved historical records; current calls do not use that path.
 
 Basic logs exclude request/reply bodies, tool arguments, credentials, CLI output bodies and configuration/executable paths. Record IDs are diagnostic IDs, not account/session IDs. Fragment summaries contain only fixed types, sizes and field-presence flags, without field values or arbitrary field names. Model choices may still reveal usage preferences; review before sharing.
 
@@ -56,3 +56,7 @@ Attachments: basic JSON log; reviewed detailed sample only if needed
 ```
 
 Missing native output reports CLI_STRUCTURED_OUTPUT_MISSING. Multiple final records report native-final-results and are never selected arbitrarily. The adapter does not start additional CLI repair calls, but native processing can include internal model turns and usage. See the [user guide](USER_GUIDE.en.md).
+
+## Image-call diagnostics
+
+0.3.2 adds numeric imageCount, offloadedImageCount, imageBytes and imageBase64Bytes. Failures containing image history have imageRequest=true and cannot store raw samples. An armed attempt records captureAttempted without a sample, then disarms. Images, Base64, image names and attachment paths are not logged. Report basic logs, format/dimensions/count and steps; never publish private screenshots.

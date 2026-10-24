@@ -38,7 +38,7 @@ test('basic logs use a field allowlist, persist across restarts and exclude raw 
   assert.equal(restored.status().entries, 2)
   const detailed = await restored.export(true)
   assert.equal(detailed.entries[1].sample.head, 'PRIVATE_REPLY')
-  assert.equal(detailed.entries[1].pluginVersion, '0.3.1')
+  assert.equal(detailed.entries[1].pluginVersion, '0.3.2')
   assert.equal(detailed.privacy.includesRawReplies, true)
   assert.equal(JSON.stringify(await restored.export()).includes('PRIVATE_REPLY'), false)
 })
@@ -110,4 +110,19 @@ test('storage failures do not reject model logging and leave in-memory exports a
   await store.record(call)
   assert.equal(store.status().storageError, 'LOG_WRITE_FAILED')
   assert.equal((await store.export()).entries.length, 1)
+})
+
+test('image failures never capture raw samples even when armed, including after restart', async t => {
+  const { directory, store } = await setup(t)
+  store.arm()
+  await store.record({ ...call, imageRequest: true, diagnostics: { imageCount: 2, imageBytes: 123, imageBase64Bytes: 164, imageData: 'PRIVATE_BASE64' } }, 'PRIVATE_IMAGE_REPLY')
+  assert.equal(store.status().captureArmed, false)
+  assert.equal(store.status().samples, 0)
+  assert.equal(JSON.stringify(await store.export(true)).includes('PRIVATE'), false)
+  const saved = JSON.parse(await readFile(path.join(directory, 'diagnostics.json'), 'utf8'))
+  assert.equal(saved.entries[0].diagnostics.imageCount, 2)
+  saved.entries[0].sample = { head: 'PRIVATE_IMAGE_REPLY', originalBytes: 19, truncated: false }
+  await writeFile(path.join(directory, 'diagnostics.json'), JSON.stringify(saved))
+  const restored = createDiagnosticsStore({ directory }); await restored.ready
+  assert.equal(JSON.stringify(await restored.export(true)).includes('PRIVATE'), false)
 })

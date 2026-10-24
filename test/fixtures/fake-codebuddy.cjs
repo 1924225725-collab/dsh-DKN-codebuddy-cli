@@ -5,7 +5,7 @@ const readline = require('node:readline')
 const recordFile = path.join(process.env.DSH_FIXTURE_DIR || __dirname, 'requests.jsonl')
 const record = (data) => fs.appendFileSync(recordFile, `${JSON.stringify(data)}\n`)
 const models = [
-  { modelId: 'future-alpha', name: '未来 Alpha', _meta: { credits: 'x0.33 credits', supportsReasoning: true, maxInputTokens: 1000000, effortOptions: [{ value: 'high', name: 'High' }] } },
+  { modelId: 'future-alpha', name: '未来 Alpha', _meta: { credits: 'x0.33 credits', supportsImages: true, supportsReasoning: true, maxInputTokens: 1000000, effortOptions: [{ value: 'high', name: 'High' }] } },
   { modelId: 'new-free-model', name: 'New Free', _meta: { credits: 'x0.00 credits', supportsReasoning: false } }
 ]
 if (process.argv.includes('--version')) {
@@ -32,6 +32,8 @@ if (process.argv.includes('--version')) {
   process.stdin.on('data', (chunk) => { input += chunk })
   process.stdin.on('end', () => {
     record({ args: process.argv.slice(2), input })
+    const streaming = process.argv.includes('--input-format')
+    if (streaming) input = JSON.parse(input).message.content[0].text
     if (input.includes('response-case:wait-for-cancel')) { setInterval(() => {}, 1000); return }
     if (input.includes('response-case:auth-required')) { process.stderr.write('401 Authentication required. Please use /login PRIVATE_AUTH_TOKEN'); return }
     if (input.includes('response-case:empty-output')) return
@@ -67,10 +69,15 @@ if (process.argv.includes('--version')) {
       if (input.includes('response-case:null-native')) result.structured_output = null
       if (input.includes('response-case:schema-error')) { result.is_error = true; result.subtype = 'error_max_turns' }
       if (input.includes('response-case:ambiguous')) {
+        if (streaming) { console.log(JSON.stringify(result)); console.log(JSON.stringify({ ...result, structured_output: { text: 'different final', toolCalls: [] } })); return }
         console.log(JSON.stringify([{ ...result, structured_output: { text: 'PRIVATE_FAILED_REPLY', toolCalls: [] } }, { ...result, structured_output: { text: 'different final', toolCalls: [] } }]))
         return
       }
-      console.log(JSON.stringify([{ type: 'system', subtype: 'init' }, result]))
+      if (streaming) {
+        console.log(JSON.stringify({ type: 'system', subtype: 'init' }))
+        console.log(JSON.stringify({ type: 'assistant', message: { content: [{ type: 'text', text: '{"text":"prose example","toolCalls":[]}' }] } }))
+        console.log(JSON.stringify(result))
+      } else console.log(JSON.stringify([{ type: 'system', subtype: 'init' }, result]))
       return
     }
     console.log(JSON.stringify([

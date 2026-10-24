@@ -4,19 +4,19 @@
 
 在 **DeepSeek Harness（DSH）** 中，通过已登录的官方 CodeBuddy CLI 调用国内账号可用的模型。DSH 管理对话和工具执行，插件负责转换模型请求与结果。
 
-**最新版本：0.3.1**
+**最新版本：0.3.2**
 
-[下载安装包](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/download/v0.3.1/dsh-codebuddy-cli-cn-0.3.1.tgz) · [全部版本与更新说明](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [安装教程](docs/安装教程.md) · [使用与故障处理指南](docs/使用与故障处理指南.md) · [更新记录](CHANGELOG.md)
+[下载安装包](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/download/v0.3.2/dsh-codebuddy-cli-cn-0.3.2.tgz) · [全部版本与更新说明](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [安装教程](docs/安装教程.md) · [使用与故障处理指南](docs/使用与故障处理指南.md) · [更新记录](CHANGELOG.md)
 
-[仓库内备用安装包](releases/dsh-codebuddy-cli-cn-0.3.1.tgz) · [SHA-256](releases/SHA256SUMS.txt)
+[仓库内备用安装包](releases/dsh-codebuddy-cli-cn-0.3.2.tgz) · [SHA-256](releases/SHA256SUMS.txt)
 
-## 0.3.1 更新
+## 0.3.2 更新
 
-- 改用官方 --json-schema，只开放 StructuredOutput 输出工具，直接读取 structured_output 对象，退出普通文字 JSON 候选扫描路径。
-- 原生结果缺失、字符串/包装结果、不合法字段或多个最终记录明确失败，不静默回退、不选择最后一份。
-- 保留 DSH 工具名与对象参数检查；单一计划内的重复操作不删除，工具执行继续由 DSH 管理。
-- 保留取消、总超时、日志隐私和诊断 ID；原生校验失败也保留进程统计。更新配置页及中英故障指南。
-- 结构化处理允许有限 CLI 内部轮次；插件不额外启动 CLI 做修复，官方内部处理仍可能消耗多轮额度。
+- 新增用户图片提问与历史追问：从 DSH 附件服务读取图片，使用官方 stream-json 原生 image 输入，保留原生 Schema 输出。
+- 模型目录增加图片能力标记，未知或未声明能力的路由不接收图片；纯文字调用保留原路径。
+- 多图通过索引关联历史消息；最多保留 5 张请求图片，每张转换后 ≤2 MiB、最长边 ≤1920，Base64 合计 ≤8 MiB，文字与图片总请求 ≤20 MiB。超预算通过 DSH 的持久图片卸载机制处理，不静默丢图。
+- 图片流支持总超时、取消、严格 JSONL 与唯一终态检查；业务工具仍由 DSH 执行。
+- 含图片历史的调用禁用失败原文采集，普通日志仅记录图片数量与字节统计。更新中英配置说明、使用指南和安装教程。
 
 此前更新保留在 [CHANGELOG](CHANGELOG.md) 与 [GitHub Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases)。0.2.10 本地候选已合入 0.3.0，未单独公开发布。
 
@@ -25,7 +25,7 @@
 1. 下载 `.tgz` 到本机，在 DSH 的“插件”页安装；GitHub 源码 ZIP 不是插件安装包。
 2. 打开插件 `dsh-codebuddy-cli-cn` → 组件 `llm-codebuddy-cli-cn` 配置页，点击“一键配置 CLI”。
 3. 展开“首次登录或切换账号”，复制官方命令到 PowerShell（macOS/Linux 使用终端），完成国内账号登录。
-4. 刷新模型与倍率，在 DSH 会话中选择模型；升级后重启 DSH，核对配置页运行版本为 **0.3.1**。
+4. 刷新模型与倍率，在 DSH 会话中选择模型；升级后重启 DSH，核对配置页运行版本为 **0.3.2**。
 
 完整步骤见 [安装教程](docs/安装教程.md)。遇到问题可直接展开配置页中的“故障处理与使用指南”，或阅读[完整指南](docs/使用与故障处理指南.md)。
 
@@ -41,7 +41,7 @@
 
 ## 界面示意
 
-下图是 0.2.3 组件的历史布局示例，使用虚构模型和状态，不包含账号资料。0.3.1 另有内置指南与新的错误处理说明。
+下图是 0.2.3 组件的历史布局示例，使用虚构模型和状态，不包含账号资料。0.3.2 另有内置指南、图片能力列与新的错误处理说明。
 
 ![CLI 自动配置与登录入口示意](docs/images/ui-setup.png)
 
@@ -51,15 +51,15 @@
 
 ![DSH、插件、官方 CLI 和官方服务](docs/images/architecture.svg)
 
-流程为 DSH → 本机插件 → 官方 CLI → 官方模型服务 → 插件校验 → DSH 展示或执行工具。CLI 使用 `--print --output-format json`，使用官方 --json-schema，仅开放 StructuredOutput，其他内置业务工具、MCP 和会话持久化关闭；上下文由 DSH 历史提供。详见[工作原理](docs/工作原理.md)。
+流程为 DSH → 本机插件 → 官方 CLI → 官方模型服务 → 插件校验 → DSH 展示或执行工具。纯文字 CLI 使用 `--print --output-format json`；含保留图片时使用官方 `--input-format stream-json --output-format stream-json`，使用官方 --json-schema，仅开放 StructuredOutput，其他内置业务工具、MCP 和会话持久化关闭；上下文由 DSH 历史提供。详见[工作原理](docs/工作原理.md)。
 
 本项目是独立第三方适配插件，作者不提供中转服务器、共享账号或额度转售。登录由官方 CLI 处理；使用官方 CLI 不代表本项目取得官方授权，也不保证未来服务策略不变。
 
-当前只传递文本，不支持图片输入或真正逐 Token 流式生成。默认总时限 180 秒；CLI 版本检查只代表程序能够启动。Node.js 要求 ≥ 22.19.0。Windows 有本机验证；macOS/Linux 安装分支有合成测试覆盖，实体机器完整流程仍有待验证。
+支持用户上传图片提问及历史追问，模型目录标记“图片”的路由可用。优先使用 PNG/JPEG；WebP/GIF 仍取决于 DSH 转换与模型支持，不承诺动图逐帧、工具截图或图片生成。回复仍整块交付，不提供逐 Token 速度。默认总时限 180 秒；CLI 版本检查只代表程序能够启动。Node.js 要求 ≥ 22.19.0。Windows 有本机验证；macOS/Linux 安装分支有合成测试覆盖，实体机器完整流程仍有待验证。
 
 当前只接收官方原生结果；缺失结构化字段、多个最终记录及不合法工具请求仍会报错，不回退普通文字解析。最终回复失败不会撤销已完成工具，重试前先核对实际状态。处理方法见[用户指南](docs/使用与故障处理指南.md)。
 
-本次发布通过 60 项自动检查及实际新适配器的三次官方 CLI 合成联调（计划、模拟工具结果续接、字面示例）。未执行真实 DSH 业务工具，也未逐一验证目录内所有模型。官方结构化处理可能包含内部多轮；以官方用量为准，不保证未来所有回复成功。
+本次发布通过 74 项自动检查，以及新版适配器的六次官方 CLI 合成图片联调（PNG 单图、追问、双图顺序、工具提案、模拟工具后总结、JPEG 补测）。国内实测模型为 deepseek-v4.1-flash，CLI 2.173.0；附件接口使用隔离测试实现，没有执行真实 DSH 业务工具，尚未完成 DSH 上传界面的人工端到端验收，也未逐一验证所有模型。官方结构化处理可能包含内部多轮，用量以官方为准。
 
 ## 反馈
 

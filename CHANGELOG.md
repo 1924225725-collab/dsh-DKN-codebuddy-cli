@@ -4,6 +4,20 @@
 
 Historical GitHub Releases are backfilled with the unchanged packages. The local 0.2.10 candidate is included in 0.3.0 and has no separate public release.
 
+## [0.3.2](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.2)
+
+- 新增用户图片提问与历史追问：从 DSH 附件服务读取图片，使用官方 stream-json 原生 image 输入，保留原生 Schema 输出。
+- 模型目录增加图片能力标记，未知或未声明能力的路由不接收图片；纯文字调用保留原路径。
+- 多图通过索引关联历史消息；最多保留 5 张请求图片，每张转换后 ≤2 MiB、最长边 ≤1920，Base64 合计 ≤8 MiB，文字与图片总请求 ≤20 MiB。超预算通过 DSH 的持久图片卸载机制处理，不静默丢图。
+- 图片流支持总超时、取消、严格 JSONL 与唯一终态检查；业务工具仍由 DSH 执行。
+- 含图片历史的调用禁用失败原文采集，普通日志仅记录图片数量与字节统计。更新中英配置说明、使用指南和安装教程。
+- Add user image questions and history follow-ups through DSH attachments and official native image blocks in stream-json, retaining native Schema output.
+- Show catalog-declared image capability; reject images for unknown/undeclared routes and preserve the existing text-only transport.
+- Associate images with history by index. Retain up to 5 request images, each converted to ≤2 MiB and longest edge ≤1920; combined Base64 ≤8 MiB, total text/image request ≤20 MiB. Request durable DSH image offloading rather than silently dropping history.
+- Bound image streams with cancellation, deadlines, strict JSONL and unique-terminal validation. DSH continues to execute business tools.
+- Disable raw failure capture for calls containing image history. Basic logs retain counts/byte totals only. Update bilingual settings, guides and installation instructions.
+- 验证 / Validation: This release passed 74 automated checks and six synthetic official CLI image calls through the new adapter: PNG single image, follow-up, two-image order, tool proposal, summary after a simulated tool result and a JPEG check. China-region live tests used deepseek-v4.1-flash and CLI 2.173.0 with an isolated attachment-service test double. No real DSH business tool ran; DSH upload-UI manual end-to-end validation and every-model coverage remain outstanding. Official structured processing may involve internal model turns; official usage applies.
+
 ## [0.3.1](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.1)
 
 - 改用官方 --json-schema，只开放 StructuredOutput 输出工具，直接读取 structured_output 对象，退出普通文字 JSON 候选扫描路径。
