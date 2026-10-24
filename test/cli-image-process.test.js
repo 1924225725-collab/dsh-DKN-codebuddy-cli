@@ -47,3 +47,7 @@ test('CLI error frames fail immediately with safe classifications and never acce
     await assert.rejects(run(mode),e=>e.code===code&&!e.message.includes('PRIVATE')&&e.processDiagnostics.stdoutBytes>0)
   }
 })
+
+test('image error frames and empty streams classify fixed network notices without leaking or accepting later plans', async () => {
+  for(const mode of ['error-network','stderr-network'])await assert.rejects(run(mode),e=>e.code==='CLI_NETWORK_ERROR'&&!e.message.includes('PRIVATE')&&!e.message.includes('private.invalid')&&e.processDiagnostics.stderrBytes+e.processDiagnostics.stdoutBytes>0)
+})

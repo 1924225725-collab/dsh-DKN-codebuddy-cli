@@ -106,6 +106,32 @@ test('carries immutable DSH-compatible failure facts with a diagnostic ID instea
   assert.equal(new CodeBuddyCliError('CLI_TIMEOUT', 'timeout').failure.code, 'CLI_TIMEOUT')
 })
 
+test('empty stdout plus a known reset or TLS notice is a private network failure even with exit zero', () => {
+  const processDiagnostics = {timeoutMs:180000,elapsedMs:32000,stdoutBytes:0,stderrBytes:273,exitCode:0,secret:'PRIVATE_TOKEN'}
+  for(const stderr of [
+    'Error: read ECONNRESET PRIVATE_TOKEN https://private.invalid/secret',
+    'ECONNRESET: connection reset PRIVATE_TOKEN',
+    'Error: Client network socket disconnected before secure TLS connection was established PRIVATE_TOKEN',
+    'Error: 502 安全连接建立失败：可能被代理拦截（Client network socket disconnected before secure TLS connection was established） PRIVATE_TOKEN',
+    '\u001b[31mAPI Error: 502 安全连接建立失败 PRIVATE_TOKEN\u001b[0m'
+  ]) assert.throws(()=>collectStructuredResult('',{stderr,processDiagnostics}), error=>{
+    assert.equal(error.code,'CLI_NETWORK_ERROR')
+    assert.equal(error.failure.code,error.code)
+    assert.deepEqual(error.processDiagnostics,{timeoutMs:180000,elapsedMs:32000,stdoutBytes:0,stderrBytes:273,exitCode:0})
+    assert.equal(JSON.stringify(error).includes('PRIVATE'),false)
+    assert.equal(error.message.includes('private.invalid'),false)
+    return true
+  })
+})
+
+test('network words in valid results or quoted examples never override successful native output or generic failures', () => {
+  const structured_output={text:'Example: Error: read ECONNRESET',toolCalls:[]}
+  assert.deepEqual(collectStructuredResult(JSON.stringify({type:'result',structured_output}),{stderr:'Error: read ECONNRESET from an earlier recovered attempt'}).result,structured_output)
+  for(const stderr of ['', 'Unknown failure PRIVATE_TOKEN','A model quoted Error: read ECONNRESET','The example says Client network socket disconnected before secure TLS connection was established','502 unrelated PRIVATE_TOKEN']) {
+    assert.throws(()=>collectStructuredResult('',{stderr}), error=>error.code==='CLI_OUTPUT_INVALID'&&!error.message.includes('PRIVATE'))
+  }
+})
+
 test('native collection accepts only the official field and never falls back to valid-looking prose', () => {
   const value = { text: 'literal {"text":"example"} {"toolCalls":[]}', toolCalls: [] }
   assert.deepEqual(collectStructuredResult(JSON.stringify({ type: 'result', structured_output: value, result: 'conflicting prose' })).result, value)

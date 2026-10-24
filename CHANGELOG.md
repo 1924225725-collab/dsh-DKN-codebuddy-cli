@@ -4,6 +4,15 @@
 
 Historical GitHub Releases are backfilled with the unchanged packages. The local 0.2.10 candidate is included in 0.3.0 and has no separate public release.
 
+## [0.3.5](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.5)
+
+- 识别 CLI 已知 ECONNRESET 与 TLS 建连失败提示，使用固定 CLI_NETWORK_ERROR，覆盖空标准输出且退出码为 0 的情况。
+- 保留诊断 ID、耗时、输出字节和退出码，不暴露原始标准错误、地址或凭据；文字与图片共用分类，不自动重试。
+- 不改变合法结果、未知空输出、登录/权限分类、超时或工具行为；更新配置页与中英使用指南。
+- Recognize fixed CLI connection-reset/TLS failures with CLI_NETWORK_ERROR, including empty stdout and exit 0. Keep safe diagnostics and identifiers without raw stderr or credentials.
+- Cover text and image failures without retries, model switching, parser fallback or changes to valid results and existing authentication/permission handling.
+- 验证 / Validation: 82 automated checks passed with synthetic failures and existing regression coverage. No live model call was made; network recovery is not claimed.
+
 ## [0.3.4](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.4)
 
 - 接入 DSH 工具结果中的标准图片附件，覆盖桌面/窗口/区域/浏览器截图、图片读取及其他工具图片，不按工具名设置白名单。

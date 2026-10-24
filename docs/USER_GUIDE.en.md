@@ -2,7 +2,7 @@
 
 [简体中文](使用与故障处理指南.md) · [Installation](INSTALL.en.md) · [Logs](TROUBLESHOOTING.en.md) · [Home](../README.en.md)
 
-For 0.3.2. Plugin settings contain an offline-readable troubleshooting summary. This page provides the full guide. All examples below are fictional.
+For 0.3.5. Plugin settings contain an offline-readable troubleshooting summary. This page provides the full guide. All examples below are fictional.
 
 ## Check the failure stage before retrying
 
@@ -22,6 +22,7 @@ The adapter converts model replies into DSH text and tool requests. DSH executes
 | Final failure after successful command output | A tool completed, but the following summary or next-step response failed | Check output, exit codes and files. If only the summary is missing, explicitly request a summary of existing results without repeating operations |
 | Changed quotes, code or backslashes | The model may add/remove escaping or alter literal content | Ask for only the affected small block and compare characters. The adapter never unescapes every valid text field a second time; verify content before executing it |
 | `CLI_AUTH_REQUIRED` / 401 | Official CLI sign-in or authorization expired | Copy the official sign-in command from settings, use official `/login`, then verify one short request. The plugin cannot restore account rights or credits |
+| `CLI_NETWORK_ERROR` | Known connection reset (ECONNRESET) or TLS connection failure from CLI error output, possibly with exit code 0 | Check connectivity/proxy access to the official service. Retain diagnostic ID and basic logs; the task target alone does not identify the failed endpoint. No automatic retry or network/account change is made |
 | `CLI_TIMEOUT` | The total CLI deadline expired, including startup, model processing and process exit | Split the task, check connectivity/service status, and adjust the deadline if needed. A longer deadline cannot resolve conflicting JSON plans |
 | Missing file, `grantWrite`, ACL or permission error | Wrong workspace, absent path, or DSH/OS access refusal | Verify the workspace and path in the file manager and follow actual DSH permissions. Do not classify every permission error as model formatting, or change permissions to fix formatting |
 
@@ -66,3 +67,7 @@ Calls containing image history never capture raw failure samples, even when arme
 ## Tool image results (0.3.4)
 
 Images in tool results now use the same native image input as uploads. Preserve toolCallId, isError and order: visible evidence in a failed tool result is not proof the tool succeeded. IMAGE_TOOL_CALL_INVALID indicates a missing call identity. Paths/URLs/Base64 text are not read automatically. CLI error frames report safe authentication, directory-permission or generic request failures. See [tool and result compatibility](TOOL_COMPATIBILITY.en.md) for the supported representations and remaining gaps.
+
+## Network diagnostics (0.3.5)
+
+Only fixed, known CLI notices are classified. A valid final native result remains successful even if stderr contains an earlier recovered network notice; quoted error words are not sufficient. Unknown empty output retains the generic error. Authentication/permission classification remains separate. Retrying a summary does not undo earlier DSH tools, so check completed actions first. This version improves the message, not the connection itself.

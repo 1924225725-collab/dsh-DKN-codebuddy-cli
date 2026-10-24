@@ -238,19 +238,25 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   }
   await logAction('clearLogs')
   await logAction('armCapture')
-  for (const [variant, code] of [['auth-required', 'CLI_AUTH_REQUIRED'], ['empty-output', 'CLI_OUTPUT_INVALID'], ['non-json', 'CLI_OUTPUT_INVALID']]) {
+  const beforeProcessFailures = await requestCount()
+  for (const [variant, code] of [['auth-required', 'CLI_AUTH_REQUIRED'], ['empty-output', 'CLI_OUTPUT_INVALID'], ['non-json', 'CLI_OUTPUT_INVALID'], ['network-reset','CLI_NETWORK_ERROR']]) {
     const delivered = []
     await assert.rejects(async () => {
       for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: `response-case:${variant}` }] })) delivered.push(chunk)
-    }, error => error.code === code)
+    }, error => error.code === code && error.failure.code === code && typeof error.failure.requestId === 'string')
     assert.deepEqual(delivered, [])
   }
   const processLog = (await logAction('exportDetailedLogs')).body
-  assert.equal(processLog.entries.length, 3)
+  assert.equal(processLog.entries.length, 4)
+  assert.equal(await requestCount()-beforeProcessFailures,4,'network failures do not add CLI retries')
   assert.equal(processLog.entries[0].errorCode, 'CLI_AUTH_REQUIRED')
   assert.equal(processLog.entries[0].processDiagnostics.exitCode, 0)
   assert.equal(processLog.entries[0].processDiagnostics.stdoutBytes, 0)
   assert.ok(processLog.entries[0].processDiagnostics.stderrBytes > 0)
+  assert.equal(processLog.entries[3].errorCode,'CLI_NETWORK_ERROR')
+  assert.equal(processLog.entries[3].processDiagnostics.stdoutBytes,0)
+  assert.equal(processLog.entries[3].processDiagnostics.exitCode,0)
+  assert.ok(processLog.entries[3].processDiagnostics.stderrBytes>0)
   assert.equal(processLog.entries[0].captureAttempted, true)
   assert.equal(JSON.stringify(processLog).includes('PRIVATE_'), false)
   const paused = adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'pause consumption after first block' }] })
