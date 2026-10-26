@@ -9,7 +9,9 @@ const models = [
   { modelId: 'new-free-model', name: 'New Free', _meta: { credits: 'x0.00 credits', supportsReasoning: false } }
 ]
 if (process.argv.includes('--version')) {
-  console.log('CodeBuddy CLI 9.8.7')
+  console.log(`CodeBuddy CLI ${process.env.DSH_FIXTURE_CLI_VERSION || '9.8.7'}`)
+} else if (process.env.DSH_FIXTURE_LOGIN_PROBE === '1') {
+  record({ loginArgs: process.argv.slice(2), accountHome: process.env.USERPROFILE, competingAuth: !!(process.env.CODEBUDDY_AUTH_TOKEN || process.env.CODEBUDDY_API_KEY) })
 } else if (process.argv.includes('--acp')) {
   console.log('fixture startup diagnostic')
   const reader = readline.createInterface({ input: process.stdin })
@@ -31,7 +33,7 @@ if (process.argv.includes('--version')) {
   process.stdin.setEncoding('utf8')
   process.stdin.on('data', (chunk) => { input += chunk })
   process.stdin.on('end', () => {
-    record({ args: process.argv.slice(2), input })
+    record({ args: process.argv.slice(2), input, accountHome: process.env.USERPROFILE, configDir: process.env.CODEBUDDY_CONFIG_DIR, competingAuth: !!(process.env.CODEBUDDY_AUTH_TOKEN || process.env.CODEBUDDY_API_KEY) })
     const streaming = process.argv.includes('--input-format')
     if (streaming) input = JSON.parse(input).message.content[0].text
     if (input.includes('response-case:wait-for-cancel')) { setInterval(() => {}, 1000); return }

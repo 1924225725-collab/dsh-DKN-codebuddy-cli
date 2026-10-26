@@ -2,20 +2,22 @@
 
 **简体中文** · [English](README.en.md)
 
+> 0.3.9 已上传仓库，下载请使用下方安装包链接。独立账号模式仅支持 Windows / 官方 npm CLI 2.174.0；真实双账号登录、刷新与扣费归属尚待验收。见[多账号指南](docs/多账号使用指南.md)。
+
 在 **DeepSeek Harness（DSH）** 中，通过已登录的官方 CodeBuddy CLI 调用国内账号可用的模型。DSH 管理对话和工具执行，插件负责转换模型请求与结果。
 
-**最新版本：0.3.5**
+**最新安装包：0.3.9（仓库分发）**
 
-[下载安装包](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/download/v0.3.5/dsh-codebuddy-cli-cn-0.3.5.tgz) · [全部版本与更新说明](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [安装教程](docs/安装教程.md) · [使用与故障处理指南](docs/使用与故障处理指南.md) · [更新记录](CHANGELOG.md)
+[下载安装包](https://raw.githubusercontent.com/1924225725-collab/dsh-codebuddy-cli-cn/main/releases/dsh-codebuddy-cli-cn-0.3.9.tgz) · [全部版本与更新说明](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [安装教程](docs/安装教程.md) · [使用与故障处理指南](docs/使用与故障处理指南.md) · [更新记录](CHANGELOG.md)
 
-[仓库内备用安装包](releases/dsh-codebuddy-cli-cn-0.3.5.tgz) · [SHA-256](releases/SHA256SUMS.txt)
+[仓库内备用安装包](releases/dsh-codebuddy-cli-cn-0.3.9.tgz) · [SHA-256](releases/SHA256SUMS.txt)
 
-## 0.3.5 更新
+## 0.3.9 更新
 
-- 将已知连接重置、TLS 建连失败识别为 CLI_NETWORK_ERROR，不再只显示“标准输出为空”；覆盖退出码为 0 的情况。
-- 保留诊断 ID、耗时、输出字节数和退出码，仅展示固定提示，不记录原始标准错误、私有地址或凭据。
-- 覆盖文字与图片错误通道；成功结构化结果、登录分类、总超时和工具权限保持原规则。不新增自动重试、切换模型或回退解析。
-- 本次改善错误识别，实际网络、代理和账号会话问题仍需在使用环境处理。
+- 增强结构与进程诊断，本机日志、恢复、导出和配置页显示固定安全事实。
+- 加固工具交接，含图片历史超时使用中性提示，取消与卸载请求单列统计。
+- 加入独立账号环境、手动选择及官方登录命令，模型与工具/图片续轮绑定原环境。
+- 包含此前上下文超限、余额不足与内联图片预算改进。详细验证范围和限制见 [更新记录](CHANGELOG.md)。
 
 此前更新保留在 [CHANGELOG](CHANGELOG.md) 与 [GitHub Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases)。0.2.10 本地候选已合入 0.3.0，未单独公开发布。
 
@@ -24,7 +26,7 @@
 1. 下载 `.tgz` 到本机，在 DSH 的“插件”页安装；GitHub 源码 ZIP 不是插件安装包。
 2. 打开插件 `dsh-codebuddy-cli-cn` → 组件 `llm-codebuddy-cli-cn` 配置页，点击“一键配置 CLI”。
 3. 展开“首次登录或切换账号”，复制官方命令到 PowerShell（macOS/Linux 使用终端），完成国内账号登录。
-4. 刷新模型与倍率，在 DSH 会话中选择模型；升级后重启 DSH，核对配置页运行版本为 **0.3.5**。
+4. 刷新模型与倍率，在 DSH 会话中选择模型；升级后重启 DSH，核对配置页运行版本为 **0.3.9**。
 
 完整步骤见 [安装教程](docs/安装教程.md)。遇到问题可直接展开配置页中的“故障处理与使用指南”，或阅读[完整指南](docs/使用与故障处理指南.md)。
 

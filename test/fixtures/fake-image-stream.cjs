@@ -4,9 +4,28 @@ const send = value => process.stdout.write(JSON.stringify(value) + '\n')
 process.stdin.resume()
 process.stdin.on('end', () => {
   if (mode === 'hang') return setInterval(() => {}, 1000)
+  if (mode === 'direct-dsh-tool' || mode === 'direct-dsh-tool-resident') {
+    send({ type: 'assistant', message: { content: [{ type: 'tool_use', id: 'synthetic-native-proposal', name: 'synthetic_media_lookup', input: { private: 'PRIVATE_ARGUMENT' } }] } })
+    if (mode.endsWith('resident')) return setInterval(() => {}, 1000)
+    send(result); return
+  }
+  if (mode === 'native-structured-tool') {
+    send({ type: 'assistant', message: { content: [{ type: 'tool_use', id: 'synthetic-output', name: 'StructuredOutput', input: result.structured_output }] } })
+    send(result); return
+  }
+  if (mode === 'partial-tool-event') {
+    send({ type: 'stream_event', event: { type: 'content_block_start', content_block: { type: 'tool_use', name: 'synthetic_partial' } } })
+    send(result); return
+  }
+  if (mode === 'prose-tool-example') {
+    send({ type: 'assistant', message: { content: [{ type: 'text', text: 'Example: Tool synthetic_media_lookup not found in agent cli. Not an actual call.' }] } })
+    send(result); return
+  }
   if (mode === 'error-permission') { send({type:'error',error:'EPERM: operation not permitted, mkdir PRIVATE_PATH'}); send(result); return }
   if (mode === 'error-auth') { send({type:'error',error:{message:'401 Unauthorized PRIVATE_AUTH'}}); return }
   if (mode === 'error-network') { send({type:'error',error:{message:'Error: read ECONNRESET PRIVATE_NETWORK https://private.invalid'}}); send(result); return }
+  if (mode === 'error-context') { send({type:'error',status:400,error:{message:'prompt is too long: 100001 tokens > 100000 maximum PRIVATE_CONTEXT'}}); send(result); return }
+  if (mode === 'error-balance') { send({type:'error',error:{status:402,message:'Insufficient Balance PRIVATE_ACCOUNT'}}); send(result); return }
   if (mode === 'stderr-network') { process.stderr.write('Error: Client network socket disconnected before secure TLS connection was established PRIVATE_NETWORK'); return }
   if (mode === 'error-generic') { send({type:'error',error:{message:'PRIVATE_UNKNOWN_ERROR'}}); return }
   if (mode === 'auth') { send({ type: 'assistant', message: { content: [{ type: 'text', text: '401 Unauthorized' }] } }); return }

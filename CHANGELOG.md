@@ -1,8 +1,24 @@
 # 更新记录 / Changelog
 
-历史版本现补齐 GitHub Releases，原安装包不变。0.2.10 仅为本地候选，改动合入 0.3.0，未单独公开发布。
+## 0.3.9（2026-10-27，仓库分发 / repository distribution）
 
-Historical GitHub Releases are backfilled with the unchanged packages. The local 0.2.10 candidate is included in 0.3.0 and has no separate public release.
+本次包含 0.3.6–0.3.8 本地候选改动；这些候选未单独公开发布。安装包见 [0.3.9](releases/dsh-codebuddy-cli-cn-0.3.9.tgz)。GitHub Releases 中的历史条目保留。
+
+- 增加图片流结构诊断：固定拒绝原因、解析阶段、帧序号/大小、init/result 计数、终止发起方和实际观察到的进程关闭状态。原生结果记录结构化字段存在性、固定类型和已知提示类别，不保存原始帧、stderr 或任意字段内容。
+- 诊断事实贯通本机日志持久化、恢复、导出、最近调用和配置页。用户取消与图片卸载请求单列统计；未观察到的退出码保持缺失，卸载请求不代表 DSH 已完成卸载。
+- 加固 DSH 工具交接。StructuredOutput 用于交付工具提案，业务工具仍由 DSH 执行；图片流发现其他原生工具调用时明确拒绝。含图历史超时使用中性总时限提示。
+- 加入独立账号环境、手动选择和官方登录命令。每个环境隔离 CLI 配置及用户目录，模型 ID 绑定环境，工具/图片续轮沿用原账号。独立账号模式仅支持 Windows 和官方 npm/Node CLI 2.174.0；没有自动轮换或账号回落。
+- 增加明确的上下文超限/余额不足分类；内联图片 data URI 的累计字符数超过限制时提示使用 DSH 标准图片附件。模型目录窗口及本地用量不等同于官方实际限额或账单。
+- 验证：当前诊断改动 59 项定向自动检查、两次官方 CLI 2.174.0 合成文字/图片请求通过；此前工具加固完成 97 项自动检查和五次合成请求。未验收实际 DSH UI/业务工具、私人历史或真实双账号登录/刷新/扣费归属。增强诊断不代表所有偶发失败已经消除。
+
+This upload includes the previously local 0.3.6–0.3.8 changes; those candidates have no separate public release.
+
+- Add bounded structural/process diagnostics across image streams, native results, local persistence, export and settings. Retain fixed classifications and numeric facts rather than raw frames, stderr or arbitrary payloads.
+- Count cancellations and DSH image-offload requests separately. An offload request is not proof of completion; unobserved exit codes remain absent.
+- Harden DSH tool handoff and reject unexpected native CLI tools. Image-history timeouts use a neutral total-deadline message.
+- Add manually selected isolated account environments with official sign-in commands and account-bound model IDs. Isolated mode supports Windows and official npm/Node CLI 2.174.0 only; there is no automatic rotation or account fallback.
+- Add explicit context-limit/insufficient-balance classifications and an aggregate inline-image URI character limit. Local usage counters and catalog windows are not official billing or guaranteed request limits.
+- Validation: 59 targeted diagnostics checks and two synthetic official CLI 2.174.0 text/image calls passed; earlier tool hardening passed 97 automated checks and five synthetic calls. Actual DSH UI/business tools, private-history replay, real two-account sign-in, refresh and billing attribution remain unverified. This does not claim to eliminate every intermittent failure.
 
 ## [0.3.5](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.5)
 

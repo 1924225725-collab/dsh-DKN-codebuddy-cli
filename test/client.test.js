@@ -30,15 +30,27 @@ test('settings UI displays live rates, refreshes new models, and saves a portabl
         diagnostics: { messageCount: 1, toolCount: 2, promptBytes: 3200, systemBytes: 4, messagesBytes: 100, toolsBytes: 2000 } } }, loginCommand: "& 'C:\\Users\\Another User\\CLI\\codebuddy.cmd'",
     catalog: { state: 'ready', fetchedAt: 1000, models: [{ id: 'future-alpha', name: 'Future Alpha', multiplier: 0.33, credits: 'x0.33 credits', efforts: [{ id: 'high', name: 'High' }], contextWindow: 1000000 }] }
   }
-  const actions = []
+  const actions = [], accountActions = [], copiedCommands = []
   const logActions = [], downloads = [], blobs = new Map()
   const context = vm.createContext({
     window: { __ModuleLoader__: { load(module) { api = module.factory((name) => { if (name === 'react') return React; throw Error(name) }) } } },
     AbortController, setInterval: () => 1, clearInterval: () => {}, setTimeout: (callback) => { queueMicrotask(callback); return 1 },
-    navigator: { clipboard: { writeText: async () => {} } },
+    navigator: { clipboard: { writeText: async value => { copiedCommands.push(value) } } },
     Blob, URL: { createObjectURL(blob) { blobs.set('blob:fixture', blob); return 'blob:fixture' }, revokeObjectURL() {} },
     document: { body: { appendChild() {} }, createElement() { return { click() { downloads.push({ href: this.href, filename: this.download, blob: blobs.get(this.href) }) }, remove() {} } } },
     async fetch(url, options = {}) {
+      if (url.endsWith('/accounts')) {
+        assert.equal(options.headers['X-DSH-CodeBuddy-Action'], '1')
+        const body = JSON.parse(options.body); accountActions.push(body)
+        if (body.action === 'add') status.accounts.accounts.push({ id: 'synthetic-id', label: body.label, selected: false, credentialsPresent: false, activeCalls: 0 })
+        if (body.action === 'select') {
+          status.accounts.selectedId = body.id
+          for (const account of status.accounts.accounts) account.selected = account.id === body.id
+        }
+        if (body.action === 'prepareLogin') status.accounts.accounts[0].loginCommand = "powershell.exe -NoProfile -File 'C:\\Private Accounts\\login.ps1'"
+        if (body.action === 'remove') status.accounts.accounts = []
+        return { ok: true, json: async () => structuredClone(status) }
+      }
       if (url.endsWith('/diagnostics')) {
         const action = options.method === 'POST' ? JSON.parse(options.body).action : null
         if (action) { assert.equal(options.headers['X-DSH-CodeBuddy-Action'], '1'); logActions.push(action) }
@@ -109,6 +121,11 @@ test('settings UI displays live rates, refreshes new models, and saves a portabl
   assert.ok(text().includes('CLI_TIMEOUT'))
   assert.ok(text().includes('fixture timeout details'))
   assert.ok(text().includes('标准输出 0 字节'))
+  status.usage.lastCall.processDiagnostics = { channel: 'image-jsonl', streamReason: 'frame-shape', streamPhase: 'receiving', frameIndex: 2, totalFrames: 2, frameBytes: 42, initCount: 1, finalResultCount: 0, lastFrameClass: 'other', terminationInitiator: 'parser', closeObserved: false, deadlineReached: false }
+  status.usage.lastCall.responseDiagnostics = { hasStructuredOutput: false, structuredOutputType: 'missing', resultTypeValid: true, finalSubtypeClass: 'other', noticeClass: 'unknown', noticeSource: 'none' }
+  status.logs.cancellations = 1; status.logs.offloads = 2
+  await act(async () => { await button('刷新模型与倍率').props.onClick() })
+  for (const value of ['图片流结构诊断', 'frame-shape', '原生结果事实', 'missing', '固定错误类别 unknown', '控制事件另计']) assert.ok(text().includes(value), value)
   status.usage.lastCall = { state: 'success', model: 'future-alpha', at: 3000, inputTokens: 1, outputTokens: 2, responseDiagnostics: { reason: 'valid', inputType: 'string', bytes: 50, normalizations: ['markdown-fence'] } }
   status.usage.recentFailures = [{ at: 2000, model: 'future-alpha', errorCode: 'STRUCTURED_OUTPUT_INVALID', errorMessage: 'synthetic failure', responseDiagnostics: { reason: 'possibly-truncated-json', inputType: 'string', bytes: 25, normalizations: [] } }]
   await act(async () => { await button('刷新模型与倍率').props.onClick() })
@@ -151,4 +168,26 @@ test('settings UI displays live rates, refreshes new models, and saves a portabl
   const loginDetails = tree.root.findAllByType('details').find(item => item.findAllByType('summary').some(summary => summary.children.join('') === '首次登录或切换账号'))
   assert.equal(loginDetails.props.open, true)
   assert.ok(text().includes('CLI 进程诊断'))
+  status.accounts = { supported: true, selectedId: null, accounts: [], validation: 'login-refresh-billing-unverified' }
+  await act(async () => { await button('刷新模型与倍率').props.onClick() })
+  assert.ok(text().includes('真实双账号登录、刷新与扣费归属尚待验收'))
+  assert.equal(button('新增独立账号').props.disabled, true)
+  const labelInput = tree.root.findAllByType('input').find(x => x.props['aria-label'] === '账号备注')
+  await act(async () => { labelInput.props.onChange({ target: { value: '用户账号 A' } }) })
+  await act(async () => { await button('新增独立账号').props.onClick() })
+  assert.ok(text().includes('用户账号 A'))
+  assert.ok(text().includes('尚无本地登录凭据'))
+  await act(async () => { await button('使用此账号').props.onClick() })
+  assert.equal(button('移出列表').props.disabled, true)
+  await act(async () => { await button('生成官方登录命令').props.onClick() })
+  const cardCopy = tree.root.findAllByType('button').filter(x => x.children.join('') === '复制登录命令').at(-1)
+  await act(async () => { await cardCopy.props.onClick() })
+  assert.ok(copiedCommands.at(-1).includes('Private Accounts'))
+  await act(async () => { await button('使用默认 CLI 登录').props.onClick() })
+  await act(async () => { button('移出列表').props.onClick() })
+  assert.equal(accountActions.some(x => x.action === 'remove'), false)
+  await act(async () => { await button('确认移出（保留本地登录数据）').props.onClick() })
+  assert.deepEqual(accountActions.map(x => x.action), ['add', 'select', 'prepareLogin', 'select', 'remove'])
+  assert.ok(locales.en.accountsTitle.includes('preview'))
+  assert.ok(text().includes('本地官方登录数据保留'))
 })

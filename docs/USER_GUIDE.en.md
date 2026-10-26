@@ -68,6 +68,24 @@ Calls containing image history never capture raw failure samples, even when arme
 
 Images in tool results now use the same native image input as uploads. Preserve toolCallId, isError and order: visible evidence in a failed tool result is not proof the tool succeeded. IMAGE_TOOL_CALL_INVALID indicates a missing call identity. Paths/URLs/Base64 text are not read automatically. CLI error frames report safe authentication, directory-permission or generic request failures. See [tool and result compatibility](TOOL_COMPATIBILITY.en.md) for the supported representations and remaining gaps.
 
+## Private structural diagnostics (0.3.9)
+
+Basic logs and settings show fixed reasons, frame index/bytes, init/result counts, phase, last-frame class and termination initiator. They contain no bodies, images, arbitrary field names or stderr. Unknown frame names become other; missing facts in old logs remain missing.
+
+CLI_STREAM_INVALID means a protocol rejection, not necessarily malformed JSON. json-parse identifies an unparseable complete line; frame-shape identifies an invalid shape; partial-tail identifies a tail parse failure at close, not proof of truncation. Regional versions can have additional init/final sequence guards. Bad lines are not ignored or repaired, and prose never becomes a tool request.
+
+closeObserved=false means close had not been observed when the diagnostic returned. A missing exitCode does not establish a crash. terminationInitiator distinguishes parser, deadline, caller, terminal-drain, process and spawn. caller identifies an upstream cancellation signal, not who clicked Stop. Native-result facts separate structured_output presence/type and fixed subtype categories. noticeClass=unknown does not establish a network failure.
+
+Cancellations and image-offload control events are counted separately and preserve failure capture. Only the requested offload count is recorded; DSH manages history. If a natural failure recurs, provide matching basic logs and diagnostic ID, not private images, full chats or credentials. Validated diagnostics do not prove reproduction or elimination of an older intermittent failure.
+
+## DSH tools and native CLI tools (0.3.8)
+
+DSH executes its business tools. The model submits proposals through the CLI's `StructuredOutput` tool, and the plugin hands them back to DSH. Do not install DSH tools into the CLI or enable CLI file, shell or network tools for this purpose.
+
+`CLI_TOOL_PROTOCOL_ERROR` means the model used a DSH tool name as a native CLI function. The plugin stops this request without inferring arguments from error prose, executing that tool or automatically retrying. Check earlier completed operations before manually retrying the unfinished step. If repeated, share basic diagnostics, diagnostic ID, model/version and non-private reproduction steps. Stronger protocol instructions cannot guarantee every upstream model always complies.
+
+A generic lookup tool may work in DSH yet fail if the model invokes it directly inside the CLI. That is a handoff failure, not evidence that the lookup service is unavailable. Historical images select the image input channel even for a new text-only message. `CLI_TIMEOUT` means no final result arrived before the deadline; it does not establish an expired login or oversized image.
+
 ## Network diagnostics (0.3.5)
 
 Only fixed, known CLI notices are classified. A valid final native result remains successful even if stderr contains an earlier recovered network notice; quoted error words are not sufficient. Unknown empty output retains the generic error. Authentication/permission classification remains separate. Retrying a summary does not undo earlier DSH tools, so check completed actions first. This version improves the message, not the connection itself.

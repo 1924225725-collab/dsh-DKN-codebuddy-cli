@@ -8,6 +8,22 @@ import { runProcess } from '../lib/cli-process.js'
 import { CodeBuddyCliError } from '../lib/cli-response.js'
 import { cliInvocation } from '../lib/cli-invocation.js'
 
+test('text cancellation settles promptly with caller termination facts, without claiming close or an exit status', async () => {
+  const controller = new AbortController()
+  const started = Date.now()
+  const pending = runProcess(process.execPath, ['-e', 'process.stdin.resume();setInterval(()=>{},1000)'], { timeoutMs: 5000, signal: controller.signal })
+  setTimeout(() => controller.abort(), 50)
+  await assert.rejects(pending, error => {
+    assert.equal(error.code, 'ABORTED')
+    assert.equal(error.processDiagnostics.channel, 'text-json')
+    assert.equal(error.processDiagnostics.terminationInitiator, 'caller')
+    assert.equal(error.processDiagnostics.closeObserved, false)
+    assert.equal(error.processDiagnostics.exitCode, undefined)
+    return true
+  })
+  assert.ok(Date.now() - started < 3000)
+})
+
 test('Windows discovery uses the current user paths and finds native/npm installs without a fixed username', () => {
   const paths = cliCandidates('', { platform: 'win32', home: 'C:\\Users\\Someone Else', execPath: 'C:\\DSH\\node.exe', env: { LOCALAPPDATA: 'C:\\Users\\Someone Else\\AppData\\Local', APPDATA: 'C:\\Users\\Someone Else\\AppData\\Roaming', Path: 'D:\\Node Runtime;C:\\Tools' } })
   assert.ok(paths.includes('D:\\Node Runtime\\codebuddy.cmd'))

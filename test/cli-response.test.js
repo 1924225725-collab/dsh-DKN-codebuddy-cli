@@ -93,6 +93,42 @@ test('classifies fixed CLI notices and distinguishes empty from non-JSON output 
   assert.throws(() => collectResult('plain'), error => error.message.includes('非 JSON'))
 })
 
+test('classifies explicit context-limit and insufficient-balance errors without exposing their bodies', () => {
+  for (const [stderr, code, status, phrase] of [
+    ['Error: 400 prompt is too long: 100001 tokens > 100000 maximum PRIVATE_REQUEST', 'CLI_CONTEXT_TOO_LARGE', 400, /上下文上限/u],
+    ['API Error: 402 Insufficient Balance PRIVATE_ACCOUNT', 'CLI_INSUFFICIENT_BALANCE', 402, /余额不足/u]
+  ]) {
+    assert.throws(() => collectResult('', { stderr }), error => {
+      assert.equal(error.code, code)
+      assert.equal(error.failure.code, code)
+      assert.equal(error.failure.status, status)
+      assert.match(error.message, phrase)
+      assert.equal(error.message.includes('PRIVATE'), false)
+      assert.equal(JSON.stringify(error).includes('PRIVATE'), false)
+      return true
+    })
+  }
+
+  for (const [message, code, status] of [
+    ['prompt is too long: 100001 tokens > 100000 maximum PRIVATE_REQUEST', 'CLI_CONTEXT_TOO_LARGE', 400],
+    ['Insufficient Balance PRIVATE_ACCOUNT', 'CLI_INSUFFICIENT_BALANCE', 402]
+  ]) {
+    const errorDocument = { type: 'result', subtype: 'error_during_execution', is_error: true,
+      error: { status, message }, usage: { input_tokens: 17 } }
+    assert.throws(() => collectResult(JSON.stringify(errorDocument)), error => {
+      assert.equal(error.code, code)
+      assert.equal(error.failure.status, status)
+      assert.equal(error.usage.input_tokens, 17)
+      assert.equal(error.message.includes('PRIVATE'), false)
+      return true
+    })
+  }
+
+  const valid = JSON.stringify({ result: '400 prompt is too long is an example, not a CLI error' })
+  assert.equal(collectResult(valid, { stderr: '400 prompt is too long PRIVATE_OLD_ERROR' }).result,
+    '400 prompt is too long is an example, not a CLI error')
+})
+
 test('carries immutable DSH-compatible failure facts with a diagnostic ID instead of UNKNOWN', () => {
   const requestId = '9f68b497-ec6a-4cdf-ad81-c2c5384d0583'
   const error = new CodeBuddyCliError('CLI_AUTH_REQUIRED', 'Synthetic authentication failure', { requestId })
@@ -152,4 +188,36 @@ test('native collection rejects multiple final records without selecting the las
     assert.throws(() => collectStructuredResult(JSON.stringify(value)), e => e.code === 'STRUCTURED_OUTPUT_INVALID' && e.responseDiagnostics.reason === 'native-final-results')
   }
   assert.throws(() => collectStructuredResult(JSON.stringify({ ...doc, is_error: true, subtype: 'error_max_turns', usage: { output_tokens: 13 } })), e => e.code === 'CLI_REQUEST_FAILED' && e.usage.output_tokens === 13)
+})
+
+test('explicit native tool-not-found failures are classified without exposing names or overriding valid output', () => {
+  const notice = 'Tool private_tool_name not found in agent cli.'
+  for (const [stdout, stderr] of [['', notice], [JSON.stringify({ type: 'result', is_error: true, error: notice }), '']]) {
+    assert.throws(() => collectStructuredResult(stdout, { stderr }), error => {
+      assert.equal(error.code, 'CLI_TOOL_PROTOCOL_ERROR')
+      assert.equal(error.message.includes('private_tool_name'), false)
+      return true
+    })
+  }
+  const structured_output = { text: notice, toolCalls: [] }
+  assert.deepEqual(collectStructuredResult(JSON.stringify({ type: 'result', structured_output }), { stderr: notice }).result, structured_output)
+  assert.throws(() => collectStructuredResult('', { stderr: 'Example: ' + notice }), { code: 'CLI_OUTPUT_INVALID' })
+})
+
+test('native field and subtype facts distinguish missing, null and wrong terminal types without saving their values', () => {
+  for (const [document, present, type, valid] of [
+    [{ type: 'result' }, false, 'missing', true],
+    [{ type: 'result', structured_output: null }, true, 'null', true],
+    [{ type: 'PRIVATE_TYPE', subtype: 'PRIVATE_SUBTYPE', structured_output: {} }, true, 'object', false]
+  ]) assert.throws(() => collectStructuredResult(JSON.stringify(document)), e => {
+    assert.equal(e.responseDiagnostics.hasStructuredOutput, present)
+    assert.equal(e.responseDiagnostics.structuredOutputType, type)
+    assert.equal(e.responseDiagnostics.resultTypeValid, valid)
+    assert.equal(JSON.stringify(e.responseDiagnostics).includes('PRIVATE'), false)
+    return true
+  })
+  const valid = collectStructuredResult(JSON.stringify({ type: 'result', subtype: 'success', structured_output: { text: 'ok', toolCalls: [] } }))
+  assert.deepEqual(valid.responseDiagnostics, { hasStructuredOutput: true, structuredOutputType: 'object', resultTypePresent: true, resultTypeValid: true, finalSubtypeClass: 'success' })
+  assert.throws(() => collectStructuredResult('', { stderr: 'PRIVATE_UNKNOWN_FAILURE' }), e => e.responseDiagnostics.noticeClass === 'unknown' && e.responseDiagnostics.noticeSource === 'none')
+  assert.throws(() => collectStructuredResult('', { stderr: 'Error: read ECONNRESET PRIVATE_NETWORK' }), e => e.responseDiagnostics.noticeClass === 'network' && e.responseDiagnostics.noticeSource === 'stderr')
 })

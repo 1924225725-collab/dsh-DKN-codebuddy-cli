@@ -155,6 +155,25 @@ test('DSH integration discovers all models, forwards selected IDs and efforts, s
   // Synthetic T11 boundary: the tool result has already arrived. Recover only
   // the final text, without replaying a model request or yielding any new tool.
   const requestCount = async () => (await readFile(path.join(binDirectory, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.args).length
+  const oversizedUri = `data:image/png;base64,${'A'.repeat(32768)}`
+  const beforeInlineImageGuard = await requestCount()
+  await assert.rejects(async () => {
+    for await (const _chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: `PRIVATE_IMAGE_MARKER ${oversizedUri}` }] })) {}
+  }, error => {
+    assert.equal(error.code, 'IMAGE_DATA_URI_TOO_LARGE')
+    assert.match(error.message, /未提交本轮模型请求/u)
+    assert.equal(error.failure.code, error.code)
+    return true
+  })
+  assert.equal(await requestCount(), beforeInlineImageGuard, 'oversized inline image text must be rejected before invoking the model CLI')
+  const inlineImageLog = (await logAction('exportLogs')).body.entries.at(-1)
+  assert.equal(inlineImageLog.errorCode, 'IMAGE_DATA_URI_TOO_LARGE')
+  assert.equal(inlineImageLog.imageRequest, true)
+  assert.equal(inlineImageLog.diagnostics.inlineImageDataUriCount, 1)
+  assert.equal(inlineImageLog.diagnostics.inlineImageDataUriChars, oversizedUri.length)
+  assert.equal(JSON.stringify(inlineImageLog).includes('PRIVATE_IMAGE_MARKER'), false)
+  assert.equal(JSON.stringify(inlineImageLog).includes('AAAA'), false)
+  await logAction('clearLogs')
   const beforeDuplicate = await requestCount()
   const duplicate = []
   for await (const chunk of adapter.stream({ model: 'future-alpha', messages: [{ role: 'user', content: 'response-case:native-duplicate-tools' }], tools: [{ name: 'read_test', parameters: { type: 'object', properties: {} } }] })) duplicate.push(chunk)
