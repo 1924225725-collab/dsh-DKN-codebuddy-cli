@@ -1,23 +1,23 @@
 # DSH CodeBuddy CLI (China)
 
-> Version 0.3.9 is available from the repository download below. Isolated accounts support Windows / official npm CLI 2.174.0 only. Real two-account sign-in, refresh and billing attribution remain unverified. See the [account guide](docs/ACCOUNT_GUIDE.en.md).
+> Version 0.4.0 corrects submission instructions after tool results: completed history is distinct from this invocation's native output. Actual DSH acceptance remains pending and upstream output omissions can still occur. See the [account guide](docs/ACCOUNT_GUIDE.en.md) for isolated-account support and validation limits.
 
 [简体中文](README.md) · **English**
 
 Use models available to your China-region account in **DeepSeek Harness (DSH)** through the signed-in official CodeBuddy CLI. DSH manages conversations and tools; this adapter translates model requests and results.
 
-**Latest package: 0.3.9 (repository distribution)**
+**Latest package: 0.4.0 (repository distribution)**
 
-[Download plugin](https://raw.githubusercontent.com/1924225725-collab/dsh-codebuddy-cli-cn/main/releases/dsh-codebuddy-cli-cn-0.3.9.tgz) · [All releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [Installation](docs/INSTALL.en.md) · [Usage and troubleshooting](docs/USER_GUIDE.en.md) · [Changelog](CHANGELOG.md)
+[Download plugin](https://raw.githubusercontent.com/1924225725-collab/dsh-codebuddy-cli-cn/main/releases/dsh-codebuddy-cli-cn-0.4.0.tgz) · [All releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [Installation](docs/INSTALL.en.md) · [Usage and troubleshooting](docs/USER_GUIDE.en.md) · [Changelog](CHANGELOG.md)
 
-[Repository download fallback](releases/dsh-codebuddy-cli-cn-0.3.9.tgz) · [SHA-256](releases/SHA256SUMS.txt)
+[Repository download fallback](releases/dsh-codebuddy-cli-cn-0.4.0.tgz) · [SHA-256](releases/SHA256SUMS.txt)
 
-## What's new in 0.3.9
+## What's new in 0.4.0
 
-- Add bounded structural/process diagnostics across local logs, persistence, export and settings.
-- Harden tool handoff, use a neutral image-history deadline message, and separate cancellation/offload-request counters.
-- Add manually selected isolated accounts, official sign-in commands and account-bound tool/image follow-ups.
-- Include context-limit, insufficient-balance and inline-image budget improvements. See [Changelog](CHANGELOG.md) for validation and limitations.
+- Correct the instruction that said tools had not executed even after their results arrived; preserve observed success and failure.
+- Require a fresh StructuredOutput submission per CLI invocation. Historical submissions, quoted external text and requests to avoid business tools do not replace this transport requirement.
+- Keep native Schema, the four-turn internal limit, unique-result validation and account/image boundaries. No extra paid repair call or automatic retry is added.
+- Synthetic tool round-trips and an image regression pass. The old baseline also succeeds; the original intermittent omission has not been reproduced or proven eliminated. See [Changelog](CHANGELOG.md).
 
 Earlier changes remain in [Changelog](CHANGELOG.md) and [Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases). The unpublished 0.2.10 local candidate was included in 0.3.0.
 
@@ -26,7 +26,7 @@ Earlier changes remain in [Changelog](CHANGELOG.md) and [Releases](https://githu
 1. Download the `.tgz` locally and install it from DSH's plugin manager. A source ZIP is not a plugin package.
 2. Open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`, and select **Set up CLI**.
 3. Expand **Sign in or switch account**, copy the official command into PowerShell (Terminal on macOS/Linux), and complete China-region sign-in.
-4. Refresh models/rates and select a model in DSH. Restart after upgrading and verify running version **0.3.9**.
+4. Refresh models/rates and select a model in DSH. Restart after upgrading and verify running version **0.4.0**.
 
 See the [installation guide](docs/INSTALL.en.md). For failures, expand **Troubleshooting and usage guide** inside settings or read the [full guide](docs/USER_GUIDE.en.md).
 

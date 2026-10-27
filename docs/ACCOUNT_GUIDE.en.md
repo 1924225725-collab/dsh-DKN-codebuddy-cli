@@ -1,4 +1,4 @@
-# Multiple accounts (preview feature; 0.3.9)
+# Multiple accounts (preview feature; 0.4.0)
 
 This preview feature implements isolated environments and account-bound model routing. Directory isolation, synthetic routing and existing automated regressions passed. Real two-account sign-in persistence, token refresh and billing attribution still require user acceptance. This feature is not marked production-ready.
 
@@ -6,7 +6,7 @@ Supported for this feature: Windows, official **npm/Node** CodeBuddy CLI **2.174
 
 ## Setup
 
-1. Install package 0.3.9 yourself and confirm running version 0.3.9. The plugin does not update your running DSH installation automatically.
+1. Install package 0.4.0 yourself and confirm running version 0.4.0. The plugin does not update your running DSH installation automatically.
 2. Open **Multiple accounts (preview)**, enter a label and add an isolated account. Adding does not activate it or copy existing credentials.
 3. Prepare its official sign-in command. Copy it into a new PowerShell window. A separate PowerShell process launches the official CLI with isolated configuration, home and AppData directories. No permanent system/user environment variables are changed.
 4. Choose **Chinese Site** and verify the intended identity on the official page. Exit the CLI after signing in; no model prompt is needed. Repeat separately for each account.

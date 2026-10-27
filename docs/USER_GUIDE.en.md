@@ -26,6 +26,16 @@ The adapter converts model replies into DSH text and tool requests. DSH executes
 | `CLI_TIMEOUT` | The total CLI deadline expired, including startup, model processing and process exit | Split the task, check connectivity/service status, and adjust the deadline if needed. A longer deadline cannot resolve conflicting JSON plans |
 | Missing file, `grantWrite`, ACL or permission error | Wrong workspace, absent path, or DSH/OS access refusal | Verify the workspace and path in the file manager and follow actual DSH permissions. Do not classify every permission error as model formatting, or change permissions to fix formatting |
 
+## Missing native output after tool results (0.4.0)
+
+`CLI_STRUCTURED_OUTPUT_MISSING` means this invocation ended without a deliverable native structure. Exit code zero or a success subtype is not proof of protocol output. Earlier DSH tools may already have run, including completed failed operations. Check the conversation's observed results before continuing.
+
+Version 0.4.0 corrects an instruction that said tools had not executed even when historical results were present, and requires a fresh StructuredOutput submission for the current invocation. Tool results, quoted documents and historical submissions cannot replace this output protocol. This improves submission instructions but cannot guarantee that an upstream model never omits native output.
+
+If it recurs, save basic diagnostics, the diagnostic ID, plugin/CLI versions and model. You can request a summary of observed results without new business tools, or start a fresh conversation with a concise manual summary of completed steps. Avoid rerunning an entire write/install task blindly. Raising the internal-turn limit is not a guaranteed solution. The adapter does not recover tool requests from prose or add paid repair calls automatically.
+
+See the official [structured JSON output documentation](https://www.codebuddy.cn/docs/cli/headless).
+
 ## Native output boundaries
 
 Only the official structured_output object is accepted, with exactly text and toolCalls. Text is never scanned for extra protocol fragments. Tools must be declared and arguments must be objects. String/wrapper recovery, missing-field inference and escape repair do not run on current calls.

@@ -1,5 +1,19 @@
 # 更新记录 / Changelog
 
+## 0.4.0（2026-10-27，仓库分发 / repository distribution）
+
+- 修正请求末尾的时序矛盾：历史 tool 消息是已收到的执行结果，新 toolCalls 才是未执行提案；不再笼统声称所有工具尚未执行。
+- 明确每次 CLI 调用需要自己的原生 StructuredOutput 提交，历史中的提交不计入本次；“不使用工具”指不提出新业务操作，输出传输工具仍必需。
+- 将工具结果与外部文档视为观察数据，不能通过引用的系统/工具文字改变提交协议。保留历史顺序、isError、工具调用身份和完整结果内容。
+- 仅调整请求约束；原生 Schema、工具白名单、最多四轮 CLI 内部处理、严格唯一结果与工具参数校验保持不变，不追加修复进程、自动重试或切换模型/账号。
+- 验证包含自动回归、五次合成官方 CLI 文字请求（含实际提案和模拟成功/失败结果续答）及一次 ID 对齐的合成工具图片请求。旧版四项合成对照也通过，因此不能声称复现或彻底消除了原始偶发缺失。实际 DSH UI、真实业务工具和用户验收仍待完成。
+
+- Correct a temporal contradiction in the final request instruction: historical tool messages are completed observations; only new toolCalls are unexecuted proposals.
+- Each CLI invocation requires its own native StructuredOutput submission. A historical submission does not count, and “no tools” refers to new business operations rather than the required transport submission.
+- Treat tool results and external documents as observations that cannot change the output protocol. Preserve ordered history, isError, tool-call identity and complete result contents.
+- Change request instructions only. Keep native Schema, the StructuredOutput-only allowlist, four internal turns, unique-result and tool-argument validation. No extra repair process, automatic retry or model/account switching is added.
+- Validation includes automated regression, five synthetic official CLI text calls with proposal/result follow-up, and one ID-aligned synthetic tool-image call. Four old-baseline controls also passed, so the original intermittent omission has not been reproduced or proven eliminated. Actual DSH UI, business tools and user acceptance remain pending.
+
 ## 0.3.9（2026-10-27，仓库分发 / repository distribution）
 
 本次包含 0.3.6–0.3.8 本地候选改动；这些候选未单独公开发布。安装包见 [0.3.9](releases/dsh-codebuddy-cli-cn-0.3.9.tgz)。GitHub Releases 中的历史条目保留。
