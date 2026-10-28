@@ -1,6 +1,9 @@
 # 更新记录 / Changelog
 
-## 0.4.2（2026-10-28，仓库分发 / repository distribution）
+0.3.9、0.4.0、0.4.2 的 GitHub Releases 于 2026-10-28 补齐，均使用原安装包及对应源码提交；下方日期保留首次仓库分发时间。未单独公开的候选版本只记录合入关系。
+GitHub Releases for 0.3.9, 0.4.0 and 0.4.2 were backfilled on 2026-10-28 using the original packages and matching source commits. Dates below retain the first repository-distribution dates; unpublished candidates are documented only as included changes.
+
+## [0.4.2](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.4.2)（2026-10-28，首次仓库分发 / first repository distribution）
 
 - 将稳定的工具定义和响应 Schema 移到增长的 messages 历史之前，仅调整 JSON 封装键序。协议和系统指令、末尾 submission、消息／工具内容和顺序、图片索引、Schema、解析及账号和大小保护不变；工具／权限更新仍立即生效。
 - 包含未单独上线的 0.4.1 尺寸诊断修正。第一轮复核确认：原超限症状、未匹配的通道拒绝／空输出、国际超时没有证据可宣称已根治；不通过延长时限、删历史或重试关闭案件。
@@ -25,7 +28,7 @@
 - Keep the 12 MiB envelope and 20 MiB final-input limits and existing image/account/tool protocol. No automatic history deletion, image loss, schema truncation, retry or additional model call. Oversized input still fails; old missing size facts cannot be reconstructed.
 - Targeted synthetic boundary, adapter, persistence and UI-component checks pass. No original-request replay, actual DSH UI or user acceptance was performed. No installed profile, authentication or network changes; International synchronization is pending.
 
-## 0.4.0（2026-10-27，仓库分发 / repository distribution）
+## [0.4.0](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.4.0)（2026-10-27，首次仓库分发 / first repository distribution）
 
 - 修正请求末尾的时序矛盾：历史 tool 消息是已收到的执行结果，新 toolCalls 才是未执行提案；不再笼统声称所有工具尚未执行。
 - 明确每次 CLI 调用需要自己的原生 StructuredOutput 提交，历史中的提交不计入本次；“不使用工具”指不提出新业务操作，输出传输工具仍必需。
@@ -39,7 +42,7 @@
 - Change request instructions only. Keep native Schema, the StructuredOutput-only allowlist, four internal turns, unique-result and tool-argument validation. No extra repair process, automatic retry or model/account switching is added.
 - Validation includes automated regression, five synthetic official CLI text calls with proposal/result follow-up, and one ID-aligned synthetic tool-image call. Four old-baseline controls also passed, so the original intermittent omission has not been reproduced or proven eliminated. Actual DSH UI, business tools and user acceptance remain pending.
 
-## 0.3.9（2026-10-27，仓库分发 / repository distribution）
+## [0.3.9](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/tag/v0.3.9)（2026-10-27，首次仓库分发 / first repository distribution）
 
 本次包含 0.3.6–0.3.8 本地候选改动；这些候选未单独公开发布。安装包见 [0.3.9](releases/dsh-codebuddy-cli-cn-0.3.9.tgz)。GitHub Releases 中的历史条目保留。
 

@@ -6,7 +6,7 @@ For version **0.4.2**.
 
 ## 1. Download and install
 
-[Version package](../releases/dsh-codebuddy-cli-cn-0.4.2.tgz). Save it locally, or use the delivered local `dsh-codebuddy-cli-cn-0.4.2.tgz`. Historical formal releases remain in [GitHub Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases); use the version-package link above for this build. The source ZIP is not an installable DSH plugin package.
+[Version package](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/download/v0.4.2/dsh-codebuddy-cli-cn-0.4.2.tgz). Save it locally, or use the delivered local `dsh-codebuddy-cli-cn-0.4.2.tgz`. Historical formal releases remain in [GitHub Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases); use the version-package link above for this build. The source ZIP is not an installable DSH plugin package.
 
 Open DSH's Plugins page and select the local `.tgz` through its package installation entry. If it asks for a path, use the real downloaded file path, not a web URL. Exact button names can vary by DSH version.
 

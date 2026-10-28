@@ -8,9 +8,9 @@
 
 在 **DeepSeek Harness（DSH）** 中，通过已登录的官方 CodeBuddy CLI 调用国内账号可用的模型。DSH 管理对话和工具执行，插件负责转换模型请求与结果。
 
-**最新安装包：0.4.2（仓库分发）**
+**最新安装包：0.4.2（正式 Release）**
 
-[下载安装包](https://raw.githubusercontent.com/1924225725-collab/dsh-codebuddy-cli-cn/main/releases/dsh-codebuddy-cli-cn-0.4.2.tgz) · [全部版本与更新说明](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [安装教程](docs/安装教程.md) · [使用与故障处理指南](docs/使用与故障处理指南.md) · [更新记录](CHANGELOG.md)
+[下载安装包](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/download/v0.4.2/dsh-codebuddy-cli-cn-0.4.2.tgz) · [全部版本与更新说明](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [安装教程](docs/安装教程.md) · [使用与故障处理指南](docs/使用与故障处理指南.md) · [更新记录](CHANGELOG.md)
 
 [仓库内备用安装包](releases/dsh-codebuddy-cli-cn-0.4.2.tgz) · [SHA-256](releases/SHA256SUMS.txt)
 

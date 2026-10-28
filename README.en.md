@@ -8,9 +8,9 @@
 
 Use models available to your China-region account in **DeepSeek Harness (DSH)** through the signed-in official CodeBuddy CLI. DSH manages conversations and tools; this adapter translates model requests and results.
 
-**Latest package: 0.4.2 (repository distribution)**
+**Latest package: 0.4.2 (GitHub Release)**
 
-[Download plugin](https://raw.githubusercontent.com/1924225725-collab/dsh-codebuddy-cli-cn/main/releases/dsh-codebuddy-cli-cn-0.4.2.tgz) · [All releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [Installation](docs/INSTALL.en.md) · [Usage and troubleshooting](docs/USER_GUIDE.en.md) · [Changelog](CHANGELOG.md)
+[Download plugin](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases/download/v0.4.2/dsh-codebuddy-cli-cn-0.4.2.tgz) · [All releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [Installation](docs/INSTALL.en.md) · [Usage and troubleshooting](docs/USER_GUIDE.en.md) · [Changelog](CHANGELOG.md)
 
 [Repository download fallback](releases/dsh-codebuddy-cli-cn-0.4.2.tgz) · [SHA-256](releases/SHA256SUMS.txt)
 
