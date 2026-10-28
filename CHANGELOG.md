@@ -1,5 +1,30 @@
 # 更新记录 / Changelog
 
+## 0.4.2（2026-10-28，仓库分发 / repository distribution）
+
+- 将稳定的工具定义和响应 Schema 移到增长的 messages 历史之前，仅调整 JSON 封装键序。协议和系统指令、末尾 submission、消息／工具内容和顺序、图片索引、Schema、解析及账号和大小保护不变；工具／权限更新仍立即生效。
+- 包含未单独上线的 0.4.1 尺寸诊断修正。第一轮复核确认：原超限症状、未匹配的通道拒绝／空输出、国际超时没有证据可宣称已根治；不通过延长时限、删历史或重试关闭案件。
+- 六次官方 CLI 2.177.0 / DeepSeek V4.1 Flash 合成缓存 A/B 调用均得到有效结果。两组各后续两次输入合计均19,035 Token，缓存读取比例旧排布14.8%、新排布95.5%；两组采用不同合成标记隔离，文本尺寸相差128字节，非生产收益保证。另三次新排布工具提案、模拟成功／失败结果长回复、混合用户／工具图片验证通过。
+- 合成传输验证未执行真实 DSH 业务工具或重放私人故障；附件服务用隔离实现。实际 DSH UI、多账号刷新／扣费归属、全部模型和上游缓存策略仍不在本次实测范围。缓存由官方服务决定，不保证固定比例。
+
+- Move stable tool definitions and the response schema before growing history by changing envelope key order only. Retain protocol/system/submission instructions, full ordered messages/tools, image indices, native schema, parsing, account and request-size boundaries; tool/permission updates remain effective.
+- Include the unpublished 0.4.1 diagnostic fixes without claiming to resolve the original oversize, unmatched channel/empty-output or International timeout incidents. Do not extend deadlines, discard history or add retries to close those cases.
+- Six synthetic official CLI 2.177.0 / DeepSeek V4.1 Flash A/B calls returned valid results. The two subsequent calls per layout each totaled 19,035 input tokens: cache-read share was 14.8% before and 95.5% after. Different synthetic isolation markers produced a 128-byte text-size difference; this small observation is not a production guarantee. Three further candidate calls passed tool proposals, long summaries of simulated success/failure observations, and mixed user/tool-image checks.
+- Live checks used synthetic data and an isolated attachment service, not real DSH business tools or private-session replay. Actual DSH UI, multi-account refresh/billing attribution and every model/upstream cache policy remain unverified. The official service controls cache hits.
+
+
+## 0.4.1（2026-10-27，本地候选，已合入0.4.2 / local candidate, included in 0.4.2）
+
+- 修正本地文字封装超限在抛错前丢失请求尺寸的问题；普通日志记录检查阶段、实际字节数、上限、系统／历史／工具／响应 Schema 与封装开销。最终 CLI 输入在 JSONL 转义和图片块编码后单独计量。
+- 配置页展示超限事实和未记录的后续阶段，不再把尚未提交的封装文本称为已发送文本；新增双语说明，图片卸载不压缩文字历史。新字段经白名单持久化、恢复与导出，不包含请求正文或图片内容。
+- 保留 12 MiB 文字封装、20 MiB 最终输入及既有图片／账号／工具协议。没有自动删历史、丢图、裁剪工具定义、重试或新增模型调用。真实超限仍会拒绝；诊断改进不等于消除长历史故障，旧日志缺失的尺寸不能重建。
+- 合成边界、适配器、持久化及配置页定向检查通过；原始请求未重放，实际 DSH UI 和用户验收未做。未变更用户安装、认证或网络；国际版尚未同步。
+
+- Preserve request size facts before a local envelope refusal. Basic logs retain the fixed check stage, actual bytes, limit, system/history/tool/response-schema sizes and envelope overhead. Measure final CLI input after JSONL escaping and native image encoding.
+- Show size refusals and unrecorded later stages in settings; label envelope bytes accurately and explain image offloading separately from text history. New fields use allowlists through persistence, recovery and export without request or image contents.
+- Keep the 12 MiB envelope and 20 MiB final-input limits and existing image/account/tool protocol. No automatic history deletion, image loss, schema truncation, retry or additional model call. Oversized input still fails; old missing size facts cannot be reconstructed.
+- Targeted synthetic boundary, adapter, persistence and UI-component checks pass. No original-request replay, actual DSH UI or user acceptance was performed. No installed profile, authentication or network changes; International synchronization is pending.
+
 ## 0.4.0（2026-10-27，仓库分发 / repository distribution）
 
 - 修正请求末尾的时序矛盾：历史 tool 消息是已收到的执行结果，新 toolCalls 才是未执行提案；不再笼统声称所有工具尚未执行。

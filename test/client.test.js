@@ -91,7 +91,7 @@ test('settings UI displays live rates, refreshes new models, and saves a portabl
   assert.ok(text().includes('单次输入（含缓存）1250'))
   assert.ok(text().includes('缓存命中 1100'))
   assert.ok(text().includes('2.35 秒'))
-  assert.ok(text().includes('发送文本 3200 字节'))
+  assert.ok(text().includes('封装文本 3200 字节'))
   assert.ok(text().includes('CLI 程序可启动'))
   assert.ok(text().includes('不验证账号登录'))
   assert.ok(text().includes('故障处理与使用指南'))
@@ -126,6 +126,11 @@ test('settings UI displays live rates, refreshes new models, and saves a portabl
   status.logs.cancellations = 1; status.logs.offloads = 2
   await act(async () => { await button('刷新模型与倍率').props.onClick() })
   for (const value of ['图片流结构诊断', 'frame-shape', '原生结果事实', 'missing', '固定错误类别 unknown', '控制事件另计']) assert.ok(text().includes(value), value)
+  status.usage.lastCall = { state: 'error', model: 'future-alpha', errorCode: 'REQUEST_TOO_LARGE', diagnostics: { requestLimitStage: 'envelope', requestBytes: 12582915, requestLimitBytes: 12582912, promptBytes: 12582915, messageCount: 118, toolCount: 3, messagesBytes: 12580000, toolsBytes: 100, systemBytes: 4, schemaBytes: 100, envelopeOverheadBytes: 2711 } }
+  await act(async () => { await button('刷新模型与倍率').props.onClick() })
+  for (const value of ['本地大小检查：文字请求封装', '12582915 / 12582912 字节', '响应 Schema 100', 'CLI 编码输入 未记录', '图片卸载只移除图片内容']) assert.ok(text().includes(value), value)
+  assert.equal(text().includes('undefined'), false)
+  assert.ok(locales.en.budgetDetail.includes('before this model invocation'))
   status.usage.lastCall = { state: 'success', model: 'future-alpha', at: 3000, inputTokens: 1, outputTokens: 2, responseDiagnostics: { reason: 'valid', inputType: 'string', bytes: 50, normalizations: ['markdown-fence'] } }
   status.usage.recentFailures = [{ at: 2000, model: 'future-alpha', errorCode: 'STRUCTURED_OUTPUT_INVALID', errorMessage: 'synthetic failure', responseDiagnostics: { reason: 'possibly-truncated-json', inputType: 'string', bytes: 25, normalizations: [] } }]
   await act(async () => { await button('刷新模型与倍率').props.onClick() })

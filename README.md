@@ -2,22 +2,24 @@
 
 **简体中文** · [English](README.en.md)
 
+> 0.4.2 将稳定的工具定义与响应 Schema 放在增长的历史前面，提高前缀缓存复用机会；完整保留历史、图片映射和输出协议，并包含 0.4.1 的请求尺寸诊断。缓存由官方服务决定，不保证固定命中率。
+
 > 0.4.0 修正工具结果返回后的提交约束：区分已完成的历史操作与本次原生结构提交。仍需真实 DSH 场景验收，不能保证上游模型从不缺失原生输出。独立账号模式的支持与验证范围见[多账号指南](docs/多账号使用指南.md)。
 
 在 **DeepSeek Harness（DSH）** 中，通过已登录的官方 CodeBuddy CLI 调用国内账号可用的模型。DSH 管理对话和工具执行，插件负责转换模型请求与结果。
 
-**最新安装包：0.4.0（仓库分发）**
+**最新安装包：0.4.2（仓库分发）**
 
-[下载安装包](https://raw.githubusercontent.com/1924225725-collab/dsh-codebuddy-cli-cn/main/releases/dsh-codebuddy-cli-cn-0.4.0.tgz) · [全部版本与更新说明](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [安装教程](docs/安装教程.md) · [使用与故障处理指南](docs/使用与故障处理指南.md) · [更新记录](CHANGELOG.md)
+[下载安装包](https://raw.githubusercontent.com/1924225725-collab/dsh-codebuddy-cli-cn/main/releases/dsh-codebuddy-cli-cn-0.4.2.tgz) · [全部版本与更新说明](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [安装教程](docs/安装教程.md) · [使用与故障处理指南](docs/使用与故障处理指南.md) · [更新记录](CHANGELOG.md)
 
-[仓库内备用安装包](releases/dsh-codebuddy-cli-cn-0.4.0.tgz) · [SHA-256](releases/SHA256SUMS.txt)
+[仓库内备用安装包](releases/dsh-codebuddy-cli-cn-0.4.2.tgz) · [SHA-256](releases/SHA256SUMS.txt)
 
-## 0.4.0 更新
+## 0.4.2 更新
 
-- 修正工具结果已经返回时仍声称“工具尚未执行”的提示矛盾，保留成功和失败的实际状态。
-- 明确每次 CLI 调用必须重新提交一次 StructuredOutput；历史提交、外部引用和“不要使用工具”的业务要求不会取代本次传输协议。
-- 保留原生 Schema、最多四轮内部处理、唯一结果校验及账号/图片边界。没有新增付费修复调用或自动重试。
-- 合成工具往返与图片回归通过；旧版对照也成功，尚未证明原始偶发缺失已完全消除。详见[更新记录](CHANGELOG.md)。
+- 优化请求排布，让稳定的工具定义与 Schema 位于变化的历史之前；消息和工具的内容、顺序保持完整。
+- 包含请求超限的尺寸分解、检查阶段及普通日志诊断。12 MiB 封装／20 MiB 最终输入限制继续有效。
+- 工具结果后的结构化续答、用户和工具图片、账号隔离继续使用既有边界。
+- 小规模国内 CLI 合成对照观察到缓存改善；实际效果随模型、工具／权限变化和服务状态变化。原超限、未匹配空输出或通道拒绝不能视为已根治。详见[更新记录](CHANGELOG.md)。
 
 此前更新保留在 [CHANGELOG](CHANGELOG.md) 与 [GitHub Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases)。0.2.10 本地候选已合入 0.3.0，未单独公开发布。
 
@@ -26,7 +28,7 @@
 1. 下载 `.tgz` 到本机，在 DSH 的“插件”页安装；GitHub 源码 ZIP 不是插件安装包。
 2. 打开插件 `dsh-codebuddy-cli-cn` → 组件 `llm-codebuddy-cli-cn` 配置页，点击“一键配置 CLI”。
 3. 展开“首次登录或切换账号”，复制官方命令到 PowerShell（macOS/Linux 使用终端），完成国内账号登录。
-4. 刷新模型与倍率，在 DSH 会话中选择模型；升级后重启 DSH，核对配置页运行版本为 **0.4.0**。
+4. 刷新模型与倍率，在 DSH 会话中选择模型；按 DSH 正常升级流程使版本生效，核对配置页运行版本与安装包一致（本版为 **0.4.2**）。
 
 完整步骤见 [安装教程](docs/安装教程.md)。遇到问题可直接展开配置页中的“故障处理与使用指南”，或阅读[完整指南](docs/使用与故障处理指南.md)。
 

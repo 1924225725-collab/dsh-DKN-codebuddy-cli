@@ -17,6 +17,24 @@ const call = { state: 'error', at: 1000, model: 'test-model', durationMs: 20, er
   diagnostics: { promptBytes: 10, messageCount: 2 }, responseDiagnostics: { reason: 'possibly-truncated-json', completeContainers: 1,
     scanIncomplete: true, scanBroken: false, insideString: true, openContainerDepth: 1, incompleteTailIgnored: false, normalizations: [] } }
 
+test('request size facts survive persistence and both exports without arbitrary text or inferred legacy facts', async t => {
+  const { directory, store } = await setup(t)
+  const facts = { promptBytes: 12582915, schemaBytes: 200, envelopeOverheadBytes: 300, cliInputBytes: 20971521,
+    requestLimitStage: 'cli-input', requestBytes: 20971521, requestLimitBytes: 20971520 }
+  await store.record({ ...call, errorCode: 'REQUEST_TOO_LARGE', diagnostics: { ...facts, prompt: 'PRIVATE_PROMPT', arbitrary: 'PRIVATE_PATH' } })
+  await store.record({ ...call, diagnostics: { schemaBytes: -1, envelopeOverheadBytes: 1.5, cliInputBytes: Infinity, requestBytes: 2147483648, requestLimitBytes: NaN, requestLimitStage: 'PRIVATE_STAGE' } })
+  await store.record(call)
+  const restored = createDiagnosticsStore({ directory }); await restored.ready
+  for (const detailed of [false, true]) {
+    const report = await restored.export(detailed)
+    assert.deepEqual(report.entries[0].diagnostics, facts)
+    assert.deepEqual(report.entries[1].diagnostics, {})
+    assert.equal(report.entries[2].diagnostics.requestLimitStage, undefined)
+    assert.equal(JSON.stringify(report).includes('PRIVATE'), false)
+  }
+  assert.equal((await readFile(path.join(directory, 'diagnostics.json'), 'utf8')).includes('PRIVATE'), false)
+})
+
 test('basic logs use a field allowlist, persist across restarts and exclude raw replies from every basic export', async t => {
   const { directory, store } = await setup(t)
   await store.record({ ...call, errorMessage: 'SECRET_MESSAGE', configDir: 'SECRET_PATH', diagnostics: { ...call.diagnostics, prompt: 'SECRET_PROMPT' }, responseDiagnostics: { ...call.responseDiagnostics, arbitrary: 'SECRET_KEYS' } }, 'SECRET_REPLY')

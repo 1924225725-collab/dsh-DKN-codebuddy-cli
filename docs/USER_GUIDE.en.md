@@ -2,7 +2,15 @@
 
 [简体中文](使用与故障处理指南.md) · [Installation](INSTALL.en.md) · [Logs](TROUBLESHOOTING.en.md) · [Home](../README.en.md)
 
-For 0.3.5. Plugin settings contain an offline-readable troubleshooting summary. This page provides the full guide. All examples below are fictional.
+For local candidate 0.4.1. Plugin settings contain an offline-readable troubleshooting summary. This page provides the full guide. All examples below are fictional.
+
+## REQUEST_TOO_LARGE: local size checks
+
+This is a refusal before this model invocation, distinct from an official context 400 or balance 402. The text-envelope limit is 12 MiB (12,582,912 bytes); final CLI input is limited to 20 MiB (20,971,520 bytes). Both count UTF-8 bytes, not characters or tokens. The envelope includes system text, full text history, tool definitions, response schema and fixed instructions. JSONL escaping and native image blocks count toward final input. Do not add these two measurements together.
+
+Version 0.4.1 preserves size diagnostics that were lost on refusal. Settings and basic logs expose `requestLimitStage` (`envelope` or `cli-input`), `requestBytes` and `requestLimitBytes`. Check `promptBytes` against `systemBytes + messagesBytes + toolsBytes + schemaBytes + envelopeOverheadBytes`; `cliInputBytes` measures final input separately. When the envelope fails first, final input is not built and remains unrecorded. Missing facts in old logs cannot be reconstructed.
+
+DSH-offloaded images are not read again; explicit unavailable-image placeholders remain. Offloading does not compress text history or tool results, so a few retained images can coexist with an oversized text envelope. Keep the original conversation and provide a necessary summary and relevant images in a new one, or manually reduce tools needed for the task. The adapter never automatically deletes history, drops images, truncates schemas, switches models or retries. To report a refusal, provide basic logs and its diagnostic ID without the complete private conversation.
 
 ## Check the failure stage before retrying
 
@@ -68,7 +76,7 @@ Prefer PNG/JPEG. Retain up to 5 request images, each converted to ≤2 MiB and l
 
 - IMAGE_MODEL_UNSUPPORTED: refresh the catalog and choose a declared image route. Unknown manually entered IDs do not enable images. Catalog declarations are not every-model validation.
 - IMAGE_SERVICE_UNAVAILABLE / IMAGE_READ_FAILED / IMAGE_ATTACHMENT_INVALID: update DSH, re-enable the plugin or re-upload. Do not enable CLI file tools to work around this.
-- IMAGE_TOO_LARGE / REQUEST_TOO_LARGE: crop/downsize or reduce history.
+- IMAGE_TOO_LARGE: crop or downsize the image. For REQUEST_TOO_LARGE, inspect the check stage and breakdown above; smaller images may not solve an oversized text envelope.
 - IMAGE_OFFLOAD_REQUIRED: DSH should record older image offloading and continue. Without that feature, start a fresh conversation with the relevant images. Offloaded images are unavailable to the model; reattach instead of asking it to guess.
 - CLI_STREAM_INVALID / CLI_PERMISSION_REQUIRED: update official CLI and report basic diagnostics. Partial frames and interactive permission requests are not automatically accepted.
 

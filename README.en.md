@@ -1,23 +1,25 @@
 # DSH CodeBuddy CLI (China)
 
+> Version 0.4.2 places stable tool definitions and the response schema before growing history to improve prefix reuse. It retains complete history, image mapping and the output protocol, and includes 0.4.1 request-size diagnostics. Cache hits remain controlled by the official service and are not guaranteed.
+
 > Version 0.4.0 corrects submission instructions after tool results: completed history is distinct from this invocation's native output. Actual DSH acceptance remains pending and upstream output omissions can still occur. See the [account guide](docs/ACCOUNT_GUIDE.en.md) for isolated-account support and validation limits.
 
 [简体中文](README.md) · **English**
 
 Use models available to your China-region account in **DeepSeek Harness (DSH)** through the signed-in official CodeBuddy CLI. DSH manages conversations and tools; this adapter translates model requests and results.
 
-**Latest package: 0.4.0 (repository distribution)**
+**Latest package: 0.4.2 (repository distribution)**
 
-[Download plugin](https://raw.githubusercontent.com/1924225725-collab/dsh-codebuddy-cli-cn/main/releases/dsh-codebuddy-cli-cn-0.4.0.tgz) · [All releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [Installation](docs/INSTALL.en.md) · [Usage and troubleshooting](docs/USER_GUIDE.en.md) · [Changelog](CHANGELOG.md)
+[Download plugin](https://raw.githubusercontent.com/1924225725-collab/dsh-codebuddy-cli-cn/main/releases/dsh-codebuddy-cli-cn-0.4.2.tgz) · [All releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases) · [Installation](docs/INSTALL.en.md) · [Usage and troubleshooting](docs/USER_GUIDE.en.md) · [Changelog](CHANGELOG.md)
 
-[Repository download fallback](releases/dsh-codebuddy-cli-cn-0.4.0.tgz) · [SHA-256](releases/SHA256SUMS.txt)
+[Repository download fallback](releases/dsh-codebuddy-cli-cn-0.4.2.tgz) · [SHA-256](releases/SHA256SUMS.txt)
 
-## What's new in 0.4.0
+## What's new in 0.4.2
 
-- Correct the instruction that said tools had not executed even after their results arrived; preserve observed success and failure.
-- Require a fresh StructuredOutput submission per CLI invocation. Historical submissions, quoted external text and requests to avoid business tools do not replace this transport requirement.
-- Keep native Schema, the four-turn internal limit, unique-result validation and account/image boundaries. No extra paid repair call or automatic retry is added.
-- Synthetic tool round-trips and an image regression pass. The old baseline also succeeds; the original intermittent omission has not been reproduced or proven eliminated. See [Changelog](CHANGELOG.md).
+- Place stable tool definitions and the response schema before changing history, retaining all messages, content and ordering.
+- Include refusal-stage and request-size diagnostics while keeping the 12 MiB envelope and 20 MiB final-input limits.
+- Preserve structured tool follow-up, user/tool images and account isolation.
+- A small synthetic China CLI comparison observed better cache reuse. Results vary with model, tools, permissions and service state; original oversize, unmatched empty-output and channel-refusal incidents are not claimed resolved. See [Changelog](CHANGELOG.md).
 
 Earlier changes remain in [Changelog](CHANGELOG.md) and [Releases](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/releases). The unpublished 0.2.10 local candidate was included in 0.3.0.
 
@@ -26,7 +28,7 @@ Earlier changes remain in [Changelog](CHANGELOG.md) and [Releases](https://githu
 1. Download the `.tgz` locally and install it from DSH's plugin manager. A source ZIP is not a plugin package.
 2. Open plugin `dsh-codebuddy-cli-cn`, component `llm-codebuddy-cli-cn`, and select **Set up CLI**.
 3. Expand **Sign in or switch account**, copy the official command into PowerShell (Terminal on macOS/Linux), and complete China-region sign-in.
-4. Refresh models/rates and select a model in DSH. Restart after upgrading and verify running version **0.4.0**.
+4. Refresh models/rates and select a model in DSH. Follow DSH's normal upgrade flow and verify the running version matches the installed package (**0.4.2** for this version).
 
 See the [installation guide](docs/INSTALL.en.md). For failures, expand **Troubleshooting and usage guide** inside settings or read the [full guide](docs/USER_GUIDE.en.md).
 
