@@ -20,7 +20,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 - <<'PY'
-          import hashlib, io, json, os, tarfile, urllib.request, urllib.error
+          import hashlib, io, json, os, tarfile, time, urllib.request, urllib.error
           from urllib.parse import quote, urlparse
           
           REPO = "1924225725-collab/dsh-codebuddy-cli-cn"
@@ -119,7 +119,15 @@ jobs:
                       raise RuntimeError("Release asset verification failed: " + name)
               release = api("PATCH", "/releases/" + str(release["id"]), {
                   "draft": False, "make_latest": "true" if version["v"] == "0.4.2" else "false"})
-              if release["draft"] or release["prerelease"] or tag_target(tag) != version["commit"]:
+              observed_target = None
+              for attempt in range(6):
+                  observed_target = tag_target(tag)
+                  if observed_target == version["commit"]:
+                      break
+                  if observed_target is not None:
+                      raise RuntimeError("Published tag points to an unexpected commit")
+                  time.sleep(2)
+              if release["draft"] or release["prerelease"] or observed_target != version["commit"]:
                   raise RuntimeError("Published release verification failed")
               print("Published and verified", release["html_url"])
           latest = api("GET", "/releases/latest")
@@ -127,3 +135,4 @@ jobs:
               raise RuntimeError("Latest release mismatch")
           print("Latest verified:", latest["html_url"])
           PY
+
