@@ -1,0 +1,129 @@
+name: Backfill published China plugin releases
+on:
+  push:
+    branches: [maintenance/backfill-cn-releases-20261028]
+    paths: [.github/workflows/backfill-cn-releases.yml]
+permissions:
+  contents: write
+concurrency:
+  group: backfill-cn-releases-20261028
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == '1924225725-collab/dsh-codebuddy-cli-cn'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify original packages and backfill three releases
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, io, json, os, tarfile, urllib.request, urllib.error
+          from urllib.parse import quote, urlparse
+          
+          REPO = "1924225725-collab/dsh-codebuddy-cli-cn"
+          BRANCH = "maintenance/backfill-cn-releases-20261028"
+          if os.environ["GITHUB_REPOSITORY"] != REPO or os.environ["GITHUB_REF_NAME"] != BRANCH:
+              raise SystemExit("Unexpected repository or branch")
+          BASE = "https://api.github.com/repos/" + REPO
+          TOKEN = os.environ["GH_TOKEN"]
+          VERSIONS = json.loads("[{\"v\":\"0.3.9\",\"commit\":\"58d3bd0b6d92babb3e74a20531e54b7847865446\",\"hash\":\"bd7365539e45af37ba118833da17deed6cd23f5fd0d1125cb530854cc5ac29b5\",\"size\":205803,\"title\":\"v0.3.9 · 诊断、工具交接与独立账号 / Diagnostics, tools and isolated accounts\",\"body\":\"本条补齐此前仓库分发版本的 GitHub Release，安装包沿用原文件，没有重新构建。\\nThis backfills a previously distributed build as a GitHub Release, using the original package without rebuilding.\\n\\n## 下载与安装 / Download and install\\n\\n下载下方 **dsh-codebuddy-cli-cn-0.3.9.tgz**，通过 DSH 本地插件包入口安装。不要使用自动生成的 Source code ZIP。\\nDownload **dsh-codebuddy-cli-cn-0.3.9.tgz** below and install it through DSH's local package entry. The generated source-code ZIP is not a plugin package.\\n\\n## 更新内容 / Changes\\n\\n本次包含 0.3.6–0.3.8 本地候选改动；这些候选未单独公开发布。安装包见 [0.3.9](https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/blob/58d3bd0b6d92babb3e74a20531e54b7847865446/releases/dsh-codebuddy-cli-cn-0.3.9.tgz)。GitHub Releases 中的历史条目保留。\\n\\n- 增加图片流结构诊断：固定拒绝原因、解析阶段、帧序号/大小、init/result 计数、终止发起方和实际观察到的进程关闭状态。原生结果记录结构化字段存在性、固定类型和已知提示类别，不保存原始帧、stderr 或任意字段内容。\\n- 诊断事实贯通本机日志持久化、恢复、导出、最近调用和配置页。用户取消与图片卸载请求单列统计；未观察到的退出码保持缺失，卸载请求不代表 DSH 已完成卸载。\\n- 加固 DSH 工具交接。StructuredOutput 用于交付工具提案，业务工具仍由 DSH 执行；图片流发现其他原生工具调用时明确拒绝。含图历史超时使用中性总时限提示。\\n- 加入独立账号环境、手动选择和官方登录命令。每个环境隔离 CLI 配置及用户目录，模型 ID 绑定环境，工具/图片续轮沿用原账号。独立账号模式仅支持 Windows 和官方 npm/Node CLI 2.174.0；没有自动轮换或账号回落。\\n- 增加明确的上下文超限/余额不足分类；内联图片 data URI 的累计字符数超过限制时提示使用 DSH 标准图片附件。模型目录窗口及本地用量不等同于官方实际限额或账单。\\n- 验证：当前诊断改动 59 项定向自动检查、两次官方 CLI 2.174.0 合成文字/图片请求通过；此前工具加固完成 97 项自动检查和五次合成请求。未验收实际 DSH UI/业务工具、私人历史或真实双账号登录/刷新/扣费归属。增强诊断不代表所有偶发失败已经消除。\\n\\nThis upload includes the previously local 0.3.6–0.3.8 changes; those candidates have no separate public release.\\n\\n- Add bounded structural/process diagnostics across image streams, native results, local persistence, export and settings. Retain fixed classifications and numeric facts rather than raw frames, stderr or arbitrary payloads.\\n- Count cancellations and DSH image-offload requests separately. An offload request is not proof of completion; unobserved exit codes remain absent.\\n- Harden DSH tool handoff and reject unexpected native CLI tools. Image-history timeouts use a neutral total-deadline message.\\n- Add manually selected isolated account environments with official sign-in commands and account-bound model IDs. Isolated mode supports Windows and official npm/Node CLI 2.174.0 only; there is no automatic rotation or account fallback.\\n- Add explicit context-limit/insufficient-balance classifications and an aggregate inline-image URI character limit. Local usage counters and catalog windows are not official billing or guaranteed request limits.\\n- Validation: 59 targeted diagnostics checks and two synthetic official CLI 2.174.0 text/image calls passed; earlier tool hardening passed 97 automated checks and five synthetic calls. Actual DSH UI/business tools, private-history replay, real two-account sign-in, refresh and billing attribution remain unverified. This does not claim to eliminate every intermittent failure.\\n\\n## 校验 / Verification\\n\\n- 原版本源码提交 / Original source commit: `58d3bd0b6d92babb3e74a20531e54b7847865446`\\n- 文件大小 / Size: 205803 bytes\\n- SHA-256: `bd7365539e45af37ba118833da17deed6cd23f5fd0d1125cb530854cc5ac29b5`\\n\\n附带 SHA256SUMS.txt 仅校验本版本安装包。历史候选 0.3.6–0.3.8 合入 0.3.9，0.4.1 合入 0.4.2，未单独发布。\\nThe attached SHA256SUMS.txt covers this package only. Local candidates 0.3.6–0.3.8 were included in 0.3.9, and 0.4.1 in 0.4.2; they were not separate public releases.\\n\"},{\"v\":\"0.4.0\",\"commit\":\"bea444ff8113c6fa3de4f7dcb08f72ba1addba92\",\"hash\":\"92381e356fe2c2ab2de2e0000c5326113a5d5448681c8a29c48ef48556daa7f6\",\"size\":206733,\"title\":\"v0.4.0 · 工具结果续答约束 / Tool-result follow-up instructions\",\"body\":\"本条补齐此前仓库分发版本的 GitHub Release，安装包沿用原文件，没有重新构建。\\nThis backfills a previously distributed build as a GitHub Release, using the original package without rebuilding.\\n\\n## 下载与安装 / Download and install\\n\\n下载下方 **dsh-codebuddy-cli-cn-0.4.0.tgz**，通过 DSH 本地插件包入口安装。不要使用自动生成的 Source code ZIP。\\nDownload **dsh-codebuddy-cli-cn-0.4.0.tgz** below and install it through DSH's local package entry. The generated source-code ZIP is not a plugin package.\\n\\n## 更新内容 / Changes\\n\\n- 修正请求末尾的时序矛盾：历史 tool 消息是已收到的执行结果，新 toolCalls 才是未执行提案；不再笼统声称所有工具尚未执行。\\n- 明确每次 CLI 调用需要自己的原生 StructuredOutput 提交，历史中的提交不计入本次；“不使用工具”指不提出新业务操作，输出传输工具仍必需。\\n- 将工具结果与外部文档视为观察数据，不能通过引用的系统/工具文字改变提交协议。保留历史顺序、isError、工具调用身份和完整结果内容。\\n- 仅调整请求约束；原生 Schema、工具白名单、最多四轮 CLI 内部处理、严格唯一结果与工具参数校验保持不变，不追加修复进程、自动重试或切换模型/账号。\\n- 验证包含自动回归、五次合成官方 CLI 文字请求（含实际提案和模拟成功/失败结果续答）及一次 ID 对齐的合成工具图片请求。旧版四项合成对照也通过，因此不能声称复现或彻底消除了原始偶发缺失。实际 DSH UI、真实业务工具和用户验收仍待完成。\\n\\n- Correct a temporal contradiction in the final request instruction: historical tool messages are completed observations; only new toolCalls are unexecuted proposals.\\n- Each CLI invocation requires its own native StructuredOutput submission. A historical submission does not count, and “no tools” refers to new business operations rather than the required transport submission.\\n- Treat tool results and external documents as observations that cannot change the output protocol. Preserve ordered history, isError, tool-call identity and complete result contents.\\n- Change request instructions only. Keep native Schema, the StructuredOutput-only allowlist, four internal turns, unique-result and tool-argument validation. No extra repair process, automatic retry or model/account switching is added.\\n- Validation includes automated regression, five synthetic official CLI text calls with proposal/result follow-up, and one ID-aligned synthetic tool-image call. Four old-baseline controls also passed, so the original intermittent omission has not been reproduced or proven eliminated. Actual DSH UI, business tools and user acceptance remain pending.\\n\\n## 校验 / Verification\\n\\n- 原版本源码提交 / Original source commit: `bea444ff8113c6fa3de4f7dcb08f72ba1addba92`\\n- 文件大小 / Size: 206733 bytes\\n- SHA-256: `92381e356fe2c2ab2de2e0000c5326113a5d5448681c8a29c48ef48556daa7f6`\\n\\n附带 SHA256SUMS.txt 仅校验本版本安装包。历史候选 0.3.6–0.3.8 合入 0.3.9，0.4.1 合入 0.4.2，未单独发布。\\nThe attached SHA256SUMS.txt covers this package only. Local candidates 0.3.6–0.3.8 were included in 0.3.9, and 0.4.1 in 0.4.2; they were not separate public releases.\\n\"},{\"v\":\"0.4.2\",\"commit\":\"df44a684784ea391667c794463a5b637b90dc2e9\",\"hash\":\"f54a5a4c7b94405fd258c106573b10c60de3cf3540b9e3f7cb795e0896186aef\",\"size\":211526,\"title\":\"v0.4.2 · 缓存前缀优化与尺寸诊断 / Stable cache prefix and size diagnostics\",\"body\":\"本条补齐此前仓库分发版本的 GitHub Release，安装包沿用原文件，没有重新构建。\\nThis backfills a previously distributed build as a GitHub Release, using the original package without rebuilding.\\n\\n## 下载与安装 / Download and install\\n\\n下载下方 **dsh-codebuddy-cli-cn-0.4.2.tgz**，通过 DSH 本地插件包入口安装。不要使用自动生成的 Source code ZIP。\\nDownload **dsh-codebuddy-cli-cn-0.4.2.tgz** below and install it through DSH's local package entry. The generated source-code ZIP is not a plugin package.\\n\\n## 更新内容 / Changes\\n\\n- 将稳定的工具定义和响应 Schema 移到增长的 messages 历史之前，仅调整 JSON 封装键序。协议和系统指令、末尾 submission、消息／工具内容和顺序、图片索引、Schema、解析及账号和大小保护不变；工具／权限更新仍立即生效。\\n- 包含未单独上线的 0.4.1 尺寸诊断修正。第一轮复核确认：原超限症状、未匹配的通道拒绝／空输出、国际超时没有证据可宣称已根治；不通过延长时限、删历史或重试关闭案件。\\n- 六次官方 CLI 2.177.0 / DeepSeek V4.1 Flash 合成缓存 A/B 调用均得到有效结果。两组各后续两次输入合计均19,035 Token，缓存读取比例旧排布14.8%、新排布95.5%；两组采用不同合成标记隔离，文本尺寸相差128字节，非生产收益保证。另三次新排布工具提案、模拟成功／失败结果长回复、混合用户／工具图片验证通过。\\n- 合成传输验证未执行真实 DSH 业务工具或重放私人故障；附件服务用隔离实现。实际 DSH UI、多账号刷新／扣费归属、全部模型和上游缓存策略仍不在本次实测范围。缓存由官方服务决定，不保证固定比例。\\n\\n- Move stable tool definitions and the response schema before growing history by changing envelope key order only. Retain protocol/system/submission instructions, full ordered messages/tools, image indices, native schema, parsing, account and request-size boundaries; tool/permission updates remain effective.\\n- Include the unpublished 0.4.1 diagnostic fixes without claiming to resolve the original oversize, unmatched channel/empty-output or International timeout incidents. Do not extend deadlines, discard history or add retries to close those cases.\\n- Six synthetic official CLI 2.177.0 / DeepSeek V4.1 Flash A/B calls returned valid results. The two subsequent calls per layout each totaled 19,035 input tokens: cache-read share was 14.8% before and 95.5% after. Different synthetic isolation markers produced a 128-byte text-size difference; this small observation is not a production guarantee. Three further candidate calls passed tool proposals, long summaries of simulated success/failure observations, and mixed user/tool-image checks.\\n- Live checks used synthetic data and an isolated attachment service, not real DSH business tools or private-session replay. Actual DSH UI, multi-account refresh/billing attribution and every model/upstream cache policy remain unverified. The official service controls cache hits.\\n\\n### 合并的 0.4.1 诊断修正 / Included 0.4.1 diagnostic fixes\\n\\n- 修正本地文字封装超限在抛错前丢失请求尺寸的问题；普通日志记录检查阶段、实际字节数、上限、系统／历史／工具／响应 Schema 与封装开销。最终 CLI 输入在 JSONL 转义和图片块编码后单独计量。\\n- 配置页展示超限事实和未记录的后续阶段，不再把尚未提交的封装文本称为已发送文本；新增双语说明，图片卸载不压缩文字历史。新字段经白名单持久化、恢复与导出，不包含请求正文或图片内容。\\n- 保留 12 MiB 文字封装、20 MiB 最终输入及既有图片／账号／工具协议。没有自动删历史、丢图、裁剪工具定义、重试或新增模型调用。真实超限仍会拒绝；诊断改进不等于消除长历史故障，旧日志缺失的尺寸不能重建。\\n- 合成边界、适配器、持久化及配置页定向检查通过；原始请求未重放，实际 DSH UI 和用户验收未做。未变更用户安装、认证或网络。\\n\\n- Preserve request size facts before a local envelope refusal. Basic logs retain the fixed check stage, actual bytes, limit, system/history/tool/response-schema sizes and envelope overhead. Measure final CLI input after JSONL escaping and native image encoding.\\n- Show size refusals and unrecorded later stages in settings; label envelope bytes accurately and explain image offloading separately from text history. New fields use allowlists through persistence, recovery and export without request or image contents.\\n- Keep the 12 MiB envelope and 20 MiB final-input limits and existing image/account/tool protocol. No automatic history deletion, image loss, schema truncation, retry or additional model call. Oversized input still fails; old missing size facts cannot be reconstructed.\\n- Targeted synthetic boundary, adapter, persistence and UI-component checks pass. No original-request replay, actual DSH UI or user acceptance was performed. No installed profile, authentication or network changes.\\n\\n## 校验 / Verification\\n\\n- 原版本源码提交 / Original source commit: `df44a684784ea391667c794463a5b637b90dc2e9`\\n- 文件大小 / Size: 211526 bytes\\n- SHA-256: `f54a5a4c7b94405fd258c106573b10c60de3cf3540b9e3f7cb795e0896186aef`\\n\\n附带 SHA256SUMS.txt 仅校验本版本安装包。历史候选 0.3.6–0.3.8 合入 0.3.9，0.4.1 合入 0.4.2，未单独发布。\\nThe attached SHA256SUMS.txt covers this package only. Local candidates 0.3.6–0.3.8 were included in 0.3.9, and 0.4.1 in 0.4.2; they were not separate public releases.\\n\"}]")
+          
+          def api(method, path, payload=None, binary=None, content_type="application/json"):
+              url = path if path.startswith("https://") else BASE + path
+              if urlparse(url).hostname not in ("api.github.com", "uploads.github.com"):
+                  raise RuntimeError("Unexpected API destination")
+              raw = binary if binary is not None else (json.dumps(payload, ensure_ascii=False).encode() if payload is not None else None)
+              req = urllib.request.Request(url, data=raw, method=method, headers={
+                  "Authorization": "Bearer " + TOKEN, "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28", "Content-Type": content_type,
+                  "User-Agent": "dsh-codebuddy-release-backfill"})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as response:
+                      result = response.read()
+                      return json.loads(result) if result else None
+              except urllib.error.HTTPError as error:
+                  if error.code == 404 and method == "GET":
+                      return None
+                  raise RuntimeError("GitHub API " + method + " failed: HTTP " + str(error.code)) from None
+          
+          def tag_target(tag):
+              result = api("GET", "/git/ref/tags/" + quote(tag, safe=""))
+              if result is None:
+                  return None
+              obj = result["object"]
+              for _ in range(5):
+                  if obj["type"] == "commit":
+                      return obj["sha"]
+                  if obj["type"] != "tag":
+                      break
+                  obj = api("GET", "/git/tags/" + obj["sha"])["object"]
+              raise RuntimeError("Unsupported tag object")
+          
+          def asset_ok(asset, size, digest):
+              return asset["size"] == size and asset.get("state") == "uploaded" and asset.get("digest") == "sha256:" + digest
+          
+          # Validate every immutable package before any publishing mutation.
+          for version in VERSIONS:
+              filename = "dsh-codebuddy-cli-cn-" + version["v"] + ".tgz"
+              version["filename"] = filename
+              source = "https://raw.githubusercontent.com/" + REPO + "/" + version["commit"] + "/releases/" + filename
+              with urllib.request.urlopen(source, timeout=60) as response:
+                  package = response.read()
+              if len(package) != version["size"] or hashlib.sha256(package).hexdigest() != version["hash"]:
+                  raise RuntimeError("Source package mismatch: " + filename)
+              with tarfile.open(fileobj=io.BytesIO(package), mode="r:gz") as archive:
+                  members = [m for m in archive.getmembers() if m.isfile()]
+                  if len(members) != 37 or any("/research/" in m.name or "/manual-tests/" in m.name for m in members):
+                      raise RuntimeError("Package manifest mismatch")
+                  manifest = json.load(archive.extractfile("package/package.json"))
+                  if manifest["name"] != "dsh-codebuddy-cli-cn" or manifest["version"] != version["v"]:
+                      raise RuntimeError("Package version mismatch")
+              version["package"] = package
+              existing_target = tag_target("v" + version["v"])
+              if existing_target is not None and existing_target != version["commit"]:
+                  raise RuntimeError("Existing tag points to a different commit")
+              print("Verified immutable source package", filename, len(package), version["hash"])
+          
+          for version in VERSIONS:
+              tag = "v" + version["v"]
+              release = api("GET", "/releases/tags/" + tag)
+              expected_assets = [
+                  (version["filename"], version["package"], version["hash"], "application/gzip"),
+                  ("SHA256SUMS.txt", (version["hash"] + "  " + version["filename"] + "\n").encode(), None, "text/plain")
+              ]
+              if release is None:
+                  release = api("POST", "/releases", {
+                      "tag_name": tag, "target_commitish": version["commit"], "name": version["title"],
+                      "body": version["body"], "draft": True, "prerelease": False, "make_latest": "false"})
+              elif not release["draft"]:
+                  by_name = {asset["name"]: asset for asset in release["assets"]}
+                  for name, content, digest, content_type in expected_assets:
+                      digest = digest or hashlib.sha256(content).hexdigest()
+                      if name not in by_name or not asset_ok(by_name[name], len(content), digest):
+                          raise RuntimeError("Existing public release does not match; refusing to overwrite " + tag)
+                  print("Already published and verified", release["html_url"])
+                  continue
+              elif release["body"] != version["body"] or release["target_commitish"] != version["commit"]:
+                  raise RuntimeError("Existing draft is different; refusing to overwrite " + tag)
+              by_name = {asset["name"]: asset for asset in release["assets"]}
+              for name, content, digest, content_type in expected_assets:
+                  digest = digest or hashlib.sha256(content).hexdigest()
+                  asset = by_name.get(name)
+                  if asset is None:
+                      upload = release["upload_url"].split("{")[0] + "?name=" + quote(name)
+                      asset = api("POST", upload, binary=content, content_type=content_type)
+                  if not asset_ok(asset, len(content), digest):
+                      raise RuntimeError("Release asset verification failed: " + name)
+              release = api("PATCH", "/releases/" + str(release["id"]), {
+                  "draft": False, "make_latest": "true" if version["v"] == "0.4.2" else "false"})
+              if release["draft"] or release["prerelease"] or tag_target(tag) != version["commit"]:
+                  raise RuntimeError("Published release verification failed")
+              print("Published and verified", release["html_url"])
+          latest = api("GET", "/releases/latest")
+          if latest["tag_name"] != "v0.4.2":
+              raise RuntimeError("Latest release mismatch")
+          print("Latest verified:", latest["html_url"])
+          PY
