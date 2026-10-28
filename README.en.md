@@ -42,14 +42,6 @@ See the [installation guide](docs/INSTALL.en.md). For failures, expand **Trouble
 
 Catalog visibility does not guarantee every model is authorized. Rates and token counters are not remaining credits; official usage pages determine balances and billing.
 
-## Interface examples
-
-These historical 0.2.3 component previews use fictional models and states, without account data. Version 0.3.5 also includes the in-settings guide and updated error handling.
-
-![Automatic CLI setup and sign-in example](docs/images/ui-setup.png)
-
-![Model/rate catalog with fictional data](docs/images/ui-models.png)
-
 ## Architecture and limits
 
 ![DSH, adapter, official CLI and service](docs/images/architecture.svg)

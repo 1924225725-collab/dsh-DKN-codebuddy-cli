@@ -14,8 +14,6 @@ Find **`dsh-codebuddy-cli-cn`**, open component **`llm-codebuddy-cli-cn`**, and 
 
 ## 2. Set up the CLI and sign in
 
-![Settings component with example state; Chinese UI shown](images/ui-setup.png)
-
 Click **Set up CLI**. The plugin looks for a working installation, otherwise tries the official installer and, if needed, the official npm package in a user-specific directory. If automatic setup fails, use the official installation guide linked in settings, then check again.
 
 Expand **Sign in or switch account**, copy the generated command into PowerShell or Terminal, and follow the official CLI's China-region sign-in flow. Return to DSH afterward.
@@ -25,8 +23,6 @@ Use the command generated for your computer, not the author's path. The official
 **Check CLI executable** only runs the version command. It does not verify sign-in, networking or a model response.
 
 ## 3. Select a model
-
-![Catalog example with fictional models and multipliers](images/ui-models.png)
 
 Click **Refresh models and rates**. The page displays the catalog returned by the current CLI, including available rates, reasoning options and context information. It refreshes every 15 minutes or on demand.
 
