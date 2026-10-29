@@ -1,3 +1,5 @@
 - insert:
     - id: llm-codebuddy-cli-cn
-      name: dsh-codebuddy-cli-cn
+      name: dsh-dkn-codebuddy-cli
+    - id: llm-codebuddy-cli-intl
+      name: dsh-dkn-codebuddy-cli/intl

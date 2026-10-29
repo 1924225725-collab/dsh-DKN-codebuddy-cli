@@ -1,18 +1,18 @@
 {
-  "name": "dsh-codebuddy-cli-cn",
-  "displayName": "DSH CodeBuddy CLI（国内版）",
-  "description": "自动检测官方 CodeBuddy CLI 国内模型与积分倍率，支持一键配置 CLI，工具由 DSH 管理。",
-  "version": "0.4.2",
+  "name": "dsh-dkn-codebuddy-cli",
+  "displayName": "dsh-DKN-codebuddy cli",
+  "description": "一个配置入口，两条独立的官方CLI区域通道；账号、模型目录和诊断按区域隔离。",
+  "version": "1.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/1924225725-collab/dsh-codebuddy-cli-cn.git"
+    "url": "https://github.com/1924225725-collab/dsh-DKN-codebuddy-cli.git"
   },
-  "homepage": "https://github.com/1924225725-collab/dsh-codebuddy-cli-cn#readme",
+  "homepage": "https://github.com/1924225725-collab/dsh-DKN-codebuddy-cli#readme",
   "bugs": {
-    "url": "https://github.com/1924225725-collab/dsh-codebuddy-cli-cn/issues"
+    "url": "https://github.com/1924225725-collab/dsh-DKN-codebuddy-cli/issues"
   },
   "scripts": {
-    "test": "node --test test/accounts.test.js test/account-plugin.test.js test/diagnostics.test.js test/model-response.test.js test/cli-response.test.js test/model-catalog.test.js test/cli-runtime.test.js test/local-http.test.js test/plugin.test.js test/client.test.js test/usage.test.js test/request.test.js test/request-budget.test.js test/request-size-plugin.test.js test/images.test.js test/cli-image-process.test.js test/image-plugin.test.js test/stream-facts.test.js test/cache-prefix.test.js"
+    "test": "node --test test/cn/*.test.js test/intl/*.test.js test/*.test.js"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -20,7 +20,8 @@
     ".": "./lib/index.js",
     "./client": "./lib/client.js",
     "./cordis.patch.yml": "./cordis.patch.yml",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./intl": "./lib/intl/index.js"
   },
   "files": [
     "lib",
@@ -28,19 +29,7 @@
     "README.md",
     "README.en.md",
     "CHANGELOG.md",
-    "docs/安装教程.md",
-    "docs/INSTALL.en.md",
-    "docs/工作原理.md",
-    "docs/ARCHITECTURE.en.md",
-    "docs/反馈与日志.md",
-    "docs/TROUBLESHOOTING.en.md",
-    "docs/images/architecture.svg",
-    "docs/使用与故障处理指南.md",
-    "docs/USER_GUIDE.en.md",
-    "docs/工具适配范围.md",
-    "docs/TOOL_COMPATIBILITY.en.md",
-    "docs/多账号使用指南.md",
-    "docs/ACCOUNT_GUIDE.en.md"
+    "docs"
   ],
   "engines": {
     "node": ">=22.19.0",
@@ -58,7 +47,8 @@
     "@deepseek-ai/dsh-client-ui-settings": "0.2.1-rc.2 || 0.2.1-rc.3",
     "@deepseek-ai/dsh-llm": "0.2.1-rc.2 || 0.2.1-rc.3",
     "@deepseek-ai/schemastery": "^3.18.5",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "@deepseek-ai/dsh-client-ui-layout": "0.2.1-rc.2 || 0.2.1-rc.3"
   },
   "dsh": {
     "bundle": {
@@ -69,7 +59,8 @@
         "@deepseek-ai/dsh-client-ui-renderer",
         "@deepseek-ai/dsh-client-ui-plugin-manager",
         "@deepseek-ai/dsh-client-ui-settings",
-        "@deepseek-ai/dsh-client-locale"
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout"
       ],
       "platform": "web"
     }
