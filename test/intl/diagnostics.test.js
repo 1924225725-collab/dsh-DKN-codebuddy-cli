@@ -55,7 +55,7 @@ test('basic logs use a field allowlist, persist across restarts and exclude raw 
   assert.equal(detailed.entries[0].processDiagnostics.terminationInitiator, 'adapter-error')
   assert.equal(detailed.entries[0].responseDiagnostics.finalSubtypeClass, 'other')
   assert.equal(detailed.entries[1].sample.head, 'PRIVATE_REPLY')
-  assert.equal(detailed.entries[1].pluginVersion, '1.0.1')
+  assert.equal(detailed.entries[1].pluginVersion, '1.0.3')
   assert.equal(detailed.privacy.includesRawReplies, true)
   assert.equal(JSON.stringify(await restored.export()).includes('PRIVATE_REPLY'), false)
 })

@@ -2,7 +2,7 @@
 
 The account pool gives each International Site account its own CodeBuddy CLI configuration directory and Windows user-directory environment. A model labelled with an environment in DSH stays bound to that environment, including later tool-result and image follow-ups.
 
-The verified scope is limited to Windows and the official npm/Node CodeBuddy CLI `2.174.0`. Native executables, other operating systems and other CLI versions cannot use isolated account calls. Default single-account mode remains available. Real dual-account sign-in, token refresh and official billing attribution have not been verified with real accounts.
+The verified scope is limited to Windows and the official npm/Node CodeBuddy CLI `2.174.0 / 2.177.0`. Native executables, other operating systems and other CLI versions cannot use isolated account calls. Default single-account mode remains available. Real dual-account sign-in, token refresh and official billing attribution have not been verified with real accounts.
 
 ## Add and sign in
 

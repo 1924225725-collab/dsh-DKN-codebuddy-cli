@@ -1,12 +1,27 @@
 # 更新记录 / Changelog
 
+## 1.0.3 — DSH rc.5 兼容
+
+- 兼容声明补齐DSH 0.2.1-rc.4与rc.5，保留rc.2/rc.3。全部DSH peer依赖同步声明。
+- 对照官方rc.3/rc.5完整源码核对模型、附件、配置、侧栏和布局接口；本插件使用的接口无实现变化，区域调用、图片和账号策略沿用1.0.2。
+- Add explicit DSH 0.2.1-rc.4/rc.5 compatibility while retaining rc.2/rc.3. Audited official source contracts; installed desktop rc.5 acceptance remains pending.
+
+
+## 1.0.2 — 多账号 CLI 兼容
+
+- 国内与国际多账号管理增加官方 npm/Node CLI 2.177.0，保留2.174.0兼容；其他版本仍需核查。
+- 登录脚本绑定生成时检测到的CLI版本，运行时版本变化需重新生成命令。
+- 移除多账号标题中的预览标记，保留真实双账号登录、刷新与扣费归属未验收说明。
+- Support official npm/Node CLI 2.177.0 alongside 2.174.0 for both regions. Pin generated sign-in scripts to the inspected version; keep real dual-account sign-in, refresh and billing validation limits explicit.
+
+
 ## 1.0.1 — 反馈流程优化 / reporting workflow
 
 - 必填精简为问题简述、实际结果、上下文截图；所有输入分为红色#必填、黄色#最好填、普通色#可选，非必填材料缺失只作证据提示、不阻止生成。
 - 日志随反馈页进入自动读取，导出前更新快照；日志查看/导出/失败采集集中到反馈页，不必先导出再选择本地文件。
 - 保留可选本地诊断JSON替换，核验格式/大小/区域及重复ID；旧文件无区域时需确认，替换与自动源互斥，可一键恢复。新诊断导出标记区域。
 - 原生长下拉改为页面内可搜索记录列表，优先显示故障、可展开其他记录；跟随深浅主题，避免浅色文字叠在白色弹层上。
-- 国内国际分别保留表单、日志来源和材料。原模型、工具、账号、图片处理策略及旧1.0.0固定包保留；自动化验证不代表实际DSH宿主验收。
+- 国内国际分别保留表单、日志来源和材料。原模型、工具、账号、图片处理策略及旧1.0.0固定包保留；本地验证不代表实际DSH宿主验收或GitHub发布。
 - Require only a summary, actual result and context screenshot. Mark required/recommended/optional with red/yellow/normal #. Collect logs automatically and integrate existing log tools. Support validated, region-safe local JSON replacement without merging sources.
 - Replace the native popup with a searchable, theme-aware in-page list. Preserve independent regional drafts and inference/tool behavior.
 

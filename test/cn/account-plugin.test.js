@@ -17,7 +17,7 @@ test('account API, labelled routing and tool-image continuation keep synthetic p
   const { apply } = await import('../../lib/cn/index.js')
   const directory = await mkdtemp(path.join(tmpdir(), 'dsh-account-plugin-'))
   const previous = Object.fromEntries(['LOCALAPPDATA', 'DSH_FIXTURE_CLI_VERSION', 'CODEBUDDY_AUTH_TOKEN'].map(key => [key, process.env[key]]))
-  process.env.LOCALAPPDATA = directory; process.env.DSH_FIXTURE_CLI_VERSION = '2.174.0'; process.env.CODEBUDDY_AUTH_TOKEN = 'PRIVATE_PARENT_TOKEN'
+  process.env.LOCALAPPDATA = directory; process.env.DSH_FIXTURE_CLI_VERSION = '2.177.0'; process.env.CODEBUDDY_AUTH_TOKEN = 'PRIVATE_PARENT_TOKEN'
   const bin = path.join(directory, 'node_modules/@tencent-ai/codebuddy-code/bin'); await mkdir(bin, { recursive: true })
   const entry = path.join(bin, 'codebuddy'); await writeFile(entry, await readFile(new URL('./fixtures/fake-codebuddy.cjs', import.meta.url))); await chmod(entry, 0o755)
   const cliPath = path.join(directory, 'codebuddy.cmd'); await writeFile(cliPath, '@echo off\r\n')
@@ -72,7 +72,7 @@ test('account API, labelled routing and tool-image continuation keep synthetic p
   assert.ok(loginRecord.accountHome.includes(a.id))
   assert.deepEqual(loginRecord.loginArgs, ['--tools', '', '--setting-sources', '', '--strict-mcp-config', '--mcp-config', '{"mcpServers":{}}'])
   const futureVersion = spawnSync(path.join(process.env.SystemRoot || 'C:\\Windows', 'System32/WindowsPowerShell/v1.0/powershell.exe'), ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(accountRoot, a.id, 'login.ps1')], {
-    env: { ...process.env, DSH_FIXTURE_LOGIN_PROBE: '1', DSH_FIXTURE_CLI_VERSION: '2.175.0' }, windowsHide: true, encoding: 'utf8', timeout: 10000
+    env: { ...process.env, DSH_FIXTURE_LOGIN_PROBE: '1', DSH_FIXTURE_CLI_VERSION: '2.174.0' }, windowsHide: true, encoding: 'utf8', timeout: 10000
   })
   assert.notEqual(futureVersion.status, 0, 'a prepared script must refuse a later unverified CLI before opening sign-in')
   assert.equal((await readFile(path.join(bin, 'requests.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse).filter(x => x.loginArgs).length, 1)

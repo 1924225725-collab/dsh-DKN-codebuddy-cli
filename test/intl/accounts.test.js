@@ -76,6 +76,8 @@ test('missing credentials and unverified CLI versions fail closed without readin
   const auth = path.join(config.accountHome, 'AppData', 'Local', 'CodeBuddyExtension', 'Data', 'Public', 'auth')
   await mkdir(auth, { recursive: true }); await writeFile(path.join(auth, 'synthetic.info'), 'SYNTHETIC_NOT_A_TOKEN')
   await store.assertReady(config, inspect)
+  await store.assertReady(config, async () => ({ version: '2.177.0', path: 'C:\\npm\\codebuddy.cmd' }))
+  for (const version of ['2.178.0', '2.177.0-beta.1', '3.0.0']) await assert.rejects(store.assertReady(config, async () => ({ version })), e => e.code === 'ACCOUNT_CLI_UNVERIFIED')
   await assert.rejects(store.assertReady(config, async () => ({ version: '2.175.0', path: 'C:\\npm\\codebuddy.cmd' })), e => e.code === 'ACCOUNT_CLI_UNVERIFIED')
   const snapshot = await store.snapshot()
   assert.equal(snapshot.accounts[0].credentialsPresent, true)
