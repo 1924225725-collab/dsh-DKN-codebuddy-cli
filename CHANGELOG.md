@@ -1,5 +1,12 @@
 # 更新记录 / Changelog
 
+## 1.0.4 — DSH 0.2.2-rc.1 兼容
+
+- engines.dsh与7个DSH peer依赖增加精确0.2.2-rc.1支持，保留已有rc.2–rc.5支持。
+- 依据官方npm实际发布包核对模型、工具、附件、配置表单与侧栏协议；保持原区域/账号/图片请求逻辑。GitHub对应版本标签尚未出现，不将alpha源码作为rc.1依据。
+- Add explicit DSH 0.2.2-rc.1 support while retaining the previously supported 0.2.1 release candidates. Audit the actual official npm artifacts rather than treating GitHub alpha sources as rc.1. Actual desktop acceptance remains pending.
+
+
 ## 1.0.3 — DSH rc.5 兼容
 
 - 兼容声明补齐DSH 0.2.1-rc.4与rc.5，保留rc.2/rc.3。全部DSH peer依赖同步声明。

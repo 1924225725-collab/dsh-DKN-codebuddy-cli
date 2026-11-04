@@ -2,7 +2,7 @@
 
 This preview feature implements isolated environments and account-bound model routing. Directory isolation, synthetic routing and existing automated regressions passed. Real two-account sign-in persistence, token refresh and billing attribution still require user acceptance. This feature is not marked production-ready.
 
-Supported for this feature: Windows, official **npm/Node** CodeBuddy CLI **2.174.0 / 2.177.0**, DSH **0.2.1-rc.2 / rc.3 / rc.4 / rc.5**. Native executables and other CLI versions are blocked in account mode until verified. Existing default sign-in behavior remains available.
+Supported for this feature: Windows, official **npm/Node** CodeBuddy CLI **2.174.0 / 2.177.0**, DSH **0.2.1-rc.2 / rc.3 / rc.4 / rc.5 / 0.2.2-rc.1**. Native executables and other CLI versions are blocked in account mode until verified. Existing default sign-in behavior remains available.
 
 ## Setup
 
