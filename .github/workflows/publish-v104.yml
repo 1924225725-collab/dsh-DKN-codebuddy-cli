@@ -16,28 +16,33 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
+          set -euo pipefail
           test -f releases/dsh-dkn-codebuddy-cli-1.0.4.tgz
           test -f releases/dsh-dkn-codebuddy-cli-1.0.4.tgz.sha256
+          cat > /tmp/release-notes.md <<'EOF'
+          ## 中文更新
+
+          - 适配 DSH 0.2.2-rc.1，并保留 0.2.1-rc.2/rc.3/rc.4/rc.5 兼容声明。
+          - 国内版与国际版合并为一个安装包，继续保持 CLI、账号、模型和诊断数据隔离。
+          - 保留问题反馈、日志采集、图片处理、工具交接和尺寸诊断改进。
+          - 已通过 237 项自动回归及 rc.1 运行时合成检查。
+
+          ## English
+
+          - Add DSH 0.2.2-rc.1 compatibility while retaining 0.2.1-rc.2/rc.3/rc.4/rc.5.
+          - Ship China and International adapters in one package with isolated CLI, account, model and diagnostics boundaries.
+          - Keep the feedback, diagnostics, image handling, tool handoff and size-diagnostic improvements.
+          - Passed 237 automated regressions and rc.1 runtime synthetic checks.
+
+          安装包为已校验固定包；未包含研究资料、手测材料或私人日志。
+          The assets are the verified fixed package and checksum; research files, manual test materials and private logs are excluded.
+          EOF
           gh release create v1.0.4 \
             releases/dsh-dkn-codebuddy-cli-1.0.4.tgz \
             releases/dsh-dkn-codebuddy-cli-1.0.4.tgz.sha256 \
             --repo "${GITHUB_REPOSITORY}" \
             --target main \
             --title "dsh-DKN-codebuddy cli 1.0.4" \
-            --notes "## 中文更新
-
-- 适配 DSH 0.2.2-rc.1，并保留 0.2.1-rc.2/rc.3/rc.4/rc.5 兼容声明。
-- 国内版与国际版合并为一个安装包，继续保持 CLI、账号、模型和诊断数据隔离。
-- 保留问题反馈、日志采集、图片处理、工具交接和尺寸诊断改进。
-- 已通过 237 项自动回归及 rc.1 运行时合成检查。
-
-## English
-
-- Add DSH 0.2.2-rc.1 compatibility while retaining 0.2.1-rc.2/rc.3/rc.4/rc.5.
-- Ship China and International adapters in one package with isolated CLI, account, model and diagnostics boundaries.
-- Keep the feedback, diagnostics, image handling, tool handoff and size-diagnostic improvements.
-- Passed 237 automated regressions and rc.1 runtime synthetic checks.
-
-安装包为已校验固定包；未包含研究资料、手测材料或私人日志。
-The assets are the verified fixed package and checksum; research files, manual test materials and private logs are excluded."
+            --notes-file /tmp/release-notes.md
